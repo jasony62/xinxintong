@@ -303,3 +303,19 @@
         <button class="btn btn-default" ng-click="ok()">执行</button>
     </div>
 </script>
+<script type="text/ng-template" id="exportXlsx.html">
+    <div class="modal-header">
+        <button class="close" type="button" ng-click="cancel()">×</button>
+        <h5 class="modal-title">导出EXCEL</h5>
+    </div>
+    <div class="modal-body">
+        <div class='checkbox'>
+            <label>
+                <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="config.joinDirs"> 合并目录题</label>
+        </div>
+        <p class='help-block'>将所有目录题合并为1个单元格显示</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="ok()">执行</button>
+    </div>
+</script>

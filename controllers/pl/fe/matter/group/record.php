@@ -135,7 +135,7 @@ class record extends \pl\fe\matter\base {
         $oResult = new \stdClass;
         $modelUsr = $this->model('matter\group\record');
         foreach ($eks as $ek) {
-            if ($oUser = $modelUsr->byId($oApp->id, $ek)) {
+            if ($oUser = $modelUsr->byIdInApp($oApp->id, $ek)) {
                 if ($modelUsr->joinGroup($oApp->id, $oTeam, $ek)) {
                     $oResult->{$ek} = $oTeam->team_id;
                 } else {
@@ -170,7 +170,7 @@ class record extends \pl\fe\matter\base {
         $oResult = new \stdClass;
         $modelUsr = $this->model('matter\group\record');
         foreach ($eks as $ek) {
-            if ($oUser = $modelUsr->byId($oApp->id, $ek)) {
+            if ($oUser = $modelUsr->byIdInApp($oApp->id, $ek)) {
                 if ($modelUsr->quitGroup($oApp->id, $ek)) {
                     $oResult->{$ek} = $oUser->team_id;
                 } else {
@@ -206,7 +206,7 @@ class record extends \pl\fe\matter\base {
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
         }
-        $oBeforeRec = $modelGrpRec->byId($oApp->id, $ek, ['fields' => 'userid,state']);
+        $oBeforeRec = $modelGrpRec->byIdInApp($oApp->id, $ek, ['fields' => 'userid,state']);
         if (false === $oBeforeRec || $oBeforeRec->state !== '1') {
             return new \ObjectNotFoundError();
         }
@@ -250,7 +250,7 @@ class record extends \pl\fe\matter\base {
             return new \ResponseError($aResult[1]);
         }
 
-        $oNewRec = $modelGrpRec->byId($oApp->id, $ek);
+        $oNewRec = $modelGrpRec->byIdInApp($oApp->id, $ek);
 
         /* 记录操作日志 */
         $this->model('matter\log')->matterOp($oApp->siteid, $oUser, $oApp, 'update', $oNewRec);

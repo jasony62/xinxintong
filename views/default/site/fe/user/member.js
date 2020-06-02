@@ -11,7 +11,7 @@ var ngApp = angular.module('app', ['ui.bootstrap', 'notice.ui.xxt', 'http.ui.xxt
 ngApp.config(['$locationProvider', function ($locationProvider) {
     $locationProvider.html5Mode(true);
 }]);
-ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
+ngApp.directive('tmsImageInput', ['$q', function ($q) {
     var aModifiedImgFields;
     aModifiedImgFields = [];
     return {
@@ -60,7 +60,105 @@ ngApp.directive('tmsImageInput', ['$compile', '$q', function ($compile, $q) {
         }]
     }
 }]);
-ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation', 'http2', 'tmsSchema', function ($scope, $timeout, noticebox, LS, http2, tmsSchema) {
+ngApp.controller('ctrlMember', ['$parse', '$scope', '$timeout', 'noticebox', 'tmsLocation', 'http2', 'tmsSchema', function ($parse, $scope, $timeout, noticebox, LS, http2, tmsSchema) {
+    /**
+     * 控制关联题目的可见性
+     */
+    function fnToggleAssocSchemas(dataSchemas, oRecordData) {
+        dataSchemas.forEach(oSchema => {
+            var oSchema, domSchema;
+            domSchema = document.querySelector('[schema="' + oSchema.id + '"]');
+            if (!domSchema) {
+                return
+            }
+            if (oSchema.visibility && oSchema.visibility.rules && oSchema.visibility.rules.length) {
+                let bVisible = tmsSchema.getSchemaVisible(oSchema, oRecordData)
+                domSchema.classList.toggle('hide', !bVisible)
+                oSchema.visibility.visible = bVisible
+                /* 被隐藏的题目需要清除数据 */
+                if (false === bVisible) {
+                    $parse(oSchema.id).assign(oRecordData, undefined)
+                }
+            }
+        })
+    }
+    /**
+     * 控制题目关联选项的显示
+     */
+    function fnToggleAssocOptions(dataSchemas, oRecordData) {
+        dataSchemas.forEach((oSchema) => {
+            if (!(oSchema.ops && oSchema.ops.length && oSchema.optGroups && oSchema.optGroups.length)) {
+                return
+            }
+            oSchema.optGroups.forEach((oOptGroup) => {
+                if (!(oOptGroup.assocOp && oOptGroup.assocOp.schemaId && oOptGroup.assocOp.v)) {
+                    return
+                }
+                if ($parse(oOptGroup.assocOp.schemaId)(oRecordData) !== oOptGroup.assocOp.v) {
+                    oSchema.ops.forEach((oOption) => {
+                        var domOption;
+                        if (oOption.g && oOption.g === oOptGroup.i) {
+                            if (oSchema.type === 'single' && oSchema.pageConfig && oSchema.pageConfig.component === 'S') {
+                                domOption = document.querySelector('option[name="' + oSchema.id + '"][value=' + oOption.v + ']');
+                                if (domOption && domOption.parentNode) {
+                                    domOption.parentNode.removeChild(domOption)
+                                }
+                            } else {
+                                if (oSchema.type === 'single') {
+                                    domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']')
+                                } else if (oSchema.type === 'multiple') {
+                                    domOption = document.querySelector('input[ng-model="' + oSchema.id + '.' + oOption.v + '"]')
+                                }
+                                if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
+                                    domOption.classList.add('option-hide')
+                                }
+                            }
+                            if (oSchema.type === 'single') {
+                                if (oRecordData[oSchema.id] === oOption.v) {
+                                    oRecordData[oSchema.id] = ''
+                                }
+                            } else {
+                                if (oRecordData[oSchema.id] && oRecordData[oSchema.id][oOption.v]) {
+                                    delete oRecordData[oSchema.id][oOption.v]
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    oSchema.ops.forEach((oOption) => {
+                        var domOption, domSelect;
+                        if (oOption.g && oOption.g === oOptGroup.i) {
+                            if (oSchema.type === 'single' && oSchema.pageConfig && oSchema.pageConfig.component === 'S') {
+                                domSelect = document.querySelector('[schema="' + oSchema.id + '"] select[ng-model]');
+                                if (domSelect) {
+                                    domOption = domSelect.querySelector('option[name="' + oSchema.id + '"][value=' + oOption.v + ']');
+                                    if (!domOption) {
+                                        domOption = document.createElement('option');
+                                        domOption.setAttribute('value', oOption.v);
+                                        domOption.setAttribute('name', oSchema.id);
+                                        domOption.innerHTML = oOption.l;
+                                        domSelect.appendChild(domOption);
+                                    }
+                                }
+                            } else {
+                                if (oSchema.type === 'single') {
+                                    domOption = document.querySelector('input[name=' + oSchema.id + '][value=' + oOption.v + ']');
+                                } else if (oSchema.type === 'multiple') {
+                                    domOption = document.querySelector('input[ng-model="' + oSchema.id + '.' + oOption.v + '"]');
+                                }
+                                if (domOption && (domOption = domOption.parentNode) && (domOption = domOption.parentNode)) {
+                                    domOption.classList.remove('option-hide');
+                                }
+                            }
+                        }
+                    });
+                }
+
+            });
+
+        });
+    }
+
     function fnValidate(oSchema) {
         function required(value, len, alerttext) {
             if (value == null || value == "" || value.length < len) {
@@ -109,11 +207,14 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
             oExtValue = member.extattr || {};
             for (var i = 0, ii = oSchema.extAttrs.length; i < ii; i++) {
                 oExtAttr = oSchema.extAttrs[i];
-                if (oExtAttr.required && (oExtAttr.required === 'Y')) {
-                    sCheckResult = tmsSchema.checkValue(oExtAttr, oExtValue[oExtAttr.id]);
-                    if (true !== sCheckResult) {
-                        noticebox.warn(sCheckResult);
-                        return false;
+                /* 隐藏题和协作题不做检查 */
+                if ((!oExtAttr.visibility || !oExtAttr.visibility.rules || oExtAttr.visibility.rules.length === 0 || oExtAttr.visibility.visible)) {
+                    if (oExtAttr.required && (oExtAttr.required === 'Y')) {
+                        sCheckResult = tmsSchema.checkValue(oExtAttr, oExtValue[oExtAttr.id]);
+                        if (true !== sCheckResult) {
+                            noticebox.warn(sCheckResult);
+                            return false;
+                        }
                     }
                 }
             }
@@ -155,7 +256,8 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
         var oMember, oAttrs;
         user.members && (oMember = user.members[LS.s().schema]);
         $scope.member = {
-            schema_id: LS.s().schema
+            schema_id: LS.s().schema,
+            extattr: {}
         };
         oAttrs = $scope.schema.attrs;
         if (oMember) {
@@ -295,6 +397,10 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
                     if (preEle) {
                         $scope.refreshPin(preEle);
                     }
+                    // 控制关联题目的可见性
+                    fnToggleAssocSchemas($scope.schema.extAttrs, $scope.member.extattr)
+                    // 控制题目关联选项的可见性
+                    fnToggleAssocOptions($scope.schema.extAttrs, $scope.member.extattr)
                 });
                 /* 解决多个注册账号的问题 */
                 http2.get('/rest/site/fe/user/get?site=' + LS.s().site).then(function (rsp) {
@@ -318,4 +424,14 @@ ngApp.controller('ctrlMember', ['$scope', '$timeout', 'noticebox', 'tmsLocation'
     if (window.screen && window.screen.width <= 768) {
         $scope.isSmallLayout = true;
     }
+    $scope.$watch('member.extattr', (nv, ov) => {
+        if (nv !== ov) {
+            $timeout(() => {
+                // 控制关联题目的可见性
+                fnToggleAssocSchemas($scope.schema.extAttrs, nv)
+                // 控制题目关联选项的可见性
+                fnToggleAssocOptions($scope.schema.extAttrs, nv)
+            })
+        }
+    }, true)
 }]);

@@ -1018,7 +1018,7 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                     }
                 }, options);
             };
-            _ins.export = function () {
+            _ins.export = function (joinDirs) {
                 var url, oCriteria;
                 oCriteria = {};
                 if (_ins._oCriteria.keyword) {
@@ -1051,7 +1051,9 @@ define(['require', 'frame/templates', 'schema', 'page'], function (require, Fram
                 }
                 url = '/rest/pl/fe/matter/enroll/export/record';
                 url += '?site=' + _siteId + '&app=' + _appId;
+                if (joinDirs !== 'Y') url += "&joinDirs=N";
                 url += '&filter=' + JSON.stringify(oCriteria);
+                console.log('sss', url)
                 window.open(url);
             };
             _ins.exportImage = function (rid) {

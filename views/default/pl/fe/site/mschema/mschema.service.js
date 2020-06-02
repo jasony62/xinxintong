@@ -1,17 +1,17 @@
-define(['require'], function(require) {
+define(['require'], function (require) {
     'use strict';
     var ngMod;
     ngMod = angular.module('service.mschema', ['ui.xxt', 'http.ui.xxt']);
-    ngMod.provider('srvMschema', function() {
+    ngMod.provider('srvMschema', function () {
         var _siteId, _mschemaId, _getAppDeferred, _oMschema;
-        this.config = function(site) {
+        this.config = function (site) {
             _siteId = site;
         };
-        this.$get = ['$q', 'http2', function($q, http2) {
+        this.$get = ['$q', 'http2', function ($q, http2) {
             var _baseUrl, _oInstance;
             _baseUrl = '/rest/pl/fe/site/member/schema/';
             _oInstance = {
-                get: function(mschemaId) {
+                get: function (mschemaId) {
                     var url;
                     if ((!mschemaId || mschemaId === _mschemaId) && _getAppDeferred) {
                         return _getAppDeferred.promise;
@@ -23,7 +23,7 @@ define(['require'], function(require) {
                     _mschemaId = mschemaId;
                     _getAppDeferred = $q.defer();
                     url = _baseUrl + 'get?site=' + _siteId + '&mschema=' + mschemaId;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         _oMschema = rsp.data;
                         if (!_oMschema.extAttrs) {
                             _oMschema.extAttrs = [];
@@ -33,26 +33,26 @@ define(['require'], function(require) {
 
                     return _getAppDeferred.promise;
                 },
-                list: function(own) {
+                list: function (own) {
                     var deferred, url;
                     deferred = $q.defer();
                     own === undefined && (own === 'N');
                     url = _baseUrl;
                     url += 'list?site=' + _siteId;
                     url += '&own=' + own;
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
                 },
-                update: function(oSchema, updated) {
+                update: function (oSchema, updated) {
                     var deferred, url;
                     deferred = $q.defer();
                     url = _baseUrl;
                     url += 'update?site=' + _siteId;
                     url += '&type=' + oSchema.type;
                     if (oSchema.id) url += '&id=' + oSchema.id;
-                    http2.post(url, updated).then(function(rsp) {
+                    http2.post(url, updated).then(function (rsp) {
                         deferred.resolve(rsp.data);
                     });
                     return deferred.promise;
@@ -61,15 +61,15 @@ define(['require'], function(require) {
             return _oInstance;
         }];
     });
-    ngMod.provider('srvMschemaNotice', function() {
-        this.$get = ['$q', 'http2', 'srvMschema', function($q, http2, srvMschema) {
+    ngMod.provider('srvMschemaNotice', function () {
+        this.$get = ['$q', 'http2', 'srvMschema', function ($q, http2, srvMschema) {
             return {
-                detail: function(batch) {
+                detail: function (batch) {
                     var defer = $q.defer(),
                         url;
-                    srvMschema.get().then(function(mschema) {
+                    srvMschema.get().then(function (mschema) {
                         url = '/rest/pl/fe/site/member/notice/logList?batch=' + batch.id + '&schema=' + mschema.id;
-                        http2.get(url).then(function(rsp) {
+                        http2.get(url).then(function (rsp) {
                             defer.resolve(rsp.data);
                         });
                     });
@@ -79,7 +79,7 @@ define(['require'], function(require) {
             }
         }]
     });
-    ngMod.provider('srvEnrollPage', function() {
-        this.$get = [function() {}];
+    ngMod.provider('srvEnrollPage', function () {
+        this.$get = [function () {}];
     });
 });

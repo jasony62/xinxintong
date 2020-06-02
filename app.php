@@ -14,7 +14,8 @@ include_once dirname(__FILE__) . '/config.php';
  * type
  * class
  */
-function show_error($message) {
+function show_error($message)
+{
     require_once 'tms/tms_app.php';
     $modelLog = TMS_APP::M('log');
     if ($message instanceof UrlNotMatchException) {
@@ -79,28 +80,45 @@ function show_error($message) {
     exit;
 }
 
-function tms_error_handler($errno, $errstr, $errfile, $errline, $errcontext) {
+function tms_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
+{
     switch ($errno) {
-    case E_ERROR:show_error(new ErrorException('ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_WARNING:show_error(new ErrorException('E_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_PARSE:show_error(new ErrorException('E_PARSE:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_NOTICE:show_error(new ErrorException('E_NOTICE:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_CORE_ERROR:show_error(new ErrorException('E_CORE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_CORE_WARNING:show_error(new ErrorException('E_CORE_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_COMPILE_ERROR:show_error(new ErrorException('E_COMPILE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_COMPILE_WARNING:show_error(new ErrorException('E_COMPILE_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_USER_ERROR:show_error(new ErrorException('E_USER_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_USER_WARNING:show_error(new ErrorException('E_USER_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_USER_NOTICE:show_error(new ErrorException('E_USER_NOTICE:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_STRICT:show_error(new ErrorException('E_STRICT:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_RECOVERABLE_ERROR:show_error(new ErrorException('E_RECOVERABLE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_DEPRECATED:show_error(new ErrorException('E_DEPRECATED:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_USER_DEPRECATED:show_error(new ErrorException('E_USER_DEPRECATED:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_ERROR:
+            show_error(new ErrorException('ERROR:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_WARNING:
+            show_error(new ErrorException('E_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_PARSE:
+            show_error(new ErrorException('E_PARSE:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_NOTICE:
+            show_error(new ErrorException('E_NOTICE:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_CORE_ERROR:
+            show_error(new ErrorException('E_CORE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_CORE_WARNING:
+            show_error(new ErrorException('E_CORE_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_COMPILE_ERROR:
+            show_error(new ErrorException('E_COMPILE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_COMPILE_WARNING:
+            show_error(new ErrorException('E_COMPILE_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_USER_ERROR:
+            show_error(new ErrorException('E_USER_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_USER_WARNING:
+            show_error(new ErrorException('E_USER_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_USER_NOTICE:
+            show_error(new ErrorException('E_USER_NOTICE:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_STRICT:
+            show_error(new ErrorException('E_STRICT:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_RECOVERABLE_ERROR:
+            show_error(new ErrorException('E_RECOVERABLE_ERROR:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_DEPRECATED:
+            show_error(new ErrorException('E_DEPRECATED:' . $errstr, 0, $errno, $errfile, $errline));
+        case E_USER_DEPRECATED:
+            show_error(new ErrorException('E_USER_DEPRECATED:' . $errstr, 0, $errno, $errfile, $errline));
     }
 }
 set_error_handler('tms_error_handler');
 
-function tms_exception_handler($exception) {
+function tms_exception_handler($exception)
+{
     show_error($exception);
 }
 set_exception_handler('tms_exception_handler');
@@ -111,7 +129,8 @@ set_exception_handler('tms_exception_handler');
  *  @param $file  The file to be loaded.  Must be an absolute path (i.e.
  *                starting with slash).
  */
-function auto_version($file) {
+function auto_version($file)
+{
     if (strpos($file, DIRECTORY_SEPARATOR) !== 0 || !file_exists(TMS_APP_DIR . $file)) {
         return $file;
     }
@@ -122,7 +141,8 @@ function auto_version($file) {
 /**
  * 获得文件的定制版本
  */
-function custom_version($file) {
+function custom_version($file)
+{
     if (0 !== strpos($file, DIRECTORY_SEPARATOR)) {
         $file = DIRECTORY_SEPARATOR . $file;
     }

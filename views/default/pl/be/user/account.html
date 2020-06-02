@@ -29,6 +29,7 @@
             <th></th>
             <th>昵称</th>
             <th>登录账号</th>
+            <th>停用</th>
             <th>行为分</th>
             <th>注册日期</th>
             <th>最后登录日期</th>
@@ -41,6 +42,7 @@
             <td>{{$index+1+(page.size*(page.at-1))}}</td>
             <td>{{u.nickname}}</td>
             <td>{{u.email}}</td>
+            <td>{{u.forbidden}}</td>
             <td>{{u.coin}}</td>
             <td>{{u.reg_time*1000|date:'yyyy-MM-dd'}}</td>
             <td>{{u.last_login*1000|date:'yyyy-MM-dd'}}</td>
@@ -49,6 +51,8 @@
             </td>
             <td>
                 <button class='btn btn-danger btn-xs' ng-click='resetPwd(u)'>重置口令</button>
+                <button ng-if="u.forbidden!=1" class='btn btn-default btn-xs' ng-click='forbid(u)'>停用</button>
+                <button ng-if="u.forbidden==1" class='btn btn-default btn-xs' ng-click='active(u)'>激活</button>
                 <button class='btn btn-danger btn-xs' ng-click='remove(u)'><span class='glyphicon glyphicon-remove'></span></button>
             </td>
         </tr>

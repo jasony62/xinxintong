@@ -1,13 +1,13 @@
-(function() {
+(function () {
     window.xxt === undefined && (window.xxt = {});
     window.xxt.image = {
         options: {},
-        choose: function(deferred, from) {
+        choose: function (deferred, from) {
             var promise, imgs = [];
             promise = deferred.promise;
             if (window.wx !== undefined) {
                 window.wx.chooseImage({
-                    success: function(res) {
+                    success: function (res) {
                         var i, img;
                         for (i in res.localIds) {
                             img = {
@@ -21,7 +21,7 @@
             } else {
                 var ele = document.createElement('input');
                 ele.setAttribute('type', 'file');
-                ele.addEventListener('change', function(evt) {
+                ele.addEventListener('change', function (evt) {
                     var i, cnt, f, type;
                     cnt = evt.target.files.length;
                     for (i = 0; i < cnt; i++) {
@@ -33,8 +33,8 @@
                         } [f.name.match(/\.(\w){2}/g)[0] || ".jp"];
                         f.type2 = f.type || type;
                         var reader = new FileReader();
-                        reader.onload = (function(theFile) {
-                            return function(e) {
+                        reader.onload = (function (theFile) {
+                            return function (e) {
                                 var img = {};
                                 img.imgSrc = e.target.result.replace(/^.+(,)/, "data:" + theFile.type2 + ";base64,");
                                 imgs.push(img);
@@ -48,14 +48,14 @@
             }
             return promise;
         },
-        wxUpload: function(deferred, img) {
+        wxUpload: function (deferred, img) {
             var promise;
             promise = deferred.promise;
             if (0 === img.imgSrc.indexOf('weixin://') || 0 === img.imgSrc.indexOf('wxLocalResource://')) {
                 window.wx.uploadImage({
                     localId: img.imgSrc,
                     isShowProgressTips: 1,
-                    success: function(res) {
+                    success: function (res) {
                         img.serverId = res.serverId;
                         deferred.resolve(img);
                     }

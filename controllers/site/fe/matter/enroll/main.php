@@ -1,11 +1,13 @@
 <?php
+
 namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/main_base.php';
 /**
  * 记录活动
  */
-class main extends main_base {
+class main extends main_base
+{
     /**
      * 返回活动页
      *
@@ -13,7 +15,8 @@ class main extends main_base {
      * @param string $page 要进入活动的哪一页，页面的名称
      *
      */
-    public function index_action($app, $rid = '', $page = '', $ek = null, $topic = null, $ignoretime = 'N') {
+    public function index_action($app, $rid = '', $page = '', $ek = null, $topic = null, $ignoretime = 'N')
+    {
         $oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
             $this->outputError('指定的记录活动不存在，请检查参数是否正确');
@@ -50,7 +53,8 @@ class main extends main_base {
      * @param int $task 活动任务id
      *
      */
-    public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N', $task = null) {
+    public function get_action($app, $rid = '', $page = null, $ek = null, $ignoretime = 'N', $cascaded = 'N', $task = null)
+    {
         $params = []; // 返回的结果
         /* 要打开的记录 */
         $modelRec = $this->model('matter\enroll\record');
@@ -75,7 +79,76 @@ class main extends main_base {
 
         /* 当前访问用户的基本信息 */
         $oUser = $this->getUser($oApp);
+        /**
+         * 获取当前用户在记录活动中的数据
+         */
+        if (!empty($rid) || isset($oApp->appRound->rid)) {
+            $modelEnlUsr = $this->model('matter\enroll\user');
+            $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+            if ($oEnlRndUser) {
+                $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+                $oEnlRndUser->custom = $oEnlAppUser->custom;
+            }
+            $oUser->enrollUser = $oEnlRndUser;
+        }
+        /**
+         * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+         */
+        if (!empty($oApp->entryRule->group->id)) {
+            $assocGroupAppId = $oApp->entryRule->group->id;
+            $modelGrpRec = $this->model('matter\group\record');
+            $modelGrpTeam = $this->model('matter\group\team');
+            /* 用户所属分组信息 */
+            if (!empty($oUser->group_id)) {
+                $GrpRoundTitle = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
+                $oUser->group_title = $GrpRoundTitle->title;
+                // 同组成员
+                $others = $modelGrpRec->byTeam($oUser->group_id, ['fields' => 'is_leader,userid,nickname']);
+                $oUser->groupOthers = [];
+                foreach ($others as $other) {
+                    if ($other->userid !== $oUser->uid) {
+                        $oUser->groupOthers[] = $other;
+                    }
+                }
+            }
+            /* 获得角色分组信息 */
+            if (!empty($oUser->role_teams)) {
+                $roleTeams = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title", 'team_type' => 'R']);
+                foreach ($roleTeams as $oRoleTeam) {
+                    $roleTeams[$oRoleTeam->team_id] = $oRoleTeam;
+                }
+                foreach ($oUser->role_teams as $k => $oUsrRoleTeam) {
+                    if (isset($roleTeams[$oUsrRoleTeam])) {
+                        $oUser->role_teams[$k] = $roleTeams[$oUsrRoleTeam];
+                    } else {
+                        unset($oUser->role_teams[$k]);
+                    }
+                }
+            }
+            /**
+             * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
+             */
+            /* 获得的分组信息 */
+            $groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title,team_type"]);
+            $params['groups'] = $groups;
+            /* 用户所属分组 */
+            $oGrpApp = (object) ['id' => $assocGroupAppId];
+            $oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
+            if ($oGrpUsr) {
+                $params['groupUser'] = $oGrpUsr;
+                $params['groupOthers'] = [];
+                if (!empty($oGrpUsr->team_id)) {
+                    $others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
+                    foreach ($others as $other) {
+                        if ($other->userid !== $oGrpUsr->userid) {
+                            $params['groupOthers'][] = $other;
+                        }
+                    }
+                }
+            }
+        }
         $params['user'] = $oUser;
+
 
         /* 进入规则 */
         $oEntryRuleResult = $this->checkEntryRule2($oApp);
@@ -95,7 +168,7 @@ class main extends main_base {
         /* 项目页面设置 */
         if ($oApp->use_mission_header === 'Y' || $oApp->use_mission_footer === 'Y') {
             if ($oApp->mission_id) {
-                $params['mission'] = $this->model('matter\mission')->byId(
+                $params['mission'] = $this->model('matter\mission')->byIdAsRef(
                     $oApp->mission_id,
                     ['cascaded' => 'header_page_name,footer_page_name']
                 );
@@ -106,7 +179,6 @@ class main extends main_base {
         if ($page !== 'IGNORE') {
             if (!in_array($page, ['task', 'event', 'kanban', 'repos', 'cowork', 'share', 'rank', 'score', 'votes', 'marks', 'favor', 'topic', 'stat'])) {
                 $modelPage = $this->model('matter\enroll\page');
-                $oUserEnrolled = $modelRec->lastByUser($oApp, $oUser, ['rid' => $rid]);
                 /* 计算打开哪个页面 */
                 if (empty($page)) {
                     $oOpenPage = $this->_defaultPage($oApp, $rid, false, $ignoretime);
@@ -125,39 +197,13 @@ class main extends main_base {
             }
         }
 
-        /**
-         * 获得当前活动的分组和当前用户所属的分组，是否为组长，及同组成员
-         */
-        if (!empty($oApp->entryRule->group->id)) {
-            $assocGroupAppId = $oApp->entryRule->group->id;
-            /* 获得的分组信息 */
-            $modelGrpTeam = $this->model('matter\group\team');
-            $groups = $modelGrpTeam->byApp($assocGroupAppId, ['fields' => "team_id,title,team_type"]);
-            $params['groups'] = $groups;
-            /* 用户所属分组 */
-            $modelGrpRec = $this->model('matter\group\record');
-            $oGrpApp = (object) ['id' => $assocGroupAppId];
-            $oGrpUsr = $modelGrpRec->byUser($oGrpApp, $oUser->uid, ['fields' => 'is_leader,team_id,team_title,userid,nickname', 'onlyOne' => true]);
-            if ($oGrpUsr) {
-                $params['groupUser'] = $oGrpUsr;
-                $params['groupOthers'] = [];
-                if (!empty($oGrpUsr->team_id)) {
-                    $others = $modelGrpRec->byTeam($oGrpUsr->team_id, ['fields' => 'is_leader,userid,nickname']);
-                    foreach ($others as $other) {
-                        if ($other->userid !== $oGrpUsr->userid) {
-                            $params['groupOthers'][] = $other;
-                        }
-                    }
-                }
-            }
-        }
-
         return new \ResponseData($params);
     }
     /**
      * 获得用户执行操作规则的状态
      */
-    public function entryRule_action($app) {
+    public function entryRule_action($app)
+    {
         $oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false) {
             return new \ResponseError('指定的记录活动不存在，请检查参数是否正确');
@@ -172,7 +218,8 @@ class main extends main_base {
      *
      * 没有指定位置信息时通过日志获取当前用户最后一次发送的位置
      */
-    public function locationGet_action($siteid, $lat = '', $lng = '') {
+    public function locationGet_action($siteid, $lat = '', $lng = '')
+    {
         $geo = array();
         if (empty($lat) || empty($lat)) {
             $user = $this->who;
@@ -220,7 +267,8 @@ class main extends main_base {
      * name => array(l=>label,c=>count)
      *
      */
-    public function statGet_action($site, $app, $fromCache = 'N', $interval = 600) {
+    public function statGet_action($site, $app, $fromCache = 'N', $interval = 600)
+    {
         $modelRec = $this->model('matter\enroll\record');
         if ($fromCache === 'Y') {
             $current = time();
@@ -280,7 +328,8 @@ class main extends main_base {
     /**
      * 页面导航栏
      */
-    public function navs_action($app) {
+    public function navs_action($app)
+    {
         $oApp = $this->modelApp->byId($app, ['cascaded' => 'N']);
         if ($oApp === false || $oApp->state !== '1') {
             return new \ObjectNotFoundError();

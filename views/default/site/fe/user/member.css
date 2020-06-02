@@ -1,78 +1,98 @@
 body {
-	font-family: 'Microsoft Yahei', Arial;
+    font-family: "Microsoft Yahei", Arial;
 }
 
 .app {
-	margin-top: 70px;
-	margin-bottom: 50px;
+    margin-top: 70px;
+    margin-bottom: 50px;
 }
 
 .ng-cloak {
-	display: none;
+    display: none;
 }
 
 .navbar-form {
-	width: auto;
-	padding-top: 0;
-	padding-bottom: 0;
-	margin-right: 0;
-	margin-left: 0;
-	border: 0;
-	box-shadow: none;
+    width: auto;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-right: 0;
+    margin-left: 0;
+    border: 0;
+    box-shadow: none;
 }
 
 .navbar-right {
-	float: right !important;
-	margin-right: -15px;
+    float: right !important;
+    margin-right: -15px;
 }
 
 #matter .matter-pic {
-	width: 100%;
+    width: 100%;
 }
 
-#matter .matter-pic>div {
-	width: 100%;
-	height: 0;
-	padding-bottom: 56%;
-	background-size: contain;
-	background-repeat: no-repeat;
-	background-position: center;
+#matter .matter-pic > div {
+    width: 100%;
+    height: 0;
+    padding-bottom: 56%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 img {
-	max-width: 100%
+    max-width: 100%;
 }
 
 /* img tiles */
 ul.img-tiles li {
-	position: relative;
-	display: inline-block;
-	overflow: hidden;
-	width: 80px;
-	height: 80px;
-	margin: 0px;
-	padding: 0px;
-	float: left
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: 80px;
+    height: 80px;
+    margin: 0px;
+    padding: 0px;
+    float: left;
 }
 
 ul.img-tiles li.img-thumbnail img {
-	display: inline-block;
-	position: absolute;
-	max-width: none
+    display: inline-block;
+    position: absolute;
+    max-width: none;
 }
 
 ul.img-tiles li.img-thumbnail button {
-	position: absolute;
-	top: 0;
-	right: 0
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 ul.img-tiles li.img-picker button {
-	position: auto;
-	width: 100%;
-	height: 100%
+    position: auto;
+    width: 100%;
+    height: 100%;
 }
 
 ul.img-tiles li.img-picker button span {
-	font-size: 36px
+    font-size: 36px;
+}
+
+li.radio.option-hide,
+li.checkbox.option-hide {
+    height: 0;
+    margin: 0;
+    visibility: hidden;
+}
+
+li.radio.option-hide > label,
+li.checkbox.option-hide > label {
+    height: 0;
+    min-height: 0;
+}
+
+li.radio.option-hide > label > *,
+li.checkbox.option-hide > label > * {
+    height: 0;
+    display: inline-block;
+    overflow: hidden;
 }

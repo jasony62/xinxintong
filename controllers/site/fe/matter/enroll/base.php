@@ -2,10 +2,13 @@
 namespace site\fe\matter\enroll;
 
 include_once dirname(dirname(__FILE__)) . '/base.php';
+include_once TMS_APP_DIR . '/controllers/_trait/matter/enroll/record.php';
+
 /**
  * 记录活动
  */
 class base extends \site\fe\matter\base {
+    use \matter\enroll\RecordTrait;
     /**
      *
      */

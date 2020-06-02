@@ -1,18 +1,18 @@
-define(['frame'], function(ngApp) {
-    ngApp.provider.controller('ctrlMain', ['$scope', '$uibModal', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'tmsThumbnail', '$timeout', 'srvTag', function($scope, $uibModal, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, tmsThumbnail, $timeout, srvTag) {
+define(['frame'], function (ngApp) {
+    ngApp.provider.controller('ctrlMain', ['$scope', 'http2', 'noticebox', 'srvSite', 'mediagallery', 'noticebox', 'srvApp', 'tmsThumbnail', '$timeout', 'srvTag', function ($scope, http2, noticebox, srvSite, mediagallery, noticebox, srvApp, tmsThumbnail, $timeout, srvTag) {
         var _oEditing, modifiedData = {};
 
         $scope.modified = false;
-        $scope.submit = function() {
-            http2.post('/rest/pl/fe/matter/article/update?site=' + _oEditing.siteid + '&id=' + _oEditing.id, modifiedData).then(function() {
+        $scope.submit = function () {
+            http2.post('/rest/pl/fe/matter/article/update?site=' + _oEditing.siteid + '&id=' + _oEditing.id, modifiedData).then(function () {
                 modifiedData = {};
                 $scope.modified = false;
                 noticebox.success('完成保存');
             });
         };
-        $scope.remove = function() {
+        $scope.remove = function () {
             if (window.confirm('确定删除？')) {
-                http2.get('/rest/pl/fe/matter/article/remove?site=' + _oEditing.siteid + '&id=' + _oEditing.id).then(function(rsp) {
+                http2.get('/rest/pl/fe/matter/article/remove?site=' + _oEditing.siteid + '&id=' + _oEditing.id).then(function (rsp) {
                     if (_oEditing.mission) {
                         location = "/rest/pl/fe/matter/mission?site=" + _oEditing.siteid + "&id=" + _oEditing.mission.id;
                     } else {
@@ -21,26 +21,26 @@ define(['frame'], function(ngApp) {
                 });
             }
         };
-        $scope.setPic = function() {
+        $scope.setPic = function () {
             var options = {
-                callback: function(url) {
+                callback: function (url) {
                     _oEditing.pic = url + '?_=' + (new Date * 1);
                     srvApp.update('pic');
                 }
             };
             mediagallery.open(_oEditing.siteid, options);
         };
-        $scope.removePic = function() {
+        $scope.removePic = function () {
             _oEditing.pic = '';
             srvApp.update('pic');
         };
-        $scope.assignMission = function() {
+        $scope.assignMission = function () {
             srvApp.assignMission();
         };
-        $scope.quitMission = function() {
+        $scope.quitMission = function () {
             srvApp.quitMission();
         };
-        $scope.assignNavApp = function() {
+        $scope.assignNavApp = function () {
             var oOptions = {
                 matterTypes: [{
                     value: 'enroll',
@@ -65,7 +65,7 @@ define(['frame'], function(ngApp) {
                 }],
                 singleMatter: true
             };
-            srvSite.openGallery(oOptions).then(function(result) {
+            srvSite.openGallery(oOptions).then(function (result) {
                 if (result.matters && result.matters.length === 1) {
                     !_oEditing.config.nav && (_oEditing.config.nav = {});
                     !_oEditing.config.nav.app && (_oEditing.config.nav.app = []);
@@ -90,14 +90,14 @@ define(['frame'], function(ngApp) {
                 }
             });
         };
-        $scope.removeNavApp = function(index) {
+        $scope.removeNavApp = function (index) {
             _oEditing.config.nav.app.splice(index, 1);
             if (_oEditing.config.nav.app.length === 0) {
                 delete _oEditing.config.nav.app;
             }
             srvApp.update('config');
         };
-        $scope.tagMatter = function(subType) {
+        $scope.tagMatter = function (subType) {
             var oTags;
             if (subType === 'C') {
                 oTags = $scope.oTagC;
@@ -107,42 +107,42 @@ define(['frame'], function(ngApp) {
             srvTag._tagMatter(_oEditing, oTags, subType);
         };
         // 更改缩略图
-        $scope.$watch('editing.title', function(title, oldTitle) {
+        $scope.$watch('editing.title', function (title, oldTitle) {
             if (_oEditing && title && oldTitle) {
                 if (!_oEditing.pic && title.slice(0, 1) != oldTitle.slice(0, 1)) {
-                    $timeout(function() {
+                    $timeout(function () {
                         tmsThumbnail.thumbnail(_oEditing);
                     }, 3000);
                 }
                 $scope.rule = _oRule = _oEditing.entryRule;
             }
         });
-        $scope.$watch('editing', function(nv) {
+        $scope.$watch('editing', function (nv) {
             _oEditing = nv;
         });
     }]);
-    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvApp', function($scope, $uibModal, http2, srvSite, srvApp) {
+    ngApp.provider.controller('ctrlAccess', ['$scope', '$uibModal', 'http2', 'srvSite', 'srvApp', function ($scope, $uibModal, http2, srvSite, srvApp) {
         var _oEditing, _oRule, _oRule2;
 
         function chooseGroupApp() {
             return $uibModal.open({
                 templateUrl: 'chooseGroupApp.html',
-                controller: ['$scope', '$uibModalInstance', function($scope2, $mi) {
+                controller: ['$scope', '$uibModalInstance', function ($scope2, $mi) {
                     $scope2.app = _oEditing;
                     $scope2.data = {
                         app: null,
                         round: null
                     };
                     _oEditing.mission && ($scope2.data.sameMission = 'Y');
-                    $scope2.cancel = function() {
+                    $scope2.cancel = function () {
                         $mi.dismiss();
                     };
-                    $scope2.ok = function() {
+                    $scope2.ok = function () {
                         $mi.close($scope2.data);
                     };
                     var url = '/rest/pl/fe/matter/group/list?site=' + _oEditing.siteid + '&size=999&cascaded=Y';
                     _oEditing.mission && (url += '&mission=' + _oEditing.mission.id);
-                    http2.get(url).then(function(rsp) {
+                    http2.get(url).then(function (rsp) {
                         $scope2.apps = rsp.data.apps;
                     });
                 }],
@@ -165,16 +165,22 @@ define(['frame'], function(ngApp) {
 
         function setGroupEntry(oResult, type) {
             if (oResult.app) {
-                $scope[type].group = { id: oResult.app.id, title: oResult.app.title };
+                $scope[type].group = {
+                    id: oResult.app.id,
+                    title: oResult.app.title
+                };
                 if (oResult.team) {
-                    $scope[type].group.team = { id: oResult.team.team_id, title: oResult.team.title };
+                    $scope[type].group.team = {
+                        id: oResult.team.team_id,
+                        title: oResult.team.title
+                    };
                 }
                 return true;
             }
             return false;
         }
 
-        $scope.changeUserScope = function(scopeProp, type) {
+        $scope.changeUserScope = function (scopeProp, type) {
             switch (scopeProp) {
                 case 'sns':
                     if ($scope[type].scope[scopeProp] === 'Y') {
@@ -182,38 +188,40 @@ define(['frame'], function(ngApp) {
                             $scope[type].sns = {};
                         }
                         if ($scope.snsCount === 1) {
-                            $scope[type].sns[Object.keys($scope.sns)[0]] = { 'entry': 'Y' };
+                            $scope[type].sns[Object.keys($scope.sns)[0]] = {
+                                'entry': 'Y'
+                            };
                         }
                     }
                     break;
             }
             srvApp.changeUserScope($scope[type].scope, $scope.sns, '', type);
         };
-        $scope.chooseMschema = function(type) {
-            srvSite.chooseMschema(_oEditing).then(function(result) {
+        $scope.chooseMschema = function (type) {
+            srvSite.chooseMschema(_oEditing).then(function (result) {
                 if (setMschemaEntry(result.chosen.id, type)) {
                     srvApp.update(type);
                 }
             });
         };
-        $scope.chooseGroupApp = function(type) {
-            chooseGroupApp().then(function(result) {
+        $scope.chooseGroupApp = function (type) {
+            chooseGroupApp().then(function (result) {
                 if (setGroupEntry(result, type)) {
                     srvApp.update(type);
                 }
             });
         };
-        $scope.removeGroupApp = function(type) {
+        $scope.removeGroupApp = function (type) {
             delete $scope[type].group;
             srvApp.update(type);
         };
-        $scope.removeMschema = function(mschemaId, type) {
+        $scope.removeMschema = function (mschemaId, type) {
             if ($scope[type].member[mschemaId]) {
                 delete $scope[type].member[mschemaId];
                 srvApp.update(type);
             }
         };
-        $scope.$watch('editing', function(nv) {
+        $scope.$watch('editing', function (nv) {
             if (!nv) return;
             _oEditing = nv;
             $scope.entryRule = _oRule = nv.entryRule;

@@ -98,7 +98,7 @@ class enroll_model extends enroll_base {
      * @param array $options
      *
      */
-    public function &byId($appId, $aOptions = []) {
+    public function byId($appId, $aOptions = []) {
         $fields = isset($aOptions['fields']) ? $aOptions['fields'] : '*';
         $cascaded = isset($aOptions['cascaded']) ? $aOptions['cascaded'] : 'Y';
         $appRid = isset($aOptions['appRid']) ? $aOptions['appRid'] : '';
@@ -499,7 +499,7 @@ class enroll_model extends enroll_base {
                     /* 从项目中获得用户昵称 */
                     $oMission = (object) ['id' => $oApp->mission_id];
                     $modelMisUsr = $this->model('matter\mission\user');
-                    $oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'nickname']);
+                    $oMisUsr = $modelMisUsr->byIdInApp($oMission, $oUser->uid, ['fields' => 'nickname']);
                     if ($oMisUsr) {
                         $nickname = $oMisUsr->nickname;
                     } else {

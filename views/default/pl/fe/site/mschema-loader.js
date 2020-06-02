@@ -9,12 +9,13 @@ require.config({
     waitSeconds: 0,
     paths: {
         "domReady": '/static/js/domReady',
+        "matterSchema": '/views/default/pl/fe/_module/matter.schema',
         "mschemaService": '/views/default/pl/fe/site/mschema/mschema.service',
         "schema": '/views/default/pl/fe/matter/enroll/lib/schema',
         "wrap": '/views/default/pl/fe/matter/enroll/lib/wrap',
         "frame": '/views/default/pl/fe/site/mschema',
     },
-    urlArgs: function(id, url) {
+    urlArgs: function (id, url) {
         if (/domReady/.test(id)) {
             return '';
         }

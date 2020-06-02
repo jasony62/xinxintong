@@ -559,7 +559,7 @@ class data_model extends entity_model {
                 break;
             default: // 主观题
                 if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
-                    //有指定的优先使用指定的评分
+                    //有指定的分数，优先使用指定的评分
                     $quizScore = $oAssignScore->{$oSchema->id};
                 } else {
                     $oLastSchemaValues = $this->query_objs_ss(
@@ -573,9 +573,18 @@ class data_model extends entity_model {
                         //有提交记录且没修改且已经评分
                         $quizScore = $oLastSchemaValues[0]->score;
                     } elseif ($treatedValue === $oSchema->answer) {
+                        // 如果提交的内容和答案完全一样
                         $quizScore = $oSchema->score;
                     } else {
-                        $quizScore = 0;
+                        $answerKws = preg_split('/[\s,;]+/', $oSchema->answer);
+                        $notmatched = array_filter($answerKws, function ($kw) use ($oSchema) {
+                            return strpos($oSchema->answer, $kw) === false;
+                        });
+                        if (count($notmatched) === 0) {
+                            $quizScore = $oSchema->score;
+                        } else {
+                            $quizScore = 0;
+                        }
                     }
                 }
                 if ($quizScore == $oSchema->score) {
@@ -626,10 +635,10 @@ class data_model extends entity_model {
         return $oRecordScore;
     }
     /**
-     * 更新数据分数据排名
+     * 更新打分题数据分数据排名
      * 如果有对应的汇总轮次，更新汇总轮次的排名
      */
-    public function setScoreRank($oApp, $oSchema, $rid) {
+    public function setSchemaScoreRank($oApp, $oSchema, $rid) {
         /* 更新指定轮次的数据 */
         $fnRankByRound = function ($oRnd) use ($oApp, $oSchema) {
             $q = [
@@ -781,8 +790,13 @@ class data_model extends entity_model {
         $q = [
             'distinct value',
             "xxt_enroll_record_data d",
-            "state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}' and value<>''",
+            "state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}'",
         ];
+        if (!empty($oOptions->keyword) && is_string($oOptions->keyword)) {
+            $q[2] .= ' and value like "%' . $oOptions->keyword . '%"';
+        } else {
+            $q[2] .= " and value<>''";
+        }
         /* 限制关联数据 */
         if (isset($oOptions->assocData) && is_object($oOptions->assocData)) {
             $oAssocData = $oOptions->assocData;
@@ -818,13 +832,15 @@ class data_model extends entity_model {
         if (!empty($page) && !empty($size)) {
             $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
         }
+        // 排序
+        $q2['o'] = 'CONVERT(value using gbk)';
 
         // 处理获得的数据
         $oResult->records = $this->query_objs_ss($q, $q2);
 
         // 符合条件的数据总数
         $q[0] = 'count(distinct value)';
-        $total = (int) $this->query_val_ss($q, $q2);
+        $total = (int) $this->query_val_ss($q);
         $oResult->total = $total;
 
         return $oResult;

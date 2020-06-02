@@ -68,7 +68,6 @@ class base extends \TMS_CONTROLLER {
             $msgid = $rst[1]->msgid;
         } else {
             /*如果不是微信号，将模板消息转换文本消息*/
-            $mpa = $this->model('mp\mpaccount')->byId($siteId, 'mpsrc');
             $txt = array();
             $txt[] = $tmpl->title;
             if ($tmpl->params) {

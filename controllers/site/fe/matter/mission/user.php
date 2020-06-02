@@ -16,7 +16,7 @@ class user extends \site\fe\matter\base {
         }
         $modelMisUsr = $this->model('matter\mission\user');
 
-        $oMisUser = $modelMisUsr->byId($oMission, $this->who->uid);
+        $oMisUser = $modelMisUsr->byIdInApp($oMission, $this->who->uid);
 
         return new \ResponseData($oMisUser);
     }
@@ -29,7 +29,7 @@ class user extends \site\fe\matter\base {
             return new \ObjectNotFoundError();
         }
         $modelMisUsr = $this->model('matter\mission\user');
-        $oMisUser = $modelMisUsr->byId($oMission, $this->who->uid, ['fields' => 'id,custom']);
+        $oMisUser = $modelMisUsr->byIdInApp($oMission, $this->who->uid, ['fields' => 'id,custom']);
         if (false === $oMisUser) {
             $oMisUser = $modelMisUsr->add($oMission, $this->who);
             $oMisUser->custom = new \stdClass;

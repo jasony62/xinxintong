@@ -74,6 +74,20 @@ class TMS_MODEL {
         return self::$models[$model_class];
     }
     /**
+     * 根据id，返回1条记录
+     */
+    public function byId($id, $options = []) {
+        $fields = isset($options['fields']) ? $options['fields'] : '*';
+        $q = [
+            $fields,
+            $this->table(),
+            [$this->id() => $id],
+        ];
+        $rec = $this->query_obj_ss($q);
+
+        return $rec;
+    }
+    /**
      * 返回事物ID，如果存在
      */
     public function tmsTransactionBeginAt() {
@@ -454,15 +468,15 @@ class TMS_MODEL {
         $props = explode('.', $deepProp);
         $val = is_object($deepObj) ? $deepObj : (object) $deepObj;
         foreach ($props as $prop) {
+            if (is_array($val)) {
+                $val = (object) $val;
+            }
             if (!isset($val->{$prop})) {
                 return $notSetVal;
             } else if (empty($val->{$prop})) {
                 return $val->{$prop};
             } else {
                 $val = $val->{$prop};
-                if (is_array($val)) {
-                    $val = (object) $val;
-                }
             }
         }
         return $val;

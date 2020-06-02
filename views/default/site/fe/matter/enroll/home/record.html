@@ -13,6 +13,7 @@
         </div>
     </div>
     <div class='main col-xs-12 col-md-12' ng-class="{'hasAdvCriteria':dirSchemas.length!==0}">
+        <!--顶部菜单栏-->
         <nav class="nav site-navbar-default navbar-fixed-top top-menu-bar">
             <div class="container" id="nav_container">
                 <div class="row">
@@ -25,6 +26,7 @@
                     </div>
                     <div class="col-md-5 col-xs-5">
                         <div id='filterQuick' ng-cloak>
+                            <div><a ng-click="showAppInfo()"><span class='glyphicon glyphicon-info-sign'></span></a></div>
                             <div ng-repeat="singleFilter in singleFilters">
                                 <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                             </div>

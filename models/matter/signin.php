@@ -42,7 +42,7 @@ class signin_model extends enroll_base {
      * @param string $appId
      * @param $options array []
      */
-    public function &byId($appId, $options = []) {
+    public function byId($appId, $options = []) {
         $fields = isset($options['fields']) ? $options['fields'] : '*';
         $cascaded = isset($options['cascaded']) ? $options['cascaded'] : 'Y';
         $q = [
@@ -461,7 +461,7 @@ class signin_model extends enroll_base {
                 /* 从项目中获得用户昵称 */
                 $oMission = (object) ['id' => $oApp->mission_id];
                 $modelMisUsr = $this->model('matter\mission\user');
-                $oMisUsr = $modelMisUsr->byId($oMission, $oUser->uid, ['fields' => 'nickname']);
+                $oMisUsr = $modelMisUsr->byIdInApp($oMission, $oUser->uid, ['fields' => 'nickname']);
                 if ($oMisUsr) {
                     $nickname = $oMisUsr->nickname;
                 } else {

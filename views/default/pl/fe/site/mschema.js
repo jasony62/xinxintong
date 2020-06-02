@@ -1,21 +1,21 @@
-define(['require', 'mschemaService'], function(require) {
+define(['require', 'mschemaService', 'matterSchema'], function (require) {
     'use strict';
-    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'tinymce.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.mschema', 'protect.ui.xxt']);
+    var ngApp = angular.module('app', ['ngRoute', 'ui.bootstrap', 'ui.tms', 'ui.xxt', 'http.ui.xxt', 'tinymce.ui.xxt', 'notice.ui.xxt', 'schema.ui.xxt', 'service.matter', 'service.mschema', 'schema.matter', 'protect.ui.xxt']);
     ngApp.constant('CstApp', {
         alertMsg: {
             'schema.duplicated': '不允许重复添加登记项',
         },
     });
-    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvMschemaProvider', 'srvMschemaNoticeProvider', function($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvMschemaProvider, srvMschemaNoticeProvider) {
-        var RouteParam = function(name, baseURL) {
+    ngApp.config(['$controllerProvider', '$routeProvider', '$locationProvider', '$compileProvider', 'srvSiteProvider', 'srvMschemaProvider', 'srvMschemaNoticeProvider', function ($controllerProvider, $routeProvider, $locationProvider, $compileProvider, srvSiteProvider, srvMschemaProvider, srvMschemaNoticeProvider) {
+        var RouteParam = function (name, baseURL) {
             !baseURL && (baseURL = '/views/default/pl/fe/site/mschema/');
             this.templateUrl = baseURL + name + '.html?_=' + (new Date * 1);
             this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1);
             this.reloadOnSearch = false;
             this.resolve = {
-                load: function($q) {
+                load: function ($q) {
                     var defer = $q.defer();
-                    require([baseURL + name + '.js'], function() {
+                    require([baseURL + name + '.js'], function () {
                         defer.resolve();
                     });
                     return defer.promise;
@@ -37,7 +37,7 @@ define(['require', 'mschemaService'], function(require) {
         srvSiteProvider.config(siteId);
         srvMschemaProvider.config(siteId);
     }]);
-    ngApp.controller('ctrlMschema', ['$scope', '$location', 'http2', 'srvSite', 'srvMschema', function($scope, $location, http2, srvSite, srvMschema) {
+    ngApp.controller('ctrlMschema', ['$scope', '$location', 'http2', 'srvSite', 'srvMschema', function ($scope, $location, http2, srvSite, srvMschema) {
         function shiftAttr(oSchema) {
             oSchema.attrs = {
                 mobile: oSchema.attr_mobile.split(''),
@@ -46,7 +46,7 @@ define(['require', 'mschemaService'], function(require) {
             };
         }
         $scope.schemas = [];
-        $scope.$on('$locationChangeSuccess', function(event, currentRoute) {
+        $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
             var subView = currentRoute.match(/([^\/]+?)\?/);
             $scope.subView = subView[1] === 'mschema' ? 'main' : subView[1];
             switch ($scope.subView) {
@@ -60,49 +60,49 @@ define(['require', 'mschemaService'], function(require) {
                     $scope.opened = '';
             }
         });
-        $scope.switchTo = function(subView, hash) {
+        $scope.switchTo = function (subView, hash) {
             var url = '/rest/pl/fe/site/mschema/' + subView;
             $location.path(url).hash(hash || '');
         };
-        $scope.chooseSchema = function(oSchema) {
+        $scope.chooseSchema = function (oSchema) {
             $scope.choosedSchema = oSchema;
         };
-        $scope.addSchema = function() {
+        $scope.addSchema = function () {
             var url = '/rest/pl/fe/site/member/schema/create?site=' + $scope.site.id;
-            http2.post(url, {}).then(function(rsp) {
+            http2.post(url, {}).then(function (rsp) {
                 shiftAttr(rsp.data);
                 $scope.schemas.push(rsp.data);
             });
         };
-        $scope.delSchema = function() {
+        $scope.delSchema = function () {
             var url, schema;
             if (window.confirm('确认删除通讯录？')) {
                 schema = $scope.choosedSchema;
                 url = '/rest/pl/fe/site/member/schema/delete?site=' + $scope.site.id + '&id=' + schema.id;
-                http2.get(url).then(function(rsp) {
+                http2.get(url).then(function (rsp) {
                     var i = $scope.schemas.indexOf(schema);
                     $scope.schemas.splice(i, 1);
                     $scope.choosedSchema = null;
                 });
             }
         };
-        srvSite.get().then(function(oSite) {
+        srvSite.get().then(function (oSite) {
             var entryMschemaId;
             $scope.site = oSite;
-            srvSite.snsList().then(function(data) {
+            srvSite.snsList().then(function (data) {
                 $scope.sns = data;
             });
             if (location.hash) {
                 $scope.entryMschemaId = entryMschemaId = location.hash.substr(1);
-                srvMschema.get(entryMschemaId).then(function(oMschema) {
+                srvMschema.get(entryMschemaId).then(function (oMschema) {
                     shiftAttr(oMschema);
                     $scope.schemas = [oMschema];
                     $scope.chooseSchema(oMschema);
                 });
                 $scope.bOnlyone = true;
             } else {
-                srvMschema.list('N').then(function(schemas) {
-                    schemas.forEach(function(schema) {
+                srvMschema.list('N').then(function (schemas) {
+                    schemas.forEach(function (schema) {
                         shiftAttr(schema);
                         $scope.schemas.push(schema);
                     });
@@ -124,7 +124,7 @@ define(['require', 'mschemaService'], function(require) {
         });
     }]);
     /***/
-    require(['domReady!'], function(document) {
+    require(['domReady!'], function (document) {
         angular.bootstrap(document, ["app"]);
     });
     /***/

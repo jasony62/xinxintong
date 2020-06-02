@@ -1,12 +1,15 @@
 <?php
+
 /**
  * 平台首页
  */
-class home extends TMS_CONTROLLER {
+class home extends TMS_CONTROLLER
+{
     /**
      *
      */
-    public function get_access_rule() {
+    public function get_access_rule()
+    {
         $ruleAction = [
             'rule_type' => 'black',
         ];
@@ -16,7 +19,8 @@ class home extends TMS_CONTROLLER {
     /**
      *
      */
-    public function index_action($template = 'basic') {
+    public function index_action($template = 'basic')
+    {
         $current = time();
         $modelPl = $this->model('platform');
         $platform = $modelPl->get();
@@ -52,7 +56,8 @@ class home extends TMS_CONTROLLER {
     /**
      * 通过系统内置模板生成页面
      */
-    private function &_makePage($name, $template) {
+    private function &_makePage($name, $template)
+    {
         if (file_exists(TMS_APP_TEMPLATE . '/pl/be/' . $name)) {
             $templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
         } else {
@@ -69,7 +74,8 @@ class home extends TMS_CONTROLLER {
     /**
      * 获得系统内置模板的修改时间
      */
-    private function &_getPageMTime($name, $template) {
+    private function &_getPageMTime($name, $template)
+    {
         if (file_exists(TMS_APP_TEMPLATE . '/pl/be/' . $name)) {
             $templateDir = TMS_APP_TEMPLATE . '/pl/be/' . $name;
         } else {
@@ -86,7 +92,8 @@ class home extends TMS_CONTROLLER {
     /**
      *
      */
-    public function get_action() {
+    public function get_action()
+    {
         $platform = $this->model('platform')->get(['cascaded' => 'home_page,template_page,site_page']);
         if (!empty($platform->home_carousel)) {
             $platform->home_carousel = json_decode($platform->home_carousel);
@@ -111,7 +118,8 @@ class home extends TMS_CONTROLLER {
      * @param string $userType 站点用户还是团队管理员用户
      *
      */
-    public function listSite_action($page = 1, $size = 8) {
+    public function listSite_action($page = 1, $size = 8)
+    {
         $modelHome = $this->model('site\home');
 
         $options = [];
@@ -136,7 +144,8 @@ class home extends TMS_CONTROLLER {
     /**
      *
      */
-    public function listApp_action($page = 1, $size = 8) {
+    public function listApp_action($page = 1, $size = 8)
+    {
         $modelHome = $this->model('matter\home');
 
         $options = [];
@@ -154,7 +163,8 @@ class home extends TMS_CONTROLLER {
     /**
      *
      */
-    public function listChannel_action($homeGroup = '', $page = 1, $size = 8) {
+    public function listChannel_action($homeGroup = '', $page = 1, $size = 8)
+    {
         $modelHome = $this->model('matter\home');
 
         $options = [];
@@ -173,7 +183,8 @@ class home extends TMS_CONTROLLER {
     /**
      * 发布到主页热点中的素材
      */
-    public function listMatter_action($page = 1, $size = 8) {
+    public function listMatter_action($page = 1, $size = 8)
+    {
         $modelHome = $this->model('matter\home');
 
         $options = [];
@@ -195,7 +206,8 @@ class home extends TMS_CONTROLLER {
     /**
      *获取置顶活动
      */
-    public function listMatterTop_action($type = 'ALL', $page = 1, $size = 3) {
+    public function listMatterTop_action($type = 'ALL', $page = 1, $size = 3)
+    {
         $modelHome = $this->model('matter\home');
         $options = [];
         $options['page']['at'] = $page;
@@ -217,14 +229,14 @@ class home extends TMS_CONTROLLER {
     /**
      * 获得当前登录账号的用户信息
      */
-    private function &_accountUser() {
+    private function &_accountUser()
+    {
         $account = \TMS_CLIENT::account();
         if ($account) {
             $user = new \stdClass;
             $user->id = $account->uid;
             $user->name = $account->nickname;
             $user->src = 'A';
-
         } else {
             $user = false;
         }
@@ -233,7 +245,8 @@ class home extends TMS_CONTROLLER {
     /*
      * 如果素材开启了邀请机制需要获取邀请的链接
      */
-    private function getInviteUrl($matter) {
+    private function getInviteUrl($matter)
+    {
         $oMatter = $this->model('matter\\' . $matter->matter_type)->byId($matter->matter_id);
         $oInvitee = new \stdClass;
         $oInvitee->id = $oMatter->siteid;

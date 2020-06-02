@@ -76,7 +76,7 @@ class base_model extends \TMS_MODEL {
     /**
      * 获得指定素材
      */
-    public function &byId($id, $options = []) {
+    public function byId($id, $options = []) {
         $fields = isset($options['fields']) ? $options['fields'] : '*';
         $q = [
             $fields,

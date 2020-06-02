@@ -9,7 +9,7 @@ ul {
     overflow: hidden;
 }
 
-ul>li {
+ul > li {
     text-align: center;
     position: relative;
 }
@@ -36,7 +36,7 @@ ul>li {
         padding-top: 8px;
         padding-bottom: 8px;
 
-        >i {
+        > i {
             display: block;
             height: 18px;
             margin-bottom: 4px;
@@ -45,7 +45,7 @@ ul>li {
             left: -1px;
         }
 
-        >span {
+        > span {
             display: block;
             font-size: 12px;
             line-height: 1;
@@ -86,7 +86,7 @@ ul>li {
 
             .line {
                 display: none;
-                width: 50%;
+                width: 80%;
                 height: 2px;
                 margin: 0 auto;
                 background-color: #fff;
@@ -94,7 +94,6 @@ ul>li {
 
             &.active {
                 .menu-link {
-                    font-weight: 600;
                     color: #fff;
                 }
 
@@ -114,11 +113,11 @@ ul>li {
         overflow: hidden;
     }
 
-    .filter>.col-xs-4 .form-control {
+    .filter > .col-xs-4 .form-control {
         font-size: 16px;
     }
 
-    .filter>.col-xs-4 .form-control:focus {
+    .filter > .col-xs-4 .form-control:focus {
         box-shadow: none;
     }
 
@@ -127,14 +126,14 @@ ul>li {
         padding: 0 10px 20px;
     }
 
-    .result>div>ul>li:nth-child(1) {
+    .result > div > ul > li:nth-child(1) {
         height: 50px;
         line-height: 50px;
-        background-color: #2994D0;
+        background-color: #2994d0;
         color: #fff;
     }
 
-    .result>div>ul>li.record {
+    .result > div > ul > li.record {
         padding: 10px 0;
         border-bottom: 2px solid #f5f5f5;
         cursor: pointer;
@@ -142,7 +141,7 @@ ul>li {
         overflow: hidden;
     }
 
-    .result>div>ul>li.record:hover {
+    .result > div > ul > li.record:hover {
         background-color: #f5f5f5;
     }
 
@@ -200,19 +199,19 @@ ul>li {
     font-size: 14px;
 }
 
-.tip>.glyphicon {
+.tip > .glyphicon {
     top: 1px;
     margin-right: 5px;
 }
 
-@media screen and (max-width:768px) {
+@media screen and (max-width: 768px) {
     #rank .filter {
         margin-bottom: 10px;
         margin-top: 0;
         padding: 0;
     }
 
-    .filter>div+div .form-control {
+    .filter > div + div .form-control {
         border-left: 0;
     }
 
@@ -220,13 +219,13 @@ ul>li {
         border-radius: 0;
     }
 
-    .filter>.col-xs-4,
-    .filter>.col-xs-6 {
+    .filter > .col-xs-4,
+    .filter > .col-xs-6 {
         padding-left: 0;
         padding-right: 0;
     }
 
-    .filter>.col-xs-4 .form-control {
+    .filter > .col-xs-4 .form-control {
         padding-right: 0;
         padding-left: 10px;
         border: none;
@@ -240,7 +239,7 @@ ul>li {
         font-size: 13px;
     }
 
-    .result>div>ul>li.record {
+    .result > div > ul > li.record {
         padding: 10px 10px;
         margin-bottom: 5px;
         background-color: #fff;
@@ -250,7 +249,6 @@ ul>li {
     .hidden {
         display: none !important;
     }
-
 }
 
 #filterQuick {
@@ -260,30 +258,27 @@ ul>li {
     overflow-y: hidden;
     white-space: nowrap;
 
-    &>* {
+    & > * {
         display: inline-block;
     }
-
 }
 
 #filterTip {
     margin: 4px 0px;
     padding: 4px 0;
 
-    &>* {
+    & > * {
         display: inline-block;
         padding: 4px 8px;
 
         .close {
             margin-left: 4px;
         }
-
     }
 
-    &>*+* {
+    & > * + * {
         margin-left: 4px;
     }
-
 }
 
 .schema {
@@ -301,7 +296,6 @@ ul>li {
                 margin-left: 8px;
                 color: #337ab7;
             }
-
         }
 
         div:nth-child(2) {
@@ -322,11 +316,9 @@ ul>li {
     margin-bottom: 16px;
 
     /* 打分结果统计，最后1题 */
-    &>div:last-child {
+    & > div:last-child {
         hr {
             border-top-color: #fff;
         }
-
     }
-
 }

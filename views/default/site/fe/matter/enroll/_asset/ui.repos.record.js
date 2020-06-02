@@ -4,7 +4,7 @@ require('./ui.history.js');
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
 var ngMod = angular.module('record.repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposRecord', ['$templateCache', function ($templateCache) {
+ngMod.directive('tmsReposRecord', [function () {
     return {
         restrict: 'A',
         template: require('./repos-record-schema.html'),

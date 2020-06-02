@@ -51,7 +51,7 @@ class export extends record_base {
     /**
      * 填写记录导出
      */
-    public function record_action($filter = '') {
+    public function record_action($filter = '', $joinDirs = 'Y') {
         $oApp = $this->app;
         //是否有协作题
         $isCowork = false;
@@ -62,8 +62,10 @@ class export extends record_base {
             if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
                 $isCowork = true;
             }
-            if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
-                $isAsdir = true;
+            if ($joinDirs === 'Y') {
+                if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
+                    $isAsdir = true;
+                }
             }
         }
 
@@ -98,7 +100,6 @@ class export extends record_base {
         $records = $oResult->records;
         // 处理数据
         $this->_processDatas($oApp, $records);
-
         $oTmsExcel = new TmsExcel($oApp->title);
         $objActiveSheet = $oTmsExcel->objActiveSheet;
         $columnNum1 = 0; //列号
@@ -126,9 +127,12 @@ class export extends record_base {
                 continue;
             }
             // 跳过目录题
-            if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
-                continue;
+            if ($joinDirs === 'Y') {
+                if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
+                    continue;
+                }
             }
+
             if ($oSchema->type === 'shorttext') {
                 /* 数值型，需要计算合计 */
                 if (isset($oSchema->format) && $oSchema->format === 'number') {
@@ -207,6 +211,7 @@ class export extends record_base {
             }
             // 处理登记项
             $oRecData = $oRecord->data;
+
             $oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
             $oRecSupplement = $oRecord->supplement;
             $oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
@@ -215,12 +220,16 @@ class export extends record_base {
                 if (in_array($oSchema->type, ['html'])) {
                     continue;
                 }
+                if ($joinDirs === 'Y') {
+                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
+                        continue;
+                    }
+                }
+
                 $v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
+
                 switch ($oSchema->type) {
                 case 'single':
-                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y') {
-                        continue 2;
-                    }
                     $cellValue = $this->replaceHTMLTags($v, "\n");
                     $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $cellValue, \PHPExcel_Cell_DataType::TYPE_STRING);
                     $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
@@ -245,10 +254,12 @@ class export extends record_base {
                         for ($opi = 0; $opi < count($oSchema->ops); $opi++) {
                             $op = $oSchema->ops[$opi];
                             $vSr = '';
-                            foreach ($v as $vv) {
-                                if ($vv->v == $op->v) {
-                                    $labelsSum += $vv->score;
-                                    $vSr = $vv->score;
+                            if (is_array($v)) {
+                                foreach ($v as $vv) {
+                                    if (isset($op->v) && isset($vv->v) && $vv->v === $op->v) {
+                                        $labelsSum += $vv->score;
+                                        $vSr = $vv->score;
+                                    }
                                 }
                             }
                             $objActiveSheet->setCellValueByColumnAndRow($recColNum2 + $opi + 1, $rowIndex, $vSr);

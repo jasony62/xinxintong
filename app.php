@@ -1,7 +1,9 @@
 <?php
-session_start();
 
 include_once dirname(__FILE__) . '/config.php';
+
+session_start();
+
 
 /***************************
  * error and exception handle
@@ -164,13 +166,7 @@ function custom_version($file)
 if (defined('APP_TMS_BCSCALE')) {
     bcscale(APP_TMS_BCSCALE);
 }
-/**
- * error handle
- */
-ini_set('display_errors', 'On');
-//ini_set('display_errors', 'Off');
-error_reporting(E_ALL);
-//error_reporting(E_ERROR);
+
 /*************************
  * run application.
  *************************/

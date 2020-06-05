@@ -195,6 +195,12 @@ class main extends \site\fe\base {
 	 * 只有注册用户才能修改
 	 */
 	public function changePwd_action() {
+        // 检查登录条件
+        $rst = tms_login_check();
+        if ($rst[0] === false) {
+            return new \ResponseError($rst[1]);
+        }
+        
 		$data = $this->getPostJson(false);
 		if (empty($data->newPassword)) {
 			return new \ResponseError('新口令不能为空');

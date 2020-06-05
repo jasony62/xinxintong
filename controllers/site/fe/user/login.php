@@ -383,6 +383,9 @@ class login extends \site\fe\base {
      * $fontsize  验证码的字体大小
      */
     public function getCaptcha_action($codelen = 4, $width = 130, $height = 50, $fontsize = 20) {
+        if (!is_numeric($codelen) || !is_numeric($width) || !is_numeric($height) || !is_numeric($fontsize)) return new \ResponseError('参数格式错误');
+        if ($codelen > 10 || $width > 1000 || $height > 1000 || $fontsize > 500) return new \ResponseError('参数值过大');
+ 
         require_once TMS_APP_DIR . '/lib/validatecode.php';
 
         $captcha = new \ValidateCode($codelen, $width, $height, $fontsize);

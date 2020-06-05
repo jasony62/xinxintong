@@ -6,10 +6,23 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
  * 站点用户
  */
 class main extends \site\fe\base {
+    /**
+     * 检查页面协议
+     */
+    private function _checkPageProtocol() {
+        $rst = tms_auth_https_check();
+		if ($rst[0] === false) {
+			$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
+            $this->redirect($url);
+            die;
+        }
+    }
 	/**
 	 * 进入用户个人中心
 	 */
 	public function index_action($site) {
+        $this->_checkPageProtocol();
+
 		/* 检查是否需要第三方社交帐号OAuth */
 		if (!$this->afterSnsOAuth()) {
 			$this->requireSnsOAuth($site);
@@ -34,11 +47,7 @@ class main extends \site\fe\base {
 	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
 	public function access_action($originUrl = null, $urlEncryptKey = null) {
-		$rst = tms_auth_https_check();
-		if ($rst[0] === false) {
-			$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
-			$this->redirect($url);
-        }
+		$this->_checkPageProtocol();
 
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');

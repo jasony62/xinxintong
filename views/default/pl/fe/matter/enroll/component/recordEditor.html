@@ -289,8 +289,10 @@
               </div>
               <div ng-switch-when="voice">
                 <span
-                  ><a ng-href="{{record.data[schema.id].url}}" target="_blank"
-                    >{{record.data[schema.id].name}}</a
+                  ><a
+                    ng-href="{{record.data[schema.id][0].url}}"
+                    target="_blank"
+                    >{{record.data[schema.id][0].name}}</a
                   ></span
                 >
               </div>

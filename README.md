@@ -12,6 +12,8 @@
 
 需要在`php-fpm`容器中，`/usr/share/nginx/html`目录下，执行`composer install`命令，安装依赖的第三方包。
 
+如果要支持微信录音，必须在`php-fpm`中安装`ffmpeg`，将`arm`格式文件转为`mp3`。
+
 ## 本地化配置
 
 新建`docker-compose.override.yml`文件。

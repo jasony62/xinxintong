@@ -242,7 +242,7 @@ class user_model
     $mp3 = str_replace('amr', 'mp3', $amr);
 
     /* 将amr转换成mp3格式 */
-    $command = "/usr/local/bin/ffmpeg -i $amr $mp3";
+    $command = "ffmpeg -i $amr $mp3";
     $error = [];
     exec($command, $error);
     if (!empty($error)) return [false, json_encode($error)];

@@ -120,10 +120,10 @@ ngApp.controller("ctrlInput", [
         if ((oSchema = oSchemaWrap.schema)) {
           domSchema = document.querySelector(
             '[wrap=input][schema="' +
-              oSchema.id +
-              '"],[wrap=html][schema="' +
-              oSchema.id +
-              '"]'
+            oSchema.id +
+            '"],[wrap=html][schema="' +
+            oSchema.id +
+            '"]'
           );
           if (domSchema) {
             if (
@@ -158,10 +158,10 @@ ngApp.controller("ctrlInput", [
         if ((oSchema = oSchemaWrap.schema)) {
           domSchema = document.querySelector(
             '[wrap=input][schema="' +
-              oSchema.id +
-              '"],[wrap=html][schema="' +
-              oSchema.id +
-              '"]'
+            oSchema.id +
+            '"],[wrap=html][schema="' +
+            oSchema.id +
+            '"]'
           );
           if (domSchema) {
             if (
@@ -169,7 +169,7 @@ ngApp.controller("ctrlInput", [
               oSchema.visibility.rules &&
               oSchema.visibility.rules.length
             ) {
-              let bVisible = tmsSchema.getSchemaVisible(oSchema, oRecordData);
+              var bVisible = tmsSchema.getSchemaVisible(oSchema, oRecordData);
               domSchema.classList.toggle("hide", !bVisible);
               oSchema.visibility.visible = bVisible;
               /* 被隐藏的题目需要清除数据 */
@@ -215,10 +215,10 @@ ngApp.controller("ctrlInput", [
                       ) {
                         domOption = document.querySelector(
                           'option[name="data.' +
-                            oSchema.id +
-                            '"][value=' +
-                            oOption.v +
-                            "]"
+                          oSchema.id +
+                          '"][value=' +
+                          oOption.v +
+                          "]"
                         );
                         if (domOption && domOption.parentNode) {
                           domOption.parentNode.removeChild(domOption);
@@ -227,18 +227,18 @@ ngApp.controller("ctrlInput", [
                         if (oSchema.type === "single") {
                           domOption = document.querySelector(
                             "input[name=" +
-                              oSchema.id +
-                              "][value=" +
-                              oOption.v +
-                              "]"
+                            oSchema.id +
+                            "][value=" +
+                            oOption.v +
+                            "]"
                           );
                         } else if (oSchema.type === "multiple") {
                           domOption = document.querySelector(
                             'input[ng-model="data.' +
-                              oSchema.id +
-                              "." +
-                              oOption.v +
-                              '"]'
+                            oSchema.id +
+                            "." +
+                            oOption.v +
+                            '"]'
                           );
                         }
                         if (
@@ -277,10 +277,10 @@ ngApp.controller("ctrlInput", [
                         if (domSelect) {
                           domOption = domSelect.querySelector(
                             'option[name="data.' +
-                              oSchema.id +
-                              '"][value=' +
-                              oOption.v +
-                              "]"
+                            oSchema.id +
+                            '"][value=' +
+                            oOption.v +
+                            "]"
                           );
                           if (!domOption) {
                             domOption = document.createElement("option");
@@ -297,18 +297,18 @@ ngApp.controller("ctrlInput", [
                         if (oSchema.type === "single") {
                           domOption = document.querySelector(
                             "input[name=" +
-                              oSchema.id +
-                              "][value=" +
-                              oOption.v +
-                              "]"
+                            oSchema.id +
+                            "][value=" +
+                            oOption.v +
+                            "]"
                           );
                         } else if (oSchema.type === "multiple") {
                           domOption = document.querySelector(
                             'input[ng-model="data.' +
-                              oSchema.id +
-                              "." +
-                              oOption.v +
-                              '"]'
+                            oSchema.id +
+                            "." +
+                            oOption.v +
+                            '"]'
                           );
                         }
                         if (
@@ -388,8 +388,8 @@ ngApp.controller("ctrlInput", [
                 var domOptions;
                 domOptions = document.querySelectorAll(
                   '[wrap=input][schema="' +
-                    oSchema.id +
-                    '"] input[type=checkbox][ng-model]'
+                  oSchema.id +
+                  '"] input[type=checkbox][ng-model]'
                 );
                 oSchema.ops.forEach(function (oOp, index) {
                   var domOption, spanNickname;
@@ -431,10 +431,10 @@ ngApp.controller("ctrlInput", [
                 var domOptions;
                 domOptions = document.querySelectorAll(
                   "[wrap=input][schema=" +
-                    oSchema.id +
-                    "] input[type=checkbox][name=" +
-                    oSchema.id +
-                    "][ng-model]"
+                  oSchema.id +
+                  "] input[type=checkbox][name=" +
+                  oSchema.id +
+                  "][ng-model]"
                 );
                 oSchema.ops.forEach(function (oOp, index) {
                   var domOption, spanLink;
@@ -575,8 +575,8 @@ ngApp.controller("ctrlInput", [
           if (oRecord.round.start_at * 1000 > new Date() * 1) {
             noticebox.warn(
               "活动轮次【" +
-                oRecord.round.title +
-                "】还没开始，不能提交、修改、保存或删除填写记录！"
+              oRecord.round.title +
+              "】还没开始，不能提交、修改、保存或删除填写记录！"
             );
             submitActs.forEach(function (a) {
               a.disabled = true;
@@ -587,8 +587,8 @@ ngApp.controller("ctrlInput", [
           if (oRecord.round.end_at * 1000 < new Date() * 1) {
             noticebox.warn(
               "活动轮次【" +
-                oRecord.round.title +
-                "】已结束，不能提交、修改、保存或删除填写记录！"
+              oRecord.round.title +
+              "】已结束，不能提交、修改、保存或删除填写记录！"
             );
             submitActs.forEach(function (a) {
               a.disabled = true;
@@ -889,11 +889,11 @@ ngApp.controller("ctrlInput", [
           $scope.record.round.purpose !== "C" ||
           type === "save" ||
           true ===
-            (checkResult = _facInput.check(
-              $scope.data,
-              $scope.app,
-              $scope.page
-            ))
+          (checkResult = _facInput.check(
+            $scope.data,
+            $scope.app,
+            $scope.page
+          ))
         ) {
           _tasksOfBeforeSubmit.length
             ? doTask(0, nextAction, type)

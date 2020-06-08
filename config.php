@@ -19,13 +19,6 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
 * 错误输出级别
 */
 !defined('APP_REEOR_REPORTING_LEVEL') && define('APP_REEOR_REPORTING_LEVEL', 'ALL');
-/**
- * error handle
- * database resource.
- */
-ini_set('display_errors', 'On');
-//ini_set('display_errors', 'Off');
-error_reporting(APP_REEOR_REPORTING_LEVEL === 'ERROR' ? E_ERROR : (APP_REEOR_REPORTING_LEVEL === '0' ? 0 : E_ALL));
 
 /*********************************************
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义

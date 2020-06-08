@@ -2,8 +2,16 @@
 
 include_once dirname(__FILE__) . '/config.php';
 
-session_start();
+/**
+ * error handle
+ * database resource.
+ */
+ini_set('display_errors', 'On');
+//ini_set('display_errors', 'Off');
+error_reporting(APP_REEOR_REPORTING_LEVEL === 'ERROR' ? E_ERROR : (APP_REEOR_REPORTING_LEVEL === '0' ? 0 : E_ALL));
 
+if (isset($_COOKIE['PHPSESSID']) && !preg_match('/^[a-zA-Z0-9,-]{1,128}$/', $_COOKIE['PHPSESSID'])) die('SESSID错误');
+session_start();
 
 /***************************
  * error and exception handle

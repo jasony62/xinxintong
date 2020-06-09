@@ -243,11 +243,12 @@ class user_model
 
     /* 将amr转换成mp3格式 */
     $command = "ffmpeg -i $amr $mp3";
-    $error = [];
-    exec($command, $error);
-    if (!empty($error)) return [false, json_encode($error)];
+    $output = [];
+    exec($command, $output);
+    //if (!empty($output)) return [false, json_encode($output)];
 
     $voiceContent = $localFs->read($tempname . '.mp3');
+    if (empty($voiceContent)) return [false, '转换文件格式失败'];
     $oVoice->size = strlen($voiceContent);
     $oVoice->type = 'audio/mpeg';
 

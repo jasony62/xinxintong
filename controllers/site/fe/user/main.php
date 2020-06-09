@@ -9,7 +9,7 @@ class main extends \site\fe\base {
     /**
      * 检查页面协议
      */
-    private function _checkPageProtocol() {
+    private function _httpsOpenPage() {
         $rst = tms_auth_https_check();
 		if ($rst[0] === false) {
 			$url = 'https://' . APP_HTTP_HOST . $_SERVER['REQUEST_URI'];
@@ -21,7 +21,7 @@ class main extends \site\fe\base {
 	 * 进入用户个人中心
 	 */
 	public function index_action($site) {
-        $this->_checkPageProtocol();
+        $this->_httpsOpenPage();
 
 		/* 检查是否需要第三方社交帐号OAuth */
 		if (!$this->afterSnsOAuth()) {
@@ -47,7 +47,7 @@ class main extends \site\fe\base {
 	 * @param string $urlEncryptKey   如果来源地址加密，需传入解密算子
 	 */
 	public function access_action($originUrl = null, $urlEncryptKey = null) {
-		$this->_checkPageProtocol();
+		$this->_httpsOpenPage();
 
 		/* 整理cookie中的数据，便于后续处理 */
 		$modelWay = $this->model('site\fe\way');

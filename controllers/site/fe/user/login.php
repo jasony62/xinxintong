@@ -340,7 +340,7 @@ class login extends \site\fe\base {
                 }
                 $oRegUser = $oRegUser[1];
             }
-            if ($oRegUser->forbidden != 0) {
+            if ($oRegUser->forbidden != "0") {
                 return [false, '账号以停用'];
             }
 
@@ -395,7 +395,7 @@ class login extends \site\fe\base {
         $_SESSION['_login_verify_code'] = $code;
     }
     /**
-     * 登录用户验证密码
+     * 桌面锁定后，登录用户验证密码
      */
     public function validatePwd_action() {
         $post = $this->getPostJson(false);
@@ -409,8 +409,11 @@ class login extends \site\fe\base {
             return new \ObjectNotFoundError();
         }
 
-        if (!empty($oUser->group) && !empty($oUser->group->group_name) && $oUser->group->group_name === "dev189") {
-            return new \ResponseData('ok');
+        // 如果是第三方用户组下成员暂不进行桌面锁定密码验证
+        if (defined('THIRDLOGIN_DEFAULT_ACCOUNT_GROUP')) {
+            if (!empty($oUser->group) && !empty($oUser->group->group_id) && $oUser->group->group_id == THIRDLOGIN_DEFAULT_ACCOUNT_GROUP) {
+                return new \ResponseData('ok');
+            }
         }
 
         $uname = $this->escape($oUser->email);

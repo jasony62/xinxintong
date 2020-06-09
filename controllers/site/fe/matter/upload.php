@@ -19,7 +19,7 @@ class upload extends \site\fe\base {
 		$fsuser = $this->model('fs/user', $userDir);
 		$rst = $fsuser->storeImg($oImage);
 		if (false === $rst[0]) {
-			return $rst;
+			return new \ResponseError($rst[1]);
 		}
 		$url = $rst[1];
 		if (strpos($url, 'http') === false) {

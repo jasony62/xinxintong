@@ -63,21 +63,33 @@ class user_model {
         return [true, $newUrl];
     }
     /**
-     * 存储base64的文件数据
-     * 最多可能保存3份文件：原始尺寸，中等尺寸（小于1000px），紧凑尺寸（小于500px）
+     * 获取base64 图片类型和主体
      */
-    private function storeBase64Image($data) {
-        $matches = [];
-        $rst = preg_match('/data:image\/(.+?);base64,/', $data, $matches);
-        if (1 !== $rst) {
-            return [false, '图片数据格式错误, 只能上传png、jpg、gif、bmp格式图片'];
-        }
+    private function _getBase64ImageInfo($data) {
+        $matches = []; 
+        $rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
+        if (1 !== $rst) return [false, '图片数据格式错误'];
 
         list($header, $ext) = $matches;
         $ext === 'jpeg' && $ext = 'jpg';
 
+        // 检查格式
+        if (!in_array($ext, ["png", "jpg", "jpeg", "gif", "bmp"])) return [false, '图片上传失败：只能上传png、jpg、gif、bmp格式图片'];
+        
         $pic = base64_decode(str_replace($header, "", $data));
 
+        return [true, $pic, $ext];
+    }
+    /**
+     * 存储base64的文件数据
+     * 最多可能保存3份文件：原始尺寸，中等尺寸（小于1000px），紧凑尺寸（小于500px）
+     */
+    private function storeBase64Image($data) {
+        $imgInfo = $this->_getBase64ImageInfo($data);
+        if ($imgInfo[0] === false) return $imgInfo;
+
+        $pic = $imgInfo[1];
+        $ext = $imgInfo[2];
         $dir = date("ymdH"); // 每个小时分一个目录
         $storename = date("is") . rand(10000, 99999) . "." . $ext; // 2位分，2位秒，5位随机数，扩展名
         /**
@@ -107,16 +119,11 @@ class user_model {
      * 存储base64的文件数据(头像)
      */
     private function storeBase64ImageAvatar($data, $creatorId = null) {
-        $matches = [];
-        $rst = preg_match('/data:image\/(.+?);base64\,/', $data, $matches);
-        if (1 !== $rst) {
-            return array(false, '图片数据格式错误' . $rst);
-        }
+        $imgInfo = $this->_getBase64ImageInfo($data);
+        if ($imgInfo[0] === false) return $imgInfo;
 
-        list($header, $ext) = $matches;
-        $ext === 'jpeg' && $ext = 'jpg';
-
-        $pic = base64_decode(str_replace($header, "", $data));
+        $pic = $imgInfo[1];
+        $ext = $imgInfo[2];
 
         $dir = empty($creatorId) ? date("ymdH") : $creatorId;
         $storename = date("is") . rand(10000, 99999) . "." . $ext;

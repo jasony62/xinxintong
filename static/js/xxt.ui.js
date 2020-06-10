@@ -1,3 +1,5 @@
+// 文件服务入口，利用nginx重定向指向实际地址
+const TMS_FINDER_BASE = '/tms-finder'
 /**
  * 业务组件
  * pushnotify
@@ -137,9 +139,8 @@ angular
     },
   ])
   .factory('tmsfinder', [
-    '$sce',
     '$uibModal',
-    function ($sce, $uibModal) {
+    function ($uibModal) {
       var gallery = {},
         open
       open = function (siteid, options) {
@@ -159,12 +160,11 @@ angular
           ],
           backdrop: 'static',
           size: 'lg',
-          windowClass: 'auto-height media-gallery',
+          windowClass: 'auto-height full-width media-gallery',
           resolve: {
             url: function () {
-              //let url = `http://localhost:8080/finder_ue/web/storage?bucket=${siteid}`
-              let url = `/tmsfinder?bucket=${siteid}`
-              return $sce.trustAsResourceUrl(url)
+              let url = `${TMS_FINDER_BASE}/storage?bucket=${siteid}`
+              return url
             },
           },
         })

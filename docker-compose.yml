@@ -6,9 +6,9 @@ services:
     ports:
       - 3306:3306
     # volumes:
-    #     - ./docker/mariadb/data:/var/lib/mysql
+    #   - ./docker/mariadb/data:/var/lib/mysql
     # environment:
-    #     MYSQL_ROOT_PASSWORD: 123456
+    #   MYSQL_ROOT_PASSWORD: 123456
 
   php-fpm:
     build: ./docker/php-fpm
@@ -20,15 +20,17 @@ services:
     build: ./docker/nginx
     image: xxt/nginx
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - .:/usr/share/nginx/html
     links:
       - php-fpm
     # ports:
-    #     - 8080:80
+    #   - 8080:80
+    # environment:
+    #   NGINX_TMS_FINDER_BASE: /finder_ue/web
+    #   NGINX_TMS_FINDER_ADDRESS: http://tms-finder:8080/finder_ue/web
 
   adminer:
     image: adminer
     restart: always
     # ports:
-    #     - 9090:8080
+    #   - 9090:8080

@@ -566,7 +566,7 @@ class data_model extends entity_model
           break;
         default: // 主观题
           if ($oSchema->type === 'voice') {
-            $userAnswer = $treatedValue->text;
+            $userAnswer = $treatedValue[0]->text;
           } else {
             $userAnswer = $treatedValue;
           }
@@ -635,9 +635,9 @@ class data_model extends entity_model
         continue;
       }
       // @todo 为什么要有这么一段代码？
-      if (is_object($treatedValue) || is_array($treatedValue)) {
-        $treatedValue = $this->toJson($treatedValue);
-      }
+      // if (is_object($treatedValue) || is_array($treatedValue)) {
+      //   $treatedValue = $this->toJson($treatedValue);
+      // }
       /**
        * 计算单个题目的数据分
        */

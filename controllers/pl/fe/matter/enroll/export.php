@@ -220,7 +220,6 @@ class export extends record_base
 
       $oRecScore = empty($oRecord->score) ? new \stdClass : $oRecord->score;
       $oRecSupplement = $oRecord->supplement;
-      $oVerbose = isset($oRecord->verbose) ? $oRecord->verbose->data : false;
       for ($i2 = 0, $ii = count($schemas); $i2 < $ii; $i2++) {
         $oSchema = $schemas[$i2];
         if (in_array($oSchema->type, ['html'])) {
@@ -277,13 +276,16 @@ class export extends record_base
             break;
           case 'image':
             $v0 = '';
-            $v0 = $this->replaceHTMLTags($v0, "\n");
             $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;
           case 'file':
             $v0 = '';
-            $v0 = $this->replaceHTMLTags($v0, "\n");
+            $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
+            $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
+            break;
+          case 'voice':
+            $v0 = $v->text;
             $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;

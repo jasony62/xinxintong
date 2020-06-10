@@ -565,32 +565,51 @@ class data_model extends entity_model
           }
           break;
         default: // 主观题
+          if ($oSchema->type === 'voice') {
+            $userAnswer = $treatedValue->text;
+          } else {
+            $userAnswer = $treatedValue;
+          }
           if (!empty($oAssignScore) && isset($oAssignScore->{$oSchema->id})) {
             //有指定的分数，优先使用指定的评分
             $quizScore = $oAssignScore->{$oSchema->id};
           } else {
-            $oLastSchemaValues = $this->query_objs_ss(
+            /* 答案没有变化，且给过分数，保留之前的分数 */
+            $oLastSchemaDatas = $this->query_objs_ss(
               [
                 'id,value,score',
                 'xxt_enroll_record_data',
                 ['enroll_key' => $oRecord->enroll_key, 'schema_id' => $oSchema->id, 'state' => 1],
               ]
             );
-            if (!empty($oLastSchemaValues) && (count($oLastSchemaValues) == 1) && ($oLastSchemaValues[0]->value == $treatedValue) && !empty($oLastSchemaValues[0]->score)) {
+            if (!empty($oLastSchemaDatas) && count($oLastSchemaDatas) === 1 && !empty($oLastSchemaDatas[0]->score)) {
+              $oLastSchemaData =  $oLastSchemaDatas[0];
+              if ($oSchema->type === 'voice') {
+                $oLastUserAnswer =   json_decode($oLastSchemaData->value);
+                if ($oLastUserAnswer) {
+                  $lastUserAnswer = $oLastUserAnswer->text;
+                }
+              } else {
+                $lastUserAnswer =  $oLastSchemaData->value;
+              }
+            }
+
+            if (isset($lastUserAnswer) && $lastUserAnswer === $userAnswer) {
               //有提交记录且没修改且已经评分
-              $quizScore = $oLastSchemaValues[0]->score;
-            } elseif ($treatedValue === $oSchema->answer) {
+              $quizScore = $oLastSchemaData->score;
+            } elseif ($userAnswer === $oSchema->answer) {
               // 如果提交的内容和答案完全一样
               $quizScore = $oSchema->score;
             } else {
+              // 包含所有的关键词
               $answerKws = preg_split('/[\s,;]+/', $oSchema->answer);
-              $notmatched = array_filter($answerKws, function ($kw) use ($oSchema) {
-                return strpos($oSchema->answer, $kw) === false;
+              $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
+                return strpos($userAnswer, $kw) === false;
               });
-              if (count($notmatched) === 0) {
-                $quizScore = $oSchema->score;
-              } else {
+              if (count($notmatched)) {
                 $quizScore = 0;
+              } else {
+                $quizScore = $oSchema->score;
               }
             }
           }

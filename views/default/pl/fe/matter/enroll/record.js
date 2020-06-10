@@ -641,6 +641,13 @@ define(['frame'], function (ngApp) {
               if (oSchema.format && oSchema.format === 'number') {
                 bRequireSum = true
               }
+              if (oSchema.type === 'voice') {
+                recordSchemasExt.push({
+                  type: 'voiceText',
+                  title: '语音文本',
+                  id: oSchema.id,
+                })
+              }
             })
 
             $scope.bRequireNickname =

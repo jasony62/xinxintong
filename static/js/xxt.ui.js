@@ -141,9 +141,10 @@ angular
   .factory('tmsfinder', [
     '$uibModal',
     function ($uibModal) {
-      var gallery = {},
-        open
-      open = function (siteid, options) {
+      var iframeName = 'tmsfinder-' + Date.now()
+      var fnOpen, modalInstance
+
+      fnOpen = function (siteid, options) {
         modalInstance = $uibModal.open({
           templateUrl: '/static/template/tms-finder.html',
           controller: [
@@ -168,23 +169,38 @@ angular
             },
           },
         })
-      }
-      gallery.open = function (galleryId, options) {
-        options = angular.extend(
-          {
-            callback: null,
-            multiple: false,
+        window.addEventListener(
+          'message',
+          (e) => {
+            console.log('xxt eee', e)
+            //const origin = event.origin || event.originalEvent.origin
+            //if (origin === 'http://localhost:8080') {
+            //  this.returnData = e.data
+            //  this.dialogVisible = false
+            //}
+            modalInstance.close()
           },
-          options
+          false
         )
-        open(galleryId, options)
       }
-      return gallery
+      return {
+        open: function (galleryId, options) {
+          options = angular.extend(
+            {
+              callback: null,
+              multiple: false,
+            },
+            options
+          )
+          fnOpen(galleryId, options)
+        },
+      }
     },
   ])
   .factory('mediagallery', function ($uibModal) {
     var gallery = {},
-      open
+      open,
+      modalInstance
     open = function (siteid, options) {
       modalInstance = $uibModal.open({
         templateUrl: '/static/template/mediagallery2.html',

@@ -5,7 +5,6 @@ define(['frame'], function (ngApp) {
     'noticebox',
     'srvSite',
     'mediagallery',
-    'tmsfinder',
     'noticebox',
     'srvApp',
     'tmsThumbnail',
@@ -17,7 +16,6 @@ define(['frame'], function (ngApp) {
       noticebox,
       srvSite,
       mediagallery,
-      tmsfinder,
       noticebox,
       srvApp,
       tmsThumbnail,
@@ -72,7 +70,7 @@ define(['frame'], function (ngApp) {
             srvApp.update('pic')
           },
         }
-        tmsfinder.open(_oEditing.siteid, options)
+        mediagallery.open(_oEditing.siteid, options)
       }
       $scope.removePic = function () {
         _oEditing.pic = ''

@@ -12,7 +12,7 @@ module.exports = function (ctx, client) {
   }
 
   const xxtUser = client.data
-  console.log(bucket, xxtUser)
+  console.log('xxt', bucket, xxtUser)
 
   // 检查用户是否是平台或站点管理员
   // if ($this->get['site'] === 'platform') {

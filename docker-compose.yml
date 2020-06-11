@@ -20,14 +20,12 @@ services:
     build: ./docker/nginx
     image: xxt/nginx
     volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - .:/usr/share/nginx/html
     links:
       - php-fpm
     # ports:
     #   - 8080:80
-    # environment:
-    #   NGINX_TMS_FINDER_BASE: /finder_ue/web
-    #   NGINX_TMS_FINDER_ADDRESS: http://tms-finder:8080/finder_ue/web
 
   adminer:
     image: adminer

@@ -1,5 +1,3 @@
-// 文件服务入口，利用nginx重定向指向实际地址
-const TMS_FINDER_BASE = '/tms-finder'
 /**
  * 业务组件
  * pushnotify
@@ -139,60 +137,64 @@ angular
     },
   ])
   .factory('tmsfinder', [
+    '$q',
+    'http2',
     '$uibModal',
-    function ($uibModal) {
-      var iframeName = 'tmsfinder-' + Date.now()
-      var fnOpen, modalInstance
+    '$sce',
+    function ($q, http2, $uibModal, $sce) {
+      function fnOpen(siteid) {
+        const defer = $q.defer()
+        http2.get('/rest/pl/config').then(function (rsp) {
+          if (!rsp.data.TMS_FINDER_ADDRESS)
+            window.alert('没有指定文件服务的地址')
 
-      fnOpen = function (siteid, options) {
-        modalInstance = $uibModal.open({
-          templateUrl: '/static/template/tms-finder.html',
-          controller: [
-            '$scope',
-            '$uibModalInstance',
-            'url',
-            function ($scope2, $mi, url) {
-              $scope2.title = options.mediaType
-              $scope2.url = url
-              $scope2.cancel = function () {
-                $mi.dismiss('cancel')
+          const modalInstance = $uibModal.open({
+            templateUrl: '/static/template/tms-finder.html',
+            controller: [
+              '$scope',
+              '$uibModalInstance',
+              'url',
+              function ($scope2, $mi, url) {
+                $scope2.url = url
+                $scope2.cancel = function () {
+                  $mi.dismiss('cancel')
+                }
+              },
+            ],
+            backdrop: 'static',
+            size: 'lg',
+            windowClass: 'auto-height full-width media-gallery',
+            resolve: {
+              url: function () {
+                let url = `${rsp.data.TMS_FINDER_ADDRESS}/storage?bucket=${siteid}`
+                url = $sce.trustAsResourceUrl(url)
+                return url
+              },
+            },
+          })
+          window.addEventListener(
+            'message',
+            (e) => {
+              const origin = event.origin || event.originalEvent.origin
+              if (rsp.data.TMS_FINDER_ADDRESS.match(origin)) {
+                modalInstance.close({ url: e.data })
               }
             },
-          ],
-          backdrop: 'static',
-          size: 'lg',
-          windowClass: 'auto-height full-width media-gallery',
-          resolve: {
-            url: function () {
-              let url = `${TMS_FINDER_BASE}/storage?bucket=${siteid}`
-              return url
-            },
-          },
+            false
+          )
+          defer.resolve(modalInstance)
         })
-        window.addEventListener(
-          'message',
-          (e) => {
-            console.log('xxt eee', e)
-            //const origin = event.origin || event.originalEvent.origin
-            //if (origin === 'http://localhost:8080') {
-            //  this.returnData = e.data
-            //  this.dialogVisible = false
-            //}
-            modalInstance.close()
-          },
-          false
-        )
+        return defer.promise
       }
       return {
-        open: function (galleryId, options) {
-          options = angular.extend(
-            {
-              callback: null,
-              multiple: false,
-            },
-            options
-          )
-          fnOpen(galleryId, options)
+        open: function (siteId) {
+          const defer = $q.defer()
+          fnOpen(siteId).then(function (modalInstance) {
+            modalInstance.result.then(function (data) {
+              defer.resolve(data)
+            })
+          })
+          return defer.promise
         },
       }
     },

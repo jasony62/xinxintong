@@ -66,7 +66,14 @@ define(['frame'], function (ngApp) {
             }
           },
         }
-        tmsfinder.open('platform', options)
+        tmsfinder.open('platform').then(function (result) {
+          if (result.url) {
+            slides.push({
+              picUrl: result.url + '?_=' + Date.now(),
+            })
+            $scope.update('home_carousel')
+          }
+        })
       }
       $scope.remove = function (homeChannel, index) {
         slides.splice(index, 1)

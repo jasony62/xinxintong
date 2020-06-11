@@ -587,7 +587,7 @@ class data_model extends entity_model
               if ($oSchema->type === 'voice') {
                 $oLastUserAnswer =   json_decode($oLastSchemaData->value);
                 if ($oLastUserAnswer) {
-                  $lastUserAnswer = $oLastUserAnswer->text;
+                  $lastUserAnswer = $oLastUserAnswer[0]->text;
                 }
               } else {
                 $lastUserAnswer =  $oLastSchemaData->value;

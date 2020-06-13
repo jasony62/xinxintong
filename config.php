@@ -1,4 +1,5 @@
 <?php
+
 /**
  * for long time execution.
  */
@@ -162,3 +163,7 @@ define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
  * 设置默认数学计算精度
  */
 !defined('APP_TMS_BCSCALE') && define('APP_TMS_BCSCALE', 2);
+/**
+ * mysql int类型的最大值
+ */
+define('MYSQL_INT_MAX', 2147483647);

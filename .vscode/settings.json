@@ -8,5 +8,13 @@
   "prettier.tabWidth": 2,
   "prettier.useTabs": false,
   "prettier.semi": false,
-  "prettier.singleQuote": true
+  "prettier.singleQuote": true,
+  "beautify.language": {
+    "css": ["css", "less", "scss"],
+    "html": ["htm", "html"]
+  },
+  "beautify.config": {
+    "wrap_line_length": 0,
+    "indent_size": 2
+  }
 }

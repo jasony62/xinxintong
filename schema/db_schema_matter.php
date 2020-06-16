@@ -66,8 +66,8 @@ $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 外部链接
@@ -98,8 +98,8 @@ $sql .= ",entry_rule text null"; // 参与规则
 $sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 链接参数
@@ -112,8 +112,8 @@ $sql .= ",pvalue varchar(255) not null";
 $sql .= ",authapi_id int"; // id from xxt_member_authapi
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 文本素材
@@ -134,8 +134,8 @@ $sql .= ",title text";
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 频道
@@ -178,8 +178,8 @@ $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 组成频道的素材
@@ -194,8 +194,8 @@ $sql .= ",matter_type varchar(20)"; // article,kink
 $sql .= ",seq int not null default 10000"; // 置顶小于10000， 置底大于20000
 $sql .= ",primary key(channel_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 内置素材
@@ -215,8 +215,8 @@ $sql .= ",title varchar(70) not null";
 $sql .= ",name varchar(30) not null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 模板消息
@@ -225,15 +225,15 @@ $sql = "create table if not exists xxt_tmplmsg(";
 $sql .= "id int not null auto_increment";
 $sql .= ",siteid varchar(32) not null";
 $sql .= ",templateid varchar(128) not null default ''";
-$sql .= ",creater varchar(40) not null";
+$sql .= ",creator varchar(40) not null";
 $sql .= ",create_at int not null";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",title varchar(70) not null";
 $sql .= ",example text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 模板消息参数
@@ -246,8 +246,8 @@ $sql .= ",pname varchar(128) not null default ''";
 $sql .= ",plabel varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 模板消息映射关系
@@ -259,8 +259,8 @@ $sql .= ",msgid int not null";
 $sql .= ",mapping text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 回复访问控制列表
@@ -275,8 +275,8 @@ $sql .= ",idsrc char(2) not null default ''";
 $sql .= ",label varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 素材附件
@@ -292,8 +292,8 @@ $sql .= ",last_modified bigint(13) not null";
 $sql .= ",url text null";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 
 echo 'finish matter.' . PHP_EOL;

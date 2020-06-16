@@ -51,8 +51,9 @@ define(['frame'], function (ngApp) {
   ])
   ngApp.provider.controller('ctrlHomeCarousel', [
     '$scope',
+    'tmsfinder',
     'mediagallery',
-    function ($scope, mediagallery) {
+    function ($scope, tmsfinder, mediagallery) {
       var slides
       $scope.add = function () {
         var options = {
@@ -65,7 +66,14 @@ define(['frame'], function (ngApp) {
             }
           },
         }
-        mediagallery.open('platform', options)
+        tmsfinder.open('platform').then(function (result) {
+          if (result.url) {
+            slides.push({
+              picUrl: result.url + '?_=' + Date.now(),
+            })
+            $scope.update('home_carousel')
+          }
+        })
       }
       $scope.remove = function (homeChannel, index) {
         slides.splice(index, 1)

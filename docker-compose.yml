@@ -6,9 +6,9 @@ services:
     ports:
       - 3306:3306
     # volumes:
-    #     - ./docker/mariadb/data:/var/lib/mysql
+    #   - ./docker/mariadb/data:/var/lib/mysql
     # environment:
-    #     MYSQL_ROOT_PASSWORD: 123456
+    #   MYSQL_ROOT_PASSWORD: 123456
 
   php-fpm:
     build: ./docker/php-fpm
@@ -25,10 +25,10 @@ services:
     links:
       - php-fpm
     # ports:
-    #     - 8080:80
+    #   - 8080:80
 
   adminer:
     image: adminer
     restart: always
     # ports:
-    #     - 9090:8080
+    #   - 9090:8080

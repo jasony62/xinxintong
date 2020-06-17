@@ -94,12 +94,20 @@ class notice extends main_base {
         if (defined('TMS_MESSENGER_BACK_ADDRESS')) {
             if (!empty($batchObj->tms_msg_wx_task_code)) {
                 $url = TMS_MESSENGER_BACK_ADDRESS . "/send/message/list";
-                $url .= "?bucket={$batchObj->siteid}&taskCode={$batchObj->tms_msg_wx_task_code}";
+                $url .= "?bucket={$batchObj->siteid}&lookupRequest=Y&taskCode={$batchObj->tms_msg_wx_task_code}";
             
                 list($success, $rsp) = tmsHttpGet($url);
                 if ($success !== true) return new \ResponseError($rsp);
                 if ($rsp->code !== 0) return new \ResponseError($rsp->msg);
                 $logs = $rsp->result;
+                foreach ($logs as $log) {
+                    if (!empty($log->request)) {
+                        $request = $log->request[0];
+                        $log->sendAt = $request->sendAt;
+                        !empty($request->msgid) && $log->msgid = $request->msgid;
+                        $log->status = !empty($request->errmsg) ? 'failed:' . $request->errmsg : ((!empty($request->msgid) && !empty($request->sendAt)) ? 'success' : '');
+                    }
+                }
                 $oResult = new \stdClass;
                 $oResult->logs = $logs;
                 //

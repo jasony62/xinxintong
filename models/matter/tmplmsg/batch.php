@@ -80,7 +80,7 @@ class batch_model extends \TMS_MODEL
       if (!empty($tmpl->templateid) && count($wxOpenids)) {
         /* 在消息服务中创建发送消息任务 */
         $aOptions2 = [];
-        $aOptions2['title'] = $tmpl->title;
+        $aOptions2['title'] = !empty($aOptions['send_from']) ? $aOptions['send_from'] : $tmpl->title;
         empty($aOptions['remark']) && $aOptions2['remark'] = implode("\n", $txtTmplMsg);
         list($success, $oMsgTask) = $this->_createMsgTask($siteId, $tmpl, $coverData, $url, $aOptions2);
         if ($success !== true) return [false, $oMsgTask];

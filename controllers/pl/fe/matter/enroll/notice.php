@@ -87,6 +87,50 @@ class notice extends main_base {
         }
 
         $modelTmplBat = $this->model('matter\tmplmsg\batch');
+        if(($batchObj = $modelTmplBat->byId($batch)) === false) {
+            return new \ObjectNotFoundError();
+        }
+        
+        if (defined('TMS_MESSENGER_BACK_ADDRESS')) {
+            if (!empty($batchObj->tms_msg_wx_task_code)) {
+                $url = TMS_MESSENGER_BACK_ADDRESS . "/send/message/list";
+                $url .= "?bucket={$batchObj->siteid}&lookupRequest=Y&taskCode={$batchObj->tms_msg_wx_task_code}";
+            
+                list($success, $rsp) = tmsHttpGet($url);
+                if ($success !== true) return new \ResponseError($rsp);
+                if ($rsp->code !== 0) return new \ResponseError($rsp->msg);
+                $logs = $rsp->result;
+                foreach ($logs as $log) {
+                    if (!empty($log->request)) {
+                        $request = $log->request[0];
+                        $log->sendAt = $request->sendAt;
+                        !empty($request->msgid) && $log->msgid = $request->msgid;
+                        $log->status = !empty($request->errmsg) ? 'failed:' . $request->errmsg : ((!empty($request->msgid) && !empty($request->sendAt)) ? 'success' : '');
+                    }
+                }
+                $oResult = new \stdClass;
+                $oResult->logs = $logs;
+                //
+                if (count($logs)) {
+                    $modelAcnt = $this->model('site\user\account');
+                    $records = [];
+                    foreach ($logs as $log) {
+                        $oSiteUser = $modelAcnt->byOpenid($batchObj->siteid, 'wx', $log->receiver, ['is_primary' => 'Y']);
+                        if (count($oSiteUser) === 1) {
+                            $oSiteUser = $oSiteUser[0];
+                            $record = new \stdClass;
+                            $record->userid = $oSiteUser->uid;
+                            $record->nickname = $oSiteUser->nickname;
+                            $records[] = $record;
+                        }
+                    }
+                    $oResult->records = $records;
+                }
+
+                return new \ResponseData($oResult);
+            }
+        }
+        //
         $q = [
             '*',
             'xxt_log_tmplmsg_detail',

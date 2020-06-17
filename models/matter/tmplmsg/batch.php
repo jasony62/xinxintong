@@ -55,7 +55,6 @@ class batch_model extends \TMS_MODEL
 
     $modelTmpl = $this->model('matter\tmplmsg');
     $tmpl = $modelTmpl->byId($tmplmsgId, ['cascaded' => 'Y']);
-
     /* 拼装通知消息 */
     $url = isset($params->url) ? $params->url : '';
     // 微信模板消息
@@ -75,14 +74,18 @@ class batch_model extends \TMS_MODEL
         $coverData[$tp->pname] = ['value' => $value, 'color' => empty($tp->color) ? '#173177' : $tp->color];
       }
     }
-
     /* 指定了消息推送服务 */
     if (defined('TMS_MESSENGER_BACK_ADDRESS')) {
       /* 通过消息服务发送微信模板消息 */
       if (!empty($tmpl->templateid) && count($wxOpenids)) {
         /* 在消息服务中创建发送消息任务 */
-        list($success, $oMsgTask) = $this->_createMsgTask($siteId, $tmpl, $coverData, $url);
+        $aOptions2 = [];
+        $aOptions2['title'] = !empty($aOptions['send_from']) ? $aOptions['send_from'] : $tmpl->title;
+        empty($aOptions['remark']) && $aOptions2['remark'] = implode("\n", $txtTmplMsg);
+        list($success, $oMsgTask) = $this->_createMsgTask($siteId, $tmpl, $coverData, $url, $aOptions2);
         if ($success !== true) return [false, $oMsgTask];
+        
+        $aOptions['tms_msg_wx_task_code'] = $oMsgTask->code;
 
         /* 在消息服务中创建发送消息 */
         list($success, $result) = $this->_createMsg($siteId, $oMsgTask->code, $wxOpenids);
@@ -177,6 +180,7 @@ class batch_model extends \TMS_MODEL
     !empty($aOptions['event_name']) && $oBatch->event_name = $aOptions['event_name'];
     !empty($aOptions['send_from']) && $oBatch->send_from = $aOptions['send_from'];
     !empty($aOptions['remark']) && $oBatch->remark = $this->escape($aOptions['remark']);
+    !empty($aOptions['tms_msg_wx_task_code']) && $oBatch->tms_msg_wx_task_code = $this->escape($aOptions['tms_msg_wx_task_code']);
 
     $oBatch->id = $this->insert('xxt_log_tmplmsg_batch', $oBatch, true);
 
@@ -189,7 +193,7 @@ class batch_model extends \TMS_MODEL
    * @param array $coverData 消息封面参数默认值
    * @param string $bodyUrl 消息内容url
    */
-  private function _createMsgTask($siteId, $tmpl, $coverData, $bodyUrl)
+  private function _createMsgTask($siteId, $tmpl, $coverData, $bodyUrl, $aOptions)
   {
     if (!defined('TMS_MESSENGER_BACK_ADDRESS')) {
       return [false, '没有配置[TMS_MESSENGER_BACK_ADDRESS]参数'];
@@ -201,7 +205,7 @@ class batch_model extends \TMS_MODEL
     $cover = ["templateCode" => $tmpl->tms_msg_wx_template_code];
     if (!empty($coverData)) $cover['data'] = $coverData;
 
-    $posted = ['title' => 'test', 'remark' => 'test', 'cover' => $cover];
+    $posted = ['title' => $aOptions['title'], 'remark' => $aOptions['remark'], 'cover' => $cover];
 
     if (!empty($bodyUrl)) $posted['body'] = ['url' => $bodyUrl];
 

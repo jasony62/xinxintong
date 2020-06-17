@@ -13,13 +13,14 @@ date_default_timezone_set('Asia/Shanghai');
  */
 ini_set('default_charset', 'utf-8');
 /**
- * database resource.
- */
-error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
-/**
  * 加载本地化设置
  */
 file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
+/**
+* 错误输出级别
+*/
+!defined('APP_REEOR_REPORTING_LEVEL') && define('APP_REEOR_REPORTING_LEVEL', 'ALL');
+
 /*********************************************
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/

@@ -1006,7 +1006,7 @@ class record_model extends record_base
               if (!isset($ruleVal) || ($ruleVal !== $oRule->op && empty($ruleVal->{$oRule->op}))) {
                 $checkSchemaVisibility = false;
               }
-            } else if (!isset($oRecordData->{$oRule->schema})) {
+            } else if (isset($oRecordData->{$oRule->schema})) {
               $ruleVal = $oRecordData->{$oRule->schema};
               if ($ruleVal !== $oRule->op && empty($ruleVal->{$oRule->op})) {
                 $checkSchemaVisibility = false;

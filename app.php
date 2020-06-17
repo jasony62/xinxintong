@@ -1,7 +1,17 @@
 <?php
-session_start();
 
 include_once dirname(__FILE__) . '/config.php';
+
+/**
+ * error handle
+ * database resource.
+ */
+ini_set('display_errors', 'On');
+//ini_set('display_errors', 'Off');
+error_reporting(APP_REEOR_REPORTING_LEVEL === 'ERROR' ? E_ERROR : (APP_REEOR_REPORTING_LEVEL === '0' ? 0 : E_ALL));
+
+if (isset($_COOKIE['PHPSESSID']) && !preg_match('/^[a-zA-Z0-9,-]{1,128}$/', $_COOKIE['PHPSESSID'])) die('SESSID错误');
+session_start();
 
 /***************************
  * error and exception handle
@@ -164,13 +174,7 @@ function custom_version($file)
 if (defined('APP_TMS_BCSCALE')) {
     bcscale(APP_TMS_BCSCALE);
 }
-/**
- * error handle
- */
-ini_set('display_errors', 'On');
-//ini_set('display_errors', 'Off');
-error_reporting(E_ALL);
-//error_reporting(E_ERROR);
+
 /*************************
  * run application.
  *************************/

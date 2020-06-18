@@ -1,5 +1,23 @@
 标准的`JSONSchema`定义。扩展出表单定义，表格定义，列表定义等视图定义。
 
+在基础类型上，通过指定`format`实现扩展。允许定义新的`format`，允许指定`format`需要需要扩展属性。
+
+基础类型和`format`对应关系。
+
+通过`formAttrs`说明在表单中约束条件。
+
+通过`viewAttrs`说明在查看单条记录时的约束条件。
+
+通过`listAttrs`说明在列表中约束条件。
+
+交互界面属性，和类型和 format 的对应。
+
+`format`和`attrs`可以扩展。
+
+将页面特有的属性从题目中剔除放到页面的定义中，简化数据的定义。
+
+交互逻辑和数据逻辑分离。
+
 # JSONSchema
 
 定义`schema`。
@@ -33,14 +51,16 @@
 | ------------ | -------------------------------------------- | ---- | ------ | ---------- |
 | id           | 题目 ID                                      | 是   |        |            |
 | title        | 题目标题                                     | 是   |        | Y          |
-| type         | 题目类型                                     | 是   |        |            |
 | description  | 填写说明（描述说明题不支持）                 | 否   |        | Y          |
-| required     | 必填（描述说明题不支持）                     | 是   | N      |            |
+| required     | 必填（描述说明题不支持）                     | 是   | N      | ?          |
+| type         | 题目类型                                     | 是   |        |            |
 | readonly     | 只读（描述说明题不支持）                     | 是   | N      |            |
-| shareable    | 填写内容是否可共享（描述说明题不支持）       | 是   | N      |            |
 | supplement   | 允许填写补充内容（描述说明题不支持）         | 是   | N      |            |
 | requireScore | 需要计分                                     | 是   | N      |            |
 | scoreMode    | 作为测评（evaluation）或作为考题（question） | 是   | N      |            |
+| shareable    | 填写内容是否可共享（描述说明题不支持）       | 是   | N      |            |
+
+shareable
 
 题目类型
 
@@ -51,13 +71,15 @@
 | 多项填写题 | multitext | array           |
 | 单选题     | single    | string          |
 | 多选题     | multiple  | array           |
-| 打分题     | score     |                 |
+| 打分题     | score     | object          |
 | 上传图片   | image     | object          |
 | 上传文件   | file      | object          |
 | 上传链接   | url       | object          |
 | 微信录音   | voice     | object          |
 | 描述说明   | html      | string          |
 | 日期       | date      | integer         |
+
+通过`format`指定属性的语义。在`JSONSchema`中，`format`只用于`string`类型，这里扩展到到`array`，`object`和`integer`。
 
 ## 题型自有属性
 

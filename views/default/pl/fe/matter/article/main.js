@@ -76,6 +76,10 @@ define(['frame'], function (ngApp) {
         _oEditing.pic = ''
         srvApp.update('pic')
       }
+      $scope.$on('xxt.tms-datepicker.change', function (event, data) {
+        $scope.editing[data.state] = data.value
+        srvApp.update(data.state)
+      })
       $scope.assignMission = function () {
         srvApp.assignMission()
       }

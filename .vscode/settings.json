@@ -16,5 +16,13 @@
   "beautify.config": {
     "wrap_line_length": 0,
     "indent_size": 2
-  }
+  },
+  "vetur.format.defaultFormatterOptions": {
+    "prettier": {
+      "semi": false,
+      "singleQuote": true
+    }
+  },
+  "vetur.format.options.tabSize": 2,
+  "vetur.format.options.useTabs": false
 }

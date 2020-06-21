@@ -1,58 +1,67 @@
 <div class='col-md-6 col-md-offset-3'>
-    <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>设置参与规则</label>
-                <div ng-include="frameTemplates.url('entryRule')"></div>
-            </div>
-        </div>
+  <div id='main-access' class='panel panel-default' ng-controller='ctrlAccess'>
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>设置参与规则</label>
+        <div ng-include="frameTemplates.url('entryRule')"></div>
+      </div>
     </div>
-    <div class='panel panel-default' ng-controller="ctrlRemind">
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>参与人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人查看项目中所有需要参加的活动。'></span></label>
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{mission.entryUrl}}">
-                    <div class='input-group-btn'>
-                        <a class='btn btn-default' ng-href="{{::mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class='form-group'>
-                <p class='form-control-static'><span ng-if="mission.userApp">接收通知的用户：<span ng-bind="mission.userApp.title"></span></span><span ng-if="!mission.userApp">需在【<a ng-click="switchTo('main')">定义/项目描述</a>】中指定接收通知的项目用户</span></p>
-            </div>
-            <!-- begin timers -->
-            <div ng-repeat="timer in timers">
-                <hr>
-                <div ng-include="frameTemplates.url('timerNotice')"></div>
-            </div>
-            <!-- end timers -->
-            <hr>
-            <div>
-                <button class='btn btn-default' ng-click="srvTimer.add(mission,timers,'remind')">添加定时通知规则</button>
-            </div>
-            <div ng-if="timers.length">
-                <hr>
-                <a href ng-click="switchTo('notice')">查看通知发送日志</a>
-            </div>
+  </div>
+  <div class='panel panel-default' ng-controller="ctrlRemind">
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>参与人进入链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人查看项目中所有需要参加的活动。'></span></label>
+        <div class='input-group'>
+          <input class='form-control' readonly value="{{mission.entryUrl}}">
+          <div class='input-group-btn'>
+            <a class='btn btn-default' ng-href="{{::mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+          </div>
         </div>
-    </div>
-    <div class='panel panel-default' ng-if="missionMschemas.length">
-        <div class='panel-body'>
-            <div class='form-group' ng-repeat="mschema in missionMschemas">
-                <label>通讯录【{{mschema.title}}】填写链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人填写通讯录信息。'></span></label>
-                <div class='input-group'>
-                    <input class='form-control' readonly value="{{mschema.fullUrl}}">
-                    <div class='input-group-btn'>
-                        <a class='btn btn-default' ng-href="{{mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class='form-group'>
+        <label>参与人进入链接（新）</label>
+        <div class='input-group'>
+          <input class='form-control' readonly value="{{mission.entryUrl}}&version=new">
+          <div class='input-group-btn'>
+            <a class='btn btn-default' ng-href="{{::mission.entryUrl}}&version=new" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+          </div>
         </div>
+      </div>
+      <div class='form-group'>
+        <p class='form-control-static'><span ng-if="mission.userApp">接收通知的用户：<span ng-bind="mission.userApp.title"></span></span><span ng-if="!mission.userApp">需在【<a ng-click="switchTo('main')">定义/项目描述</a>】中指定接收通知的项目用户</span></p>
+      </div>
+      <!-- begin timers -->
+      <div ng-repeat="timer in timers">
+        <hr>
+        <div ng-include="frameTemplates.url('timerNotice')"></div>
+      </div>
+      <!-- end timers -->
+      <hr>
+      <div>
+        <button class='btn btn-default' ng-click="srvTimer.add(mission,timers,'remind')">添加定时通知规则</button>
+      </div>
+      <div ng-if="timers.length">
+        <hr>
+        <a href ng-click="switchTo('notice')">查看通知发送日志</a>
+      </div>
     </div>
+  </div>
+  <div class='panel panel-default' ng-if="missionMschemas.length">
+    <div class='panel-body'>
+      <div class='form-group' ng-repeat="mschema in missionMschemas">
+        <label>通讯录【{{mschema.title}}】填写链接 <span class='glyphicon glyphicon-question-sign' uib-tooltip='参与人填写通讯录信息。'></span></label>
+        <div class='input-group'>
+          <input class='form-control' readonly value="{{mschema.fullUrl}}">
+          <div class='input-group-btn'>
+            <a class='btn btn-default' ng-href="{{mschema.fullUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <script type="text/ng-template" id="assignUserApp.html">
-    <div class="modal-header">
+  <div class="modal-header">
             <button class="close" type="button" ng-click="cancel()">×</button>
             <h5 class="modal-title">指定项目用户名单</h5>
         </div>

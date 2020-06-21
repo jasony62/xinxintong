@@ -59,6 +59,14 @@
       <div class='form-group' ng-if="!editing.mission">
         <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
       </div>
+      <div class='row'>
+        <div class='col-md-6'>
+          <div class='form-group'>
+            <label>发布时间（可选）</label>
+            <tms-datepicker class='tms-datepicker' tms-title='发布时间' tms-date='editing.start_at' tms-state='start_at'></tms-datepicker>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class='panel panel-default'>

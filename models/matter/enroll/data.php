@@ -601,15 +601,19 @@ class data_model extends entity_model
               // 如果提交的内容和答案完全一样
               $quizScore = $oSchema->score;
             } else {
-              // 包含所有的关键词
-              $answerKws = preg_split('/[\s,;]+/', $oSchema->answer);
-              $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
-                return strpos($userAnswer, $kw) === false;
-              });
-              if (count($notmatched)) {
-                $quizScore = 0;
-              } else {
-                $quizScore = $oSchema->score;
+              $quizScore = 0;
+              // 用分号区分条件组，条件组之间是或的关系，只要有一组满足就给分
+              $answerKwGrps = preg_split('/[;]+/', $oSchema->answer);
+              foreach ($answerKwGrps as $answerKwGrp) {
+                // 用空格和逗号区分条件，条件间是或的关系
+                $answerKws = preg_split('/[\s,]+/', $answerKwGrp);
+                $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
+                  return strpos($userAnswer, $kw) === false;
+                });
+                if (count($notmatched) === 0) {
+                  $quizScore = $oSchema->score;
+                  break;
+                }
               }
             }
           }

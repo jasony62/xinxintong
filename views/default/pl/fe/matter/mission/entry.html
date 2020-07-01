@@ -15,6 +15,7 @@
           <input class='form-control' readonly value="{{mission.entryUrl}}">
           <div class='input-group-btn'>
             <a class='btn btn-default' ng-href="{{::mission.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+            <button class='btn btn-default' ng-click="openPageSetting()"><i class='glyphicon glyphicon-cog'></i></button>
           </div>
         </div>
       </div>
@@ -62,34 +63,61 @@
 </div>
 <script type="text/ng-template" id="assignUserApp.html">
   <div class="modal-header">
-            <button class="close" type="button" ng-click="cancel()">×</button>
-            <h5 class="modal-title">指定项目用户名单</h5>
+    <button class="close" type="button" ng-click="cancel()">×</button>
+    <h5 class="modal-title">指定项目用户名单</h5>
+  </div>
+  <div class="modal-body">
+    <form class="form-horizontal">
+      <div class='form-group'>
+        <label class="col-md-3 control-label">活动类型</label>
+        <div class="col-md-9">
+          <label class='radio-inline'>
+            <input type='radio' value='group' ng-model="data.appType">分组活动</label>
+          <label class='radio-inline'>
+            <input type='radio' value='enroll' ng-model="data.appType">记录活动</label>
+          <label class='radio-inline'>
+            <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
+          <label class='radio-inline'>
+            <input type='radio' value='mschema' ng-model="data.appType">通讯录</label>
         </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">活动类型</label>
-                    <div class="col-md-9">
-                        <label class='radio-inline'>
-                            <input type='radio' value='group' ng-model="data.appType">分组活动</label>
-                        <label class='radio-inline'>
-                            <input type='radio' value='enroll' ng-model="data.appType">记录活动</label>
-                        <label class='radio-inline'>
-                            <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
-                        <label class='radio-inline'>
-                            <input type='radio' value='mschema' ng-model="data.appType">通讯录</label>
-                    </div>
-                </div>
-                <div class='form-group'>
-                    <label class="col-md-3 control-label">目标活动</label>
-                    <div class="col-md-9">
-                        <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps" size=10></select>
-                    </div>
-                </div>
-            </form>
+      </div>
+      <div class='form-group'>
+        <label class="col-md-3 control-label">目标活动</label>
+        <div class="col-md-9">
+          <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps" size=10></select>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" ng-click="ok()">确定</button>
-        </div>
-    </script>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ok()">确定</button>
+  </div>
+</script>
+<script type="text/ng-template" id="pageSetting.html">
+  <div class="modal-header">
+    <button class="close" ng-click="dismiss()">×</button>
+    <h5 class="modal-title">页面设置</h5>
+  </div>
+  <div class="modal-body">
+    <div class='form-group'>
+      <label>频道</label>
+      <div>
+        <label class='checkbox-inline'>
+          <input type='checkbox' ng-model="pageConfig.channel.visible">项目资料列表中是只显示频道
+        </label>
+        <div class="help-block">默认频道不出现在项目资料列表中</div>
+      </div>
+      <div ng-if="pageConfig.channel.visible!==true">
+        <label class='checkbox-inline'>
+          <input type='checkbox' ng-model="pageConfig.channel.asFilter">频道作为项目资料列表筛选条件
+        </label>
+        <div class="help-block">如果用频道对项目资料进行了分类，可以将频道作为筛选条件使用</div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default" ng-click="save()">保存</button>
+    <button class="btn btn-default" ng-click="dismiss()">关闭</button>
+  </div>
+ </script>
 </div>

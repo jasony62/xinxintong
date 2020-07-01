@@ -22,7 +22,7 @@ export default {
   },
   props: { siteId: String, missionId: String },
   data() {
-    return { docs: [], channels: [], selectedChannelId: null }
+    return { docs: [], channels: [], selectedChannelId: null, matterTypes: [] }
   },
   computed: {
     channelItems: function() {
@@ -41,19 +41,32 @@ export default {
         .docList(
           this.siteId,
           this.missionId,
-          ['article', 'link'],
+          this.matterTypes,
           this.selectedChannelId
         )
         .then(docs => docs.forEach(doc => this.docs.push(doc)))
     }
   },
   mounted() {
-    Vue.$apis.mission
-      .channelList(this.siteId, this.missionId)
-      .then(channels => channels.forEach(chan => this.channels.push(chan)))
-    Vue.$apis.mission
-      .docList(this.siteId, this.missionId, ['article', 'link'])
-      .then(docs => docs.forEach(doc => this.docs.push(doc)))
+    if (Vue.$mission) {
+      const mission = Vue.$mission
+      const pageConfig = mission.pageConfig ? mission.pageConfig : {}
+      const channelVisible =
+        pageConfig.channel && pageConfig.channel.visible == true ? true : false
+      const channelAsFilter =
+        pageConfig.channel && pageConfig.channel.asFilter == true ? true : false
+
+      this.matterTypes = channelVisible ? ['channel'] : ['article', 'link']
+
+      if (channelVisible === false && channelAsFilter === true)
+        Vue.$apis.mission
+          .channelList(this.siteId, this.missionId)
+          .then(channels => channels.forEach(chan => this.channels.push(chan)))
+
+      Vue.$apis.mission
+        .docList(this.siteId, this.missionId, this.matterTypes)
+        .then(docs => docs.forEach(doc => this.docs.push(doc)))
+    }
   }
 }
 </script>

@@ -69,6 +69,10 @@ class mission_model extends app_base
         $oMission->entryRule = empty($oMission->entry_rule) ? new \stdClass : json_decode($oMission->entry_rule);
         unset($oMission->entry_rule);
       }
+      if ($fields === '*' || false !== strpos($fields, 'page_config')) {
+        $oMission->pageConfig = empty($oMission->page_config) ? new \stdClass : json_decode($oMission->page_config);
+        unset($oMission->page_config);
+      }
       $modelRnd = $this->model('matter\mission\round');
       if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
         if (!empty($oMission->round_cron)) {

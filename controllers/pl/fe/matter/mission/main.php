@@ -353,6 +353,9 @@ class main extends \pl\fe\matter\main_base
         case 'entryRule':
           $oUpdated->entry_rule = $this->escape($modelMis->toJson($oPosted->entryRule));
           break;
+        case 'pageConfig':
+          $oUpdated->page_config = $this->escape($modelMis->toJson($oPosted->pageConfig));
+          break;
         case 'extattrs':
           $oUpdated->extattrs = $this->escape($modelMis->toJson($oPosted->extattrs));
           break;

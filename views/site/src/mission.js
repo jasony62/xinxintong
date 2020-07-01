@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Mission from './Mission.vue'
 import router from './router/mission'
-import { TmsAxiosPlugin } from 'tms-vue'
+import { TmsEventPlugin, TmsAxiosPlugin } from 'tms-vue'
 import ApiPlugin from './apis'
 
 Vue.config.productionTip = false
 
-Vue.use(TmsAxiosPlugin)
+Vue.use(TmsEventPlugin).use(TmsAxiosPlugin)
 
 const tmsAxios = {}
 tmsAxios.mission = Vue.TmsAxios({

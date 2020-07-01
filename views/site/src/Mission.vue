@@ -62,6 +62,8 @@ export default {
       else {
         Vue.$apis.mission.get(site, mission).then(mission => {
           Object.assign(this.mission, mission)
+          Vue.$mission = mission
+          this.$tmsEmit('mission.ready', mission)
         })
         Vue.$apis.notice.count(site).then(noticeCount => {
           this.noticeCount = noticeCount

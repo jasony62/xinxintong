@@ -61,7 +61,7 @@ class main extends \site\fe\matter\base
   {
     $oUser = $this->who;
 
-    $oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,title,summary,pic,user_app_id,user_app_type']);
+    $oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'id,title,summary,pic,user_app_id,user_app_type,page_config']);
     if (false === $oMission) {
       return new \ObjectNotFoundError();
     }

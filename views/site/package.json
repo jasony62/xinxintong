@@ -14,7 +14,8 @@
     "tms-vue-ui": "^0.0.27",
     "vant": "^2.8.7",
     "vue": "^2.6.11",
-    "vue-router": "^3.2.0"
+    "vue-router": "^3.2.0",
+    "weixin-js-sdk": "^1.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.4.0",

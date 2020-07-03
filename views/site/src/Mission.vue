@@ -35,6 +35,9 @@
 import Vue from 'vue'
 import { Loading, Empty, Toast, NavBar, Tabbar, TabbarItem } from 'vant'
 
+import axios from 'axios'
+import wx from 'weixin-js-sdk'
+
 Vue.use(Loading)
   .use(Empty)
   .use(Toast)
@@ -58,17 +61,47 @@ export default {
   mounted() {
     const { site, mission } = this.$route.query
     Vue.$apis.mission.entryRule(site, mission).then(result => {
-      if (result[0] === false) this.failure = result[1]
-      else {
-        Vue.$apis.mission.get(site, mission).then(mission => {
-          Object.assign(this.mission, mission)
-          Vue.$mission = mission
-          this.$tmsEmit('mission.ready', mission)
-        })
-        Vue.$apis.notice.count(site).then(noticeCount => {
-          this.noticeCount = noticeCount
-        })
-      }
+      new Promise(resolve => {
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+          const url = '/rest/site/fe/wxjssdksignpackage'
+          const params = {
+            site,
+            url: encodeURIComponent(location.href.split('#')[0])
+          }
+          axios.get(url, { params }).then(res => {
+            const { appId, timestamp, nonceStr, signature } = res
+            wx.config({
+              appId,
+              timestamp,
+              nonceStr,
+              signature,
+              jsApiList: [
+                'hideOptionMenu',
+                'onMenuShareTimeline',
+                'onMenuShareAppMessage'
+              ]
+            })
+            wx.ready(function() {
+              resolve(true)
+            })
+            wx.error(function() {
+              resolve(false)
+            })
+          })
+        } else resolve(true)
+      }).then(() => {
+        if (result[0] === false) this.failure = result[1]
+        else {
+          Vue.$apis.mission.get(site, mission).then(mission => {
+            Object.assign(this.mission, mission)
+            Vue.$mission = mission
+            this.$tmsEmit('mission.ready', mission)
+          })
+          Vue.$apis.notice.count(site).then(noticeCount => {
+            this.noticeCount = noticeCount
+          })
+        }
+      })
     })
   }
 }

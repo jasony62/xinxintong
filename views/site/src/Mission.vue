@@ -63,7 +63,7 @@ export default {
     Vue.$apis.mission.entryRule(site, mission).then(result => {
       new Promise(resolve => {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
-          const url = '/rest/site/fe/wxjssdksignpackage'
+          const url = '/rest/site/fe/wxjssdksignpackage2'
           const params = {
             site,
             url: encodeURIComponent(location.href.split('#')[0])

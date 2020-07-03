@@ -188,6 +188,34 @@ class proxy_model extends \sns\proxybase
     return array(true, $js);
   }
   /**
+   * 获得微信JSSDK签名包
+   */
+  public function getJssdkSignPackage2($url)
+  {
+    $rst = $this->getJsApiTicket();
+    if ($rst[0] === false) {
+      return $rst;
+    }
+
+    $jsapiTicket = $rst[1];
+
+    $timestamp = time();
+    $nonceStr = $this->createNonceStr();
+    // 这里参数的顺序要按照 key 值 ASCII 码升序排序
+    $string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+    $signature = sha1($string);
+
+    $signPackage = [
+      "appId" => $this->config->appid,
+      "nonceStr" => $nonceStr,
+      "timestamp" => $timestamp,
+      "url" => $url,
+      "signature" => $signature,
+    ];
+
+    return [true, $signPackage];
+  }
+  /**
    *
    */
   private function createNonceStr($length = 16)

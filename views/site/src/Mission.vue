@@ -36,7 +36,6 @@ import Vue from 'vue'
 import { Loading, Empty, Toast, NavBar, Tabbar, TabbarItem } from 'vant'
 
 import axios from 'axios'
-import wx from 'weixin-js-sdk'
 
 Vue.use(Loading)
   .use(Empty)
@@ -61,16 +60,17 @@ export default {
   mounted() {
     const { site, mission } = this.$route.query
     Vue.$apis.mission.entryRule(site, mission).then(result => {
-      new Promise(resolve => {
+      new Promise((resolve, reject) => {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
+          const wx = require('weixin-js-sdk')
           const url = '/rest/site/fe/wxjssdksignpackage2'
           const params = {
             site,
             url: encodeURIComponent(location.href.split('#')[0])
           }
           axios.get(url, { params }).then(res => {
-            console.log('res', res)
             const result = res.data
+            if (result.code !== 0) return reject(result.err_msg)
             const { appId, timestamp, nonceStr, signature } = result.data
             wx.config({
               appId,
@@ -83,27 +83,28 @@ export default {
                 'onMenuShareAppMessage'
               ]
             })
-            wx.ready(function() {
-              resolve(true)
-            })
-            wx.error(function() {
-              resolve(false)
+            wx.ready(() => {
+              resolve(wx)
             })
           })
         } else resolve(true)
-      }).then(() => {
-        if (result[0] === false) this.failure = result[1]
-        else {
-          Vue.$apis.mission.get(site, mission).then(mission => {
-            Object.assign(this.mission, mission)
-            Vue.$mission = mission
-            this.$tmsEmit('mission.ready', mission)
-          })
-          Vue.$apis.notice.count(site).then(noticeCount => {
-            this.noticeCount = noticeCount
-          })
-        }
       })
+        .then(() => {
+          if (result[0] === false) this.failure = result[1]
+          else {
+            Vue.$apis.mission.get(site, mission).then(mission => {
+              Object.assign(this.mission, mission)
+              Vue.$mission = mission
+              this.$tmsEmit('mission.ready', mission)
+            })
+            Vue.$apis.notice.count(site).then(noticeCount => {
+              this.noticeCount = noticeCount
+            })
+          }
+        })
+        .catch(errmsg => {
+          this.failure = errmsg
+        })
     })
   }
 }

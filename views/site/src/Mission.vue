@@ -63,7 +63,7 @@ export default {
       if (result[0] === false) this.failure = result[1]
       else
         wxapi
-          .config()
+          .config(site)
           .then(wxReady => {
             Vue.$apis.mission.get(site, mission).then(mission => {
               if (wxReady) {

@@ -373,7 +373,7 @@ class base extends \site\base
    * $site
    * $url
    */
-  public function wxjssdksignpackage_action2($site, $url)
+  public function wxjssdksignpackage2_action($site, $url)
   {
     if (($snsConfig = $this->model('sns\wx')->bySite($site)) && $snsConfig->joined === 'Y') {
       $snsProxy = $this->model('sns\wx\proxy', $snsConfig);

@@ -35,8 +35,7 @@
 import Vue from 'vue'
 import { Loading, Empty, Toast, NavBar, Tabbar, TabbarItem } from 'vant'
 
-import axios from 'axios'
-import wx from 'weixin-js-sdk'
+import wxapi from './utils/wx'
 
 Vue.use(Loading)
   .use(Empty)
@@ -61,67 +60,27 @@ export default {
   mounted() {
     const { site, mission } = this.$route.query
     Vue.$apis.mission.entryRule(site, mission).then(result => {
-      new Promise((resolve, reject) => {
-        if (/MicroMessenger/i.test(navigator.userAgent)) {
-          const url = '/rest/site/fe/wxjssdksignpackage2'
-          const params = {
-            site,
-            url: encodeURIComponent(location.href.split('#')[0])
-          }
-          axios.get(url, { params }).then(res => {
-            const result = res.data
-            if (result.err_code !== 0) return reject(result.err_msg)
-            const { appId, timestamp, nonceStr, signature } = result.data
-            wx.config({
-              appId,
-              timestamp,
-              nonceStr,
-              signature,
-              jsApiList: [
-                'hideOptionMenu',
-                'onMenuShareTimeline',
-                'onMenuShareAppMessage'
-              ]
-            })
-            wx.ready(() => {
-              resolve(true)
-            })
-          })
-        } else resolve(false)
-      })
-        .then(wxReady => {
-          if (result[0] === false) this.failure = result[1]
-          else {
+      if (result[0] === false) this.failure = result[1]
+      else
+        wxapi
+          .config()
+          .then(wxReady => {
             Vue.$apis.mission.get(site, mission).then(mission => {
-              Object.assign(this.mission, mission)
               if (wxReady) {
-                const { title, pic } = mission
-                const imgUrl =
-                  pic && pic.indexOf(location.protocol) === -1
-                    ? location.protocol + '//' + location.host + pic
-                    : pic
-
-                const shareOptions = {
-                  title,
-                  desc: mission.summary || title,
-                  link: mission.entryUrl + '&version=new',
-                  imgUrl,
-                  fail: () => alert('分享失败')
-                }
-                wx.onMenuShareTimeline(shareOptions)
-                wx.onMenuShareAppMessage(shareOptions)
+                const { title, summary, pic, entryRule } = mission
+                wxapi.setShare(title, summary, pic, entryRule + '&version=new')
               }
+              Object.assign(this.mission, mission)
               Vue.$mission = mission
               this.$tmsEmit('mission.ready', mission)
             })
             Vue.$apis.notice.count(site).then(noticeCount => {
               this.noticeCount = noticeCount
             })
-          }
-        })
-        .catch(errmsg => {
-          this.failure = errmsg
-        })
+          })
+          .catch(errmsg => {
+            this.failure = errmsg
+          })
     })
   }
 }

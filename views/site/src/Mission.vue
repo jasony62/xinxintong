@@ -67,8 +67,8 @@ export default {
           .then(wxReady => {
             Vue.$apis.mission.get(site, mission).then(mission => {
               if (wxReady) {
-                const { title, summary, pic, entryRule } = mission
-                wxapi.setShare(title, summary, pic, entryRule + '&version=new')
+                const { title, summary, pic, entryUrl } = mission
+                wxapi.setShare(title, summary, pic, entryUrl + '&version=new')
               }
               Object.assign(this.mission, mission)
               Vue.$mission = mission

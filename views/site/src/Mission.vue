@@ -70,7 +70,8 @@ export default {
           }
           axios.get(url, { params }).then(res => {
             console.log('res', res)
-            const { appId, timestamp, nonceStr, signature } = res.data
+            const result = res.data
+            const { appId, timestamp, nonceStr, signature } = result.data
             wx.config({
               appId,
               timestamp,

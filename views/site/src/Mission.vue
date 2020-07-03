@@ -69,7 +69,8 @@ export default {
             url: encodeURIComponent(location.href.split('#')[0])
           }
           axios.get(url, { params }).then(res => {
-            const { appId, timestamp, nonceStr, signature } = res
+            console.log('res', res)
+            const { appId, timestamp, nonceStr, signature } = res.data
             wx.config({
               appId,
               timestamp,

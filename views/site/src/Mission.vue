@@ -36,6 +36,7 @@ import Vue from 'vue'
 import { Loading, Empty, Toast, NavBar, Tabbar, TabbarItem } from 'vant'
 
 import axios from 'axios'
+import wx from 'weixin-js-sdk'
 
 Vue.use(Loading)
   .use(Empty)
@@ -62,7 +63,6 @@ export default {
     Vue.$apis.mission.entryRule(site, mission).then(result => {
       new Promise((resolve, reject) => {
         if (/MicroMessenger/i.test(navigator.userAgent)) {
-          const wx = require('weixin-js-sdk')
           const url = '/rest/site/fe/wxjssdksignpackage2'
           const params = {
             site,
@@ -84,17 +84,28 @@ export default {
               ]
             })
             wx.ready(() => {
-              resolve(wx)
+              resolve(true)
             })
           })
-        } else resolve(true)
+        } else resolve(false)
       })
-        .then(() => {
+        .then(wxReady => {
           if (result[0] === false) this.failure = result[1]
           else {
             Vue.$apis.mission.get(site, mission).then(mission => {
               Object.assign(this.mission, mission)
               Vue.$mission = mission
+              if (wxReady) {
+                const shareOptions = {
+                  title: mission.title,
+                  desc: mission.summary,
+                  link: mission.entryUrl,
+                  imgUrl: mission.pic,
+                  fail: () => alert('分享失败')
+                }
+                wx.onMenuShareTimeline(shareOptions)
+                wx.onMenuShareAppMessage(shareOptions)
+              }
               this.$tmsEmit('mission.ready', mission)
             })
             Vue.$apis.notice.count(site).then(noticeCount => {

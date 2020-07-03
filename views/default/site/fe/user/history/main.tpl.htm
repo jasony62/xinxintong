@@ -28,8 +28,8 @@
   <div class="container ng-cloak" ng-cloak>
     <div class='row'>
       <div class='col-md-12'>
-        <uib-tabset active="0">
-          <uib-tab index="0">
+        <uib-tabset active="1">
+          <uib-tab index="0" class="hide">
             <uib-tab-heading>我的活动（{{myApps.length}}）</uib-tab-heading>
             <div class='list-group'>
               <div class='list-group-item app' ng-repeat="app in myApps" ng-click="openApp(app)">
@@ -42,7 +42,7 @@
             <uib-tab-heading>我的项目（{{myMissions.length}}）</uib-tab-heading>
             <div class='list-group'>
               <div class='list-group-item' ng-repeat="mis in myMissions" ng-click="openMission(mis)">
-                <div class='title'>{{mis.mission_title}}</div>
+                <div class='title'>{{mis.title}}</div>
               </div>
             </div>
           </uib-tab>

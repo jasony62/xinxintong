@@ -70,7 +70,7 @@ export default {
           }
           axios.get(url, { params }).then(res => {
             const result = res.data
-            if (result.code !== 0) return reject(result.err_msg)
+            if (result.err_code !== 0) return reject(result.err_msg)
             const { appId, timestamp, nonceStr, signature } = result.data
             wx.config({
               appId,

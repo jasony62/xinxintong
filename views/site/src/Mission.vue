@@ -94,18 +94,24 @@ export default {
           else {
             Vue.$apis.mission.get(site, mission).then(mission => {
               Object.assign(this.mission, mission)
-              Vue.$mission = mission
               if (wxReady) {
+                const { title, pic } = mission
+                const imgUrl =
+                  pic && pic.indexOf(location.protocol) === -1
+                    ? location.protocol + '//' + location.host + pic
+                    : pic
+
                 const shareOptions = {
-                  title: mission.title,
-                  desc: mission.summary,
-                  link: mission.entryUrl,
-                  imgUrl: mission.pic,
+                  title,
+                  desc: mission.summary || title,
+                  link: mission.entryUrl + '&version=new',
+                  imgUrl,
                   fail: () => alert('分享失败')
                 }
                 wx.onMenuShareTimeline(shareOptions)
                 wx.onMenuShareAppMessage(shareOptions)
               }
+              Vue.$mission = mission
               this.$tmsEmit('mission.ready', mission)
             })
             Vue.$apis.notice.count(site).then(noticeCount => {

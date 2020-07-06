@@ -222,7 +222,7 @@ class history extends \site\fe\base
 
     /* 将用户加入的所有通讯录，按团队id分组 */
     $missions = array_reduce($mschemas, function ($result, $mschema) use ($model) {
-      $q = ['id,title,start_at,end_at', 'xxt_mission', ['siteid' => $mschema->siteid, 'state' => '1', 'entry_rule' => (object) ['op' => 'like', 'pat' => '%"member":{"' . $mschema->schema_id . '"%']]];
+      $q = ['siteid,id,title,start_at,end_at', 'xxt_mission', ['siteid' => $mschema->siteid, 'state' => '1', 'entry_rule' => (object) ['op' => 'like', 'pat' => '%"member":{"' . $mschema->schema_id . '"%']]];
       $missions =  $model->query_objs_ss($q);
       $result += $missions;
       return $result;

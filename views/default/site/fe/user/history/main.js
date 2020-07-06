@@ -43,7 +43,7 @@ ngApp.controller('ctrlMain', [
         '/rest/site/fe/matter/mission?site=' +
         mission.siteid +
         '&mission=' +
-        mission.mission_id
+        mission.id
     }
     http2.get('/rest/site/fe/get?site=' + site).then(function (rsp) {
       hisService.myApps().then(function (apps) {

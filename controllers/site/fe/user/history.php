@@ -225,6 +225,7 @@ class history extends \site\fe\base
       $q = ['siteid,id,title,start_at,end_at', 'xxt_mission', ['siteid' => $mschema->siteid, 'state' => '1', 'entry_rule' => (object) ['op' => 'like', 'pat' => '%"member":{"' . $mschema->schema_id . '"%']]];
       $missions =  $model->query_objs_ss($q);
       $result += $missions;
+      foreach ($missions as $mission) $result[] = $mission;
       return $result;
     }, []);
 

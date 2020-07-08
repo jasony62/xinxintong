@@ -504,7 +504,7 @@ class data_model extends entity_model
           break;
         case 'score': // 打分题
           if (!empty($oSchema->ops)) {
-            $oTreatedValue = json_decode($treatedValue);
+            $oTreatedValue = is_string($treatedValue) ? json_decode($treatedValue) : (is_object($treatedValue) ? $treatedValue : new \stdClass);
             foreach ($oSchema->ops as $oOp) {
               if (isset($oOp->v) && !empty($oTreatedValue->{$oOp->v}) && is_numeric($oTreatedValue->{$oOp->v})) {
                 if (isset($schemaScore)) {

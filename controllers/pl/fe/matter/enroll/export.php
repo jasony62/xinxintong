@@ -285,7 +285,7 @@ class export extends record_base
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;
           case 'voice':
-            $v0 = is_array($v) ? $v[0]->text : '';
+            $v0 = (is_array($v) && isset($v[0]->text)) ? $v[0]->text : '';
             $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;

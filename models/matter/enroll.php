@@ -123,13 +123,15 @@ class enroll_model extends enroll_base
         $oApp->id = $appId;
       }
       /* 活动轮次 */
-      $modelRnd = $this->model('matter\enroll\round');
-      if (empty($appRid)) {
-        $oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
-      } else {
-        $oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
+      if ($cascaded !== 'F') {
+        $modelRnd = $this->model('matter\enroll\round');
+        if (empty($appRid)) {
+          $oAppRnd = $modelRnd->getActive($oApp, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
+        } else {
+          $oAppRnd = $modelRnd->byId($appRid, ['fields' => 'id,rid,title,purpose,start_at,end_at,mission_rid']);
+        }
+        $oApp->appRound = $oAppRnd;
       }
-      $oApp->appRound = $oAppRnd;
 
       if (isset($oApp->siteid) && isset($oApp->id)) {
         $oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
@@ -205,11 +207,11 @@ class enroll_model extends enroll_base
         $oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
       }
 
-      $modelPage = $this->model('matter\enroll\page');
       if (!empty($oApp->id)) {
+        $modelPage = $this->model('matter\enroll\page');
         if ($cascaded === 'Y') {
           $oApp->pages = $modelPage->byApp($oApp->id);
-        } else {
+        } else if ($cascaded !== 'F') {
           $oApp->pages = $modelPage->byApp($oApp->id, ['cascaded' => 'N', 'fields' => 'id,name,type,title']);
         }
       }

@@ -46,12 +46,13 @@ export default {
         this.batchDone = done
         result.logs.forEach(log => {
           const { id, close_at, batch } = log
-          const { create_at, remark } = batch
+          const { create_at, remark, send_from } = batch
           this.notices.push({
             id,
             close_at,
             createAt: moment(create_at * 1000).format('YYYY-MM-DD HH:mm'),
-            remark
+            remark,
+            app: { pic: send_from ? send_from.pic : '' }
           })
         })
       })

@@ -35,7 +35,7 @@ class notice extends \site\fe\base
     }
 
     $q = [
-      'id,batch_id,close_at,data,status',
+      self::SITE_FE_FIELDS,
       'xxt_log_tmplmsg_detail',
       ["siteid" => $this->siteId, "userid" => $user->uid],
     ];
@@ -51,14 +51,21 @@ class notice extends \site\fe\base
           $log->data = json_decode($log->data);
         }
         if ($log->batch_id) {
-          if ($log->batch = $modelBat->byId($log->batch_id, ['fields' => 'create_at,remark,params'])) {
-            if (!empty($log->batch->params)) {
-              $log->batch->params = json_decode($log->batch->params);
-              if (!empty($log->batch->params->url)) {
-                $log->batch->remark .= "\n<a href = " . $log->batch->params->url . ">查看详情</a>";
+
+          if ($batch = $modelBat->byId($log->batch_id, ['fields' => self::SITE_FE_BATCH_FIELDS])) {
+            if (!empty($batch->params)) {
+              $batch->params = json_decode($batch->params);
+              if (!empty($batch->params->url)) {
+                $batch->remark .= "\n<a href = " . $batch->params->url . ">查看详情</a>";
               }
             }
           }
+          if (!empty($batch->send_from)) {
+            list($type, $id) = explode(':', $batch->send_from);
+            $model = $this->model('matter\\' . $type);
+            $batch->send_from = $model->byId($id, ['fields' => 'id,title,summary,pic', 'cascaded' => 'F']);
+          }
+          $log->batch = $batch;
         }
       }
     }

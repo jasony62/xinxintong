@@ -1,5 +1,5 @@
 <template>
-  <tms-flex direction="column" class="doc">
+  <tms-flex direction="column">
     <van-dropdown-menu v-if="channels.length">
       <van-dropdown-item
         v-model="selectedChannelId"

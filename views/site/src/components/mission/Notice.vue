@@ -1,6 +1,11 @@
 <template>
-  <tms-flex direction="column" align-items="stretch">
-    <tms-card v-for="notice in notices" :key="notice.id" :title="notice.createAt" class="notice">
+  <tms-flex direction="column" align-items="stretch" gap="x">
+    <tms-card
+      v-for="notice in notices"
+      :key="notice.id"
+      :title="notice.createAt"
+      class="tms-card__notice"
+    >
       <template #desc>
         <div v-html="notice.remark"></div>
       </template>
@@ -29,8 +34,11 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-.notice {
+<style lang="less">
+.tms-card__notice {
   padding: 8px;
+}
+.tms-flex.tms-flex_column.tms-flex_gap_x > .tms-flex__item + .tms-flex__item {
+  margin-top: 1px;
 }
 </style>

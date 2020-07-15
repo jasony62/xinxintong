@@ -2,6 +2,7 @@
   <tms-frame
     :display="{header: true, footer: false, left: false, right: false} "
     center-color="#ddd"
+    class="tms-frame__mission"
   >
     <template #header>
       <van-nav-bar :title="mission.title" />
@@ -86,3 +87,19 @@ export default {
 }
 </script>
 
+<style lang="less">
+.tms-frame__mission {
+  .van-nav-bar {
+    background-color: @brand-primary;
+    .van-nav-bar__title {
+      color: @brand-primary-text;
+    }
+  }
+  .van-tabbar {
+    background-color: @brand-second;
+    .van-tabbar-item--active {
+      color: @brand-second-text;
+    }
+  }
+}
+</style>

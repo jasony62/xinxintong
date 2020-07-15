@@ -89,6 +89,8 @@ export default {
 
 <style lang="less">
 .tms-frame__mission {
+  font-size: 14px;
+  color: #333;
   .van-nav-bar {
     background-color: @brand-primary;
     .van-nav-bar__title {

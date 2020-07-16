@@ -10,13 +10,28 @@
     <template #center v-if="mission.id">
       <tms-flex direction="column" align-items="stretch">
         <van-tabbar route :fixed="false" :safe-area-inset-bottom="true">
-          <van-tabbar-item :to="{ name: 'Track', query: $route.query}" icon="todo-list-o">活动</van-tabbar-item>
-          <van-tabbar-item :to="{ name: 'Doc', query: $route.query}" icon="description">资料</van-tabbar-item>
+          <van-tabbar-item class="van-tabbar-item__app" :to="{ name: 'Track', query: $route.query}">
+            <span>活动</span>
+            <template #icon>
+              <div class="van-tabbar-item__icon__img" />
+            </template>
+          </van-tabbar-item>
+          <van-tabbar-item class="van-tabbar-item__doc" :to="{ name: 'Doc', query: $route.query}">
+            <span>资料</span>
+            <template #icon>
+              <div class="van-tabbar-item__icon__img" />
+            </template>
+          </van-tabbar-item>
           <van-tabbar-item
+            class="van-tabbar-item__notice"
             :to="{ name: 'Notice', query: $route.query}"
-            icon="comment-o"
             :dot="noticeCount>0"
-          >通知</van-tabbar-item>
+          >
+            <span>通知</span>
+            <template #icon>
+              <div class="van-tabbar-item__icon__img" />
+            </template>
+          </van-tabbar-item>
         </van-tabbar>
         <router-view />
       </tms-flex>

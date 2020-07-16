@@ -5,12 +5,17 @@
         v-for="doc in docs"
         :key="doc.id"
         :thumb="doc.pic"
-        :title="doc.title"
-        :desc="doc.summary"
         :url="doc.entryUrl"
         gap-content="1"
         class="tms-card__doc"
-      />
+      >
+        <template #title>
+          <div class="van-multi-ellipsis">{{doc.title}}</div>
+        </template>
+        <template #desc>
+          <div class="van-multi-ellipsis--l3">{{doc.summary}}</div>
+        </template>
+      </tms-card>
     </tms-flex>
   </div>
 </template>

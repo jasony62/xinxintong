@@ -1,3 +1,8 @@
+const path = require('path')
+function resolve(dir) {
+  return path.join(__dirname, dir)
+}
+
 module.exports = {
   publicPath: `/ue/site/fe`,
   outputDir: `../../ue/site/fe`,
@@ -24,6 +29,15 @@ module.exports = {
       },
     },
   },
+  chainWebpack: (config) => {
+    config.module
+      .rule('postless')
+      .test(/\.less$/)
+      .use('postcss-loader')
+      .loader('postcss-loader')
+      .end()
+  },
+
   devServer: {
     proxy: 'http://localhost:8000',
   },

@@ -4,10 +4,13 @@
       v-for="app in apps"
       :thumb="app.pic"
       :key="app.id"
-      :title="app.title"
       :url="app.entryUrl"
       class="tms-card__app"
-    />
+    >
+      <template #title>
+        <div class="van-multi-ellipsis--l2">{{app.title}}</div>
+      </template>
+    </tms-card>
   </tms-flex>
 </template>
 

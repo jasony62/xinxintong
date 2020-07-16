@@ -8,7 +8,7 @@
       class="tms-card__notice"
     >
       <template #desc>
-        <div v-html="notice.remark"></div>
+        <div class="van-multi-ellipsis--l3" v-html="notice.remark"></div>
       </template>
       <template #footer v-if="notice.close_at<=0">
         <tms-flex direction="row-reverse">

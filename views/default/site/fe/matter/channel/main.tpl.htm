@@ -17,8 +17,11 @@
   <nav class='navbar hm-navbar-default'>
     <div class='container-fluid'>
       <div class="navbar-header">
-        <a class='navbar-brand' href='/rest/home' target='_self'>
+        <a ng-if="showReturn===false" class='navbar-brand' href='/rest/home' target='_self'>
           <?php echo APP_TITLE;?>
+        </a>
+        <a ng-if="showReturn===true" class='navbar-brand' ng-click="back()" target='_self'>
+          返回
         </a>
       </div>
     </div>

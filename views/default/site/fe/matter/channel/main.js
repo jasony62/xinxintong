@@ -129,6 +129,10 @@ angular
           })
         },
       }
+      $scope.back = function () {
+        history.back()
+      }
+      $scope.showReturn = /site\/fe/.test(document.referrer)
       $scope.elSiteCard = angular.element(document.querySelector('#site-card'))
       $scope.siteCardToggled = function (open) {
         var elDropdownMenu

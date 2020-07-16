@@ -21,4 +21,4 @@ pnpm-debug.log*
 *.sln
 *.sw?
 
-/views/site/src/assets/primary/
+src/assets/style/theme/primary/

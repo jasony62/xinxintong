@@ -20,15 +20,6 @@
         </div>
       </div>
       <div class='form-group'>
-        <label>参与人进入链接（新）</label>
-        <div class='input-group'>
-          <input class='form-control' readonly value="{{mission.entryUrl}}&version=new">
-          <div class='input-group-btn'>
-            <a class='btn btn-default' ng-href="{{::mission.entryUrl}}&version=new" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-          </div>
-        </div>
-      </div>
-      <div class='form-group'>
         <p class='form-control-static'><span ng-if="mission.userApp">接收通知的用户：<span ng-bind="mission.userApp.title"></span></span><span ng-if="!mission.userApp">需在【<a ng-click="switchTo('main')">定义/项目描述</a>】中指定接收通知的项目用户</span></p>
       </div>
       <!-- begin timers -->

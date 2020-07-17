@@ -500,7 +500,11 @@ class remark extends base
     $oCreator->uid = $noticeName;
     $oCreator->name = 'system';
     $oCreator->src = 'pl';
-    $modelTmplBat->send($oApp->siteid, $oTmplConfig->tmplmsgId, $oCreator, $receivers, $oTmplConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
+    $aResult = $modelTmplBat->send($oApp->siteid, $oTmplConfig->tmplmsgId, $oCreator, $receivers, $oTmplConfig->oParams, ['send_from' => $oApp->type . ':' . $oApp->id]);
+    if (false === $aResult[0]) {
+      $modelLog = $this->model('log');
+      $modelLog->log($oRemark->id, 'enroll:' . $oApp->id . '.remark.notify', $aResult[1]);
+    }
 
     return true;
   }

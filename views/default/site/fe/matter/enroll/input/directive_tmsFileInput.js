@@ -12,13 +12,15 @@ module.exports = [
       oResumable.on('progress', function () {
         var phase, p
         p = oResumable.progress()
-        var phase = $scope.$root.$$phase
-        if (phase === '$digest' || phase === '$apply') {
-          $scope.progressOfUploadFile = Math.ceil(p * 100)
-        } else {
-          $scope.$apply(function () {
-            $scope.progressOfUploadFile = Math.ceil(p * 100)
-          })
+        if (p) {
+          var phase = $scope.$root.$$phase
+          if (phase === '$digest' || phase === '$apply') {
+            $scope.progressOfUploadFile = '上传中 ' + Math.ceil(p * 100) + '%'
+          } else {
+            $scope.$apply(function () {
+              $scope.progressOfUploadFile = '上传中 ' + Math.ceil(p * 100) + '%'
+            })
+          }
         }
       })
       oResumable.on('complete', function () {
@@ -49,9 +51,8 @@ module.exports = [
       controller: [
         '$scope',
         'noticebox',
-        'http2',
-        function ($scope, noticebox, http2) {
-          $scope.progressOfUploadFile = 0
+        function ($scope, noticebox) {
+          $scope.progressOfUploadFile = false
           $scope.beforeSubmit(function () {
             return onSubmit($scope)
           })

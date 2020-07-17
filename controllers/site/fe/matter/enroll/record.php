@@ -317,7 +317,6 @@ class record extends base
     /**
      * 保存记录数据
      */
-    $aUpdatedEnlRec = [];
     if ($bSaveNewRecord) {
       /* 插入记录数据 */
       $oNewRec = $modelRec->enroll($oEnlApp, $oUser, ['nickname' => $oUser->nickname, 'assignedRid' => $rid, 'state' => '99']);

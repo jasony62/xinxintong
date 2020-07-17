@@ -543,7 +543,7 @@ class record_model extends record_base
       } else {
         $data = json_decode($record->data);
         if ($data === null) {
-          $record->data = 'json error(' . json_last_error() . '):' . $r->data;
+          $record->data = 'json error(' . json_last_error() . '):' . $record->data;
         } else {
           $record->data = $data;
         }
@@ -687,7 +687,7 @@ class record_model extends record_base
     if (is_string($oApp)) {
       $oApp = $this->model('matter\enroll')->byId($oApp, ['cascaded' => 'N']);
     }
-    if (false === $oApp && empty($oApp->dynaDataSchemas)) {
+    if (false === $oApp || empty($oApp->dynaDataSchemas)) {
       return false;
     }
     if ($oOptions && is_array($oOptions)) {
@@ -1179,10 +1179,10 @@ class record_model extends record_base
     !empty($rid) && $w .= " and e.rid='$rid'";
 
     // 指定了记录记录过滤条件
-    if (!empty($criteria->record)) {
+    if (!empty($options->record)) {
       $whereByRecord = '';
-      if (!empty($criteria->record->verified)) {
-        $whereByRecord .= " and verified='{$criteria->record->verified}'";
+      if (!empty($options->record->verified)) {
+        $whereByRecord .= " and verified='{$options->record->verified}'";
       }
       $w .= $whereByRecord;
     }

@@ -14,9 +14,9 @@ class main extends \pl\fe\matter\base
   /**
    * @param int $id
    */
-  public function get_action($site, $id)
+  public function get_action($id)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
 
@@ -31,7 +31,7 @@ class main extends \pl\fe\matter\base
    */
   public function list_action($site, $cascaded = 'N')
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
 
@@ -46,7 +46,7 @@ class main extends \pl\fe\matter\base
    */
   public function mappingGet_action($id)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
     $mapping = $this->model('matter\tmplmsg\config')->byId($id);
@@ -88,7 +88,7 @@ class main extends \pl\fe\matter\base
    */
   public function remove_action($site, $id)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
     $rst = $this->model()->update(
@@ -104,7 +104,7 @@ class main extends \pl\fe\matter\base
    */
   public function update_action($site, $id)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
     $nv = $this->getPostJson();
@@ -123,7 +123,7 @@ class main extends \pl\fe\matter\base
    */
   public function addParam_action($site, $tid)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
 
@@ -140,9 +140,9 @@ class main extends \pl\fe\matter\base
    *
    * $id parameter's id
    */
-  public function updateParam_action($site, $id)
+  public function updateParam_action($id)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
 
@@ -160,9 +160,9 @@ class main extends \pl\fe\matter\base
    *
    * $pid parameter's id
    */
-  public function removeParam_action($site, $pid)
+  public function removeParam_action($pid)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
 

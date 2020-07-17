@@ -425,17 +425,17 @@ class user_model extends \TMS_MODEL
    */
   public function removeRecord($oApp, $oRecord)
   {
-    if (empty($oApp->id) || empty($oRecord->enroll_key) || empty($oRecord->userid) || !isset($oRecord->rid)) {
+    if (empty($oApp->id) || empty($oRecord->enroll_key)) {
       return [false, '参数不完整'];
     }
-    $oRecord2 = $this->model('matter\enroll\record')->byId($oRecord->enroll_key, ['score']);
-    if (false === $oRecord2) {
+    $oRecord = $this->model('matter\enroll\record')->byId($oRecord->enroll_key, ['fields' => 'group_id,userid,rid,score']);
+    if (false === $oRecord) {
       return [false, '记录不存在'];
     }
     /* 记录数据分 */
     $score = 0;
-    if (isset($oRecord2->score->sum)) {
-      $score = $oRecord2->score->sum;
+    if (isset($oRecord->score->sum)) {
+      $score = $oRecord->score->sum;
     }
 
     $rst = $this->update(
@@ -446,6 +446,17 @@ class user_model extends \TMS_MODEL
       ],
       ['aid' => $oApp->id, 'userid' => $oRecord->userid, 'rid' => [$oRecord->rid, 'ALL'], 'enroll_num' => (object) ['op' => '>', 'pat' => 0]]
     );
+
+    if (!empty($oRecord->group_id)) {
+      $this->update(
+        'xxt_enroll_group',
+        [
+          'enroll_num' => (object) ['op' => '-=', 'pat' => 1],
+          'score' => (object) ['op' => '-=', 'pat' => $score],
+        ],
+        ['aid' => $oApp->id, 'group_id' => $oRecord->group_id, 'rid' => [$oRecord->rid, 'ALL'], 'enroll_num' => (object) ['op' => '>', 'pat' => 0]]
+      );
+    }
 
     return [true, $rst];
   }
@@ -1069,7 +1080,7 @@ class user_model extends \TMS_MODEL
       ['id' => $oEnrollUsr->id]
     );
 
-    $oEnrollUsrALL = $this->byUerid($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
+    $oEnrollUsrALL = $this->byIdInApp($oApp, $userid, ['fields' => 'id,userid,nickname,user_total_coin', 'rid' => 'ALL']);
     if ($oEnrollUsrALL) {
       $this->update(
         'xxt_enroll_user',

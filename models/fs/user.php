@@ -242,7 +242,10 @@ class user_model
     if (strlen($voiceContent) < 200) {
       $result = json_decode($voiceContent);
       if ($result && is_object($result)) {
-        return [false, $voiceContent];
+        if (isset($result->errmsg))
+          return [false, $result->errmsg];
+        else
+          return [false, $voiceContent];
       }
     }
 

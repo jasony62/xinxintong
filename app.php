@@ -84,7 +84,7 @@ function show_error($message)
   $msg = $modelLog->escape($msg);
 
   /* 记录24小时内的报错信息 */
-  $logfilename = 'error.log';
+  $logfilename = 'logs/error.log';
   if (file_exists($logfilename)) {
     $mtime = filemtime($logfilename);
     if ($mtime < time() - 86400) {

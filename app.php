@@ -102,7 +102,7 @@ function show_error($message)
   if ($message instanceof SiteUserException) {
     $modelLog->log($message->getUserid(), $method, $msg);
   } else {
-    $modelLog->log('errorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerror', $method, $msg);
+    $modelLog->log('error', $method, $msg);
   }
 
   exit;

@@ -80,11 +80,29 @@ function show_error($message)
     $msg = str_replace('<br>', "\n", $excep);
   }
 
+
   $msg = $modelLog->escape($msg);
+
+  /* 记录24小时内的报错信息 */
+  $logfilename = 'error.log';
+  if (file_exists($logfilename)) {
+    $mtime = filemtime($logfilename);
+    if ($mtime < time() - 86400) {
+      $logfile = fopen($logfilename, 'wb');
+    } else {
+      $logfile = fopen($logfilename, 'ab');
+    }
+  } else {
+    $logfile = fopen($logfilename, 'wb');
+  }
+  fwrite($logfile, date('Ymd H:i') . ' - ' . $msg . PHP_EOL);
+  fclose($logfile);
+
+  /* 错误信息报错的到数据库 */
   if ($message instanceof SiteUserException) {
     $modelLog->log($message->getUserid(), $method, $msg);
   } else {
-    $modelLog->log('error', $method, $msg);
+    $modelLog->log('errorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerrorerror', $method, $msg);
   }
 
   exit;

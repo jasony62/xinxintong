@@ -137,7 +137,7 @@ class TMS_DB
     }
 
     $mysqli = $this->_getDbWriteConn();
-    ($mysqli->query($sql)) || $this->_throwError('database error:' . $sql . ';' . $mysqli->error);
+    ($mysqli->query($sql)) || $this->_throwError('database error:' . $sql . ';' . $mysqli->error, $table);
 
     if ($autoid) {
       $last_insert_id = $mysqli->insert_id;
@@ -498,9 +498,12 @@ class TMS_DB
   }
   /**
    * 记录数据库执行错误
+   * 
+   * 如果是xxt_log的操作报错，不抛出异常
    */
-  private function _throwError($msg)
+  private function _throwError($msg, $table = null)
   {
-    throw new Exception($msg);
+    if (isset($table) && $table !== 'xxt_log')
+      throw new Exception($msg);
   }
 }

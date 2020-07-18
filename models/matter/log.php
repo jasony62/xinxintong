@@ -94,6 +94,7 @@ class log_model extends \TMS_MODEL
     $log['share_at'] = $current;
     $log['share_to'] = $shareto;
     $log['userid'] = $oUser->userid;
+    $log['opendid'] = '';
     $log['nickname'] = $this->escape($oUser->nickname);
     $log['matter_id'] = $oMatter->id;
     $log['matter_type'] = $oMatter->type;

@@ -25,6 +25,24 @@ class user_model
     return $this->service->writeFile($dir, $filename, $fileUpload);
   }
   /**
+   * 公众号配置
+   */
+  protected function getSnsProxy()
+  {
+    $snsProxy = false;
+    if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
+      $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+    } else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
+      $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
+    } else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
+      if ($snsConfig->joined === 'Y') {
+        $snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+      }
+    }
+
+    return $snsProxy;
+  }
+  /**
    * $url
    */
   public function remove($url)
@@ -45,6 +63,8 @@ class user_model
   {
     /* 下载文件 */
     $imageContent = file_get_contents($url);
+
+    /* 获得文件的扩展名 */
     $aResponseInfo = $http_response_header;
     foreach ($aResponseInfo as $loop) {
       if (strpos($loop, "Content-disposition") !== false) {
@@ -59,6 +79,14 @@ class user_model
         break;
       }
     }
+
+    return $this->_writeImage($imageContent, $ext);
+  }
+  /**
+   * 图片写入本地文件
+   */
+  private function _writeImage($imageContent, $ext)
+  {
     $dir = date("ymdH"); // 每个小时分一个目录
     $storename = date("is") . rand(10000, 99999) . "." . $ext;
     /**
@@ -153,20 +181,21 @@ class user_model
     }
     if (isset($img->serverId)) {
       /**
-       * wx jssdk
+       * wx jssdk上传图片
        */
-      if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
-        $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-      } else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
-        $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-      } else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
-        if ($snsConfig->joined === 'Y') {
-          $snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
+      $snsProxy = $this->getSnsProxy();
+      if (empty($snsProxy)) {
+        $rst = [false, '没有获得公众号配置信息'];
+      } else {
+        // $rst = $snsProxy->mediaGetUrl($img->serverId);
+        // if ($rst[0] !== false) {
+        //   $rst = $this->_storeImageUrl($rst[1]);
+        // }
+        $aInfo = [];
+        $rst = $snsProxy->mediaGet($img->serverId, $aInfo);
+        if ($rst[0] !== false) {
+          $rst = $this->_writeImage($rst[1], empty($aInfo['ext']) ? 'jpg' : $aInfo['ext']);
         }
-      }
-      $rst = $snsProxy->mediaGetUrl($img->serverId);
-      if ($rst[0] !== false) {
-        $rst = $this->_storeImageUrl($rst[1]);
       }
     } else if (isset($img->imgSrc)) {
       if (0 === strpos($img->imgSrc, 'http')) {
@@ -212,20 +241,26 @@ class user_model
       return [false, '录音数据为空'];
     }
 
-    if (($snsConfig = TMS_APP::model('sns\wx')->bySite($this->siteId)) && $snsConfig->joined === 'Y') {
-      $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-    } else if (($snsConfig = TMS_APP::model('sns\wx')->bySite('platform')) && $snsConfig->joined === 'Y') {
-      $snsProxy = TMS_APP::model('sns\wx\proxy', $snsConfig);
-    } else if ($snsConfig = TMS_APP::model('sns\qy')->bySite($this->siteId)) {
-      if ($snsConfig->joined === 'Y') {
-        $snsProxy = TMS_APP::model('sns\qy\proxy', $snsConfig);
-      }
+    $snsProxy = $this->getSnsProxy();
+    if (empty($snsProxy)) {
+      return [false, '没有获得公众号配置信息'];
     }
 
-    $rst = $snsProxy->mediaGetUrl($oVoice->serverId);
-    if ($rst[0] !== false) {
-      $rst = $this->_storeWxVoiceUrl($rst[1], $oVoice);
+    /* 从微信活动录音内容 */
+    $rst = $snsProxy->mediaGet($oVoice->serverId);
+    if (false === $rst[0]) {
+      return $rst;
     }
+    /* 把获得的内容保存在本地 */
+    $rst = $this->_writeWxVoice($rst[1], $oVoice);
+    if (false === $rst[0]) {
+      return $rst;
+    }
+
+    // $rst = $snsProxy->mediaGetUrl($oVoice->serverId);
+    // if ($rst[0] !== false) {
+    //   $rst = $this->_storeWxVoiceUrl($rst[1], $oVoice);
+    // }
 
     $oVoice->url = $rst[1];
     unset($oVoice->serverId);
@@ -235,20 +270,8 @@ class user_model
   /**
    * 从指定的url下载微信录音数据，并保存成文件
    */
-  private function _storeWxVoiceUrl($url, &$oVoice)
+  private function _writeWxVoice($voiceContent, &$oVoice)
   {
-    /* 下载文件 */
-    $voiceContent = file_get_contents($url);
-    if (strlen($voiceContent) < 200) {
-      $result = json_decode($voiceContent);
-      if ($result && is_object($result)) {
-        if (isset($result->errmsg))
-          return [false, $result->errmsg];
-        else
-          return [false, $voiceContent];
-      }
-    }
-
     /* 文件保存到本地 */
     $tempname = uniqid();
     $localFs = new local_model($this->siteId, '_temp');
@@ -261,7 +284,6 @@ class user_model
     $command = "ffmpeg -i $amr $mp3";
     $output = [];
     exec($command, $output);
-    //if (!empty($output)) return [false, json_encode($output)];
 
     $voiceContent = $localFs->read($tempname . '.mp3');
     if (empty($voiceContent)) return [false, '转换文件格式失败'];
@@ -278,5 +300,26 @@ class user_model
     $localFs->delete($tempname . '.mp3');
 
     return [true, $newUrl];
+  }
+  /**
+   * 从指定的url下载微信录音数据，并保存成文件
+   */
+  private function _storeWxVoiceUrl($url, &$oVoice)
+  {
+    /* 下载文件 */
+    $voiceContent = file_get_contents($url);
+
+    // 应该从$http_response_header获取返回内容的类型
+    if (strlen($voiceContent) < 200) {
+      $result = json_decode($voiceContent);
+      if ($result && is_object($result)) {
+        if (isset($result->errcode))
+          return [false, $result->errmsg];
+        else
+          return [false, $voiceContent];
+      }
+    }
+
+    return $this->_writeWxVoice($voiceContent, $oVoice);
   }
 }

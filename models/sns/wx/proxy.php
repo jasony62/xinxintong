@@ -432,7 +432,7 @@ class proxy_model extends \sns\proxybase
   {
     $cmd = "https://api.weixin.qq.com/cgi-bin/groups/update";
     $posted = json_encode(array('group' => $group));
-    $rst = $this->httpPost($posted);
+    $rst = $this->httpPost($cmd, $posted);
 
     return $rst;
   }
@@ -486,9 +486,9 @@ class proxy_model extends \sns\proxybase
    *
    * $mediaid
    */
-  public function mediaGetUrl($mediaId)
+  public function mediaGetUrl($mediaId, $newAccessToken = false)
   {
-    $rst = $this->accessToken();
+    $rst = $this->accessToken($newAccessToken);
     if ($rst[0] === false) {
       return $rst[1];
     }
@@ -498,6 +498,62 @@ class proxy_model extends \sns\proxybase
     $url .= "&media_id=$mediaId";
 
     return [true, $url];
+  }
+  /**
+   * 获得指定媒体资料的内容
+   * httpGet不支持返回媒体内容
+   */
+  public function mediaGet($mediaId, &$aInfo = [], $newAccessToken = false)
+  {
+    $rst = $this->accessToken($newAccessToken);
+    if ($rst[0] === false) {
+      return $rst[1];
+    }
+
+    $url = 'http://file.api.weixin.qq.com/cgi-bin/media/get';
+    $url .= "?access_token={$rst[1]}";
+    $url .= "&media_id=$mediaId";
+
+    /* 下载文件 */
+    $mediaContent = file_get_contents($url);
+
+    /* 解析响应头 */
+    $aRspHeaders = $http_response_header;
+    foreach ($aRspHeaders as $header) {
+      if (stripos($header, "Content-Type") !== false) {
+        $contentType = explode(':', $header)[1];
+        $contentType = explode(';', $contentType)[0];
+        $contentType = trim($contentType);
+        $contentType = explode(',', $contentType);
+      } else if (stripos($header, "Content-disposition") !== false) {
+        $disposition = trim(substr($header, 21));
+        $filename = explode(';', $disposition);
+        $filename = array_pop($filename);
+        $filename = explode('=', $filename);
+        $filename = array_pop($filename);
+        $filename = str_replace('"', '', $filename);
+        $filename = explode('.', $filename);
+        $aInfo['ext'] = array_pop($filename);
+        break;
+      }
+    }
+
+    /* 检查响应的类型 */
+    if (!empty($contentType) && in_array('application/json', $contentType)) {
+      $err = json_decode($mediaContent);
+      if ($err && is_object($err) && isset($err->errcode) && isset($err->errmsg)) {
+        if ($newAccessToken !== true && in_array($err->errcode, [40001, 40014])) {
+          /* access_token不可用，重新获取，只重发1次 */
+          $this->mediaGet($mediaId, $aInfo, true);
+        } else {
+          return [false, $err->errmsg];
+        }
+      } else {
+        return [false, $mediaContent];
+      }
+    }
+
+    return [true, $mediaContent];
   }
   /**
    * 将图文消息上传到微信公众号平台

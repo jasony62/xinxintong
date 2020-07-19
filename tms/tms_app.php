@@ -43,12 +43,10 @@ class TMS_APP
       } else if (strpos($model_path, '/')) {
         $model_class = preg_replace('/^.*\//', '', $model_path);
         $model_file = $model_path;
-      }
-      else if (strpos($model_path, '.')) {
+      } else if (strpos($model_path, '.')) {
         $model_class = str_replace('.', '_', $model_path);
         $model_file = strstr($model_path, '.', true);
-      }
-      else {
+      } else {
         $model_class = $model_path;
         $model_file = $model_path;
       }
@@ -109,12 +107,10 @@ class TMS_APP
     } else if (0 === strpos($path, TMS_APP_API_PREFIX . '/')) {
       $path = substr($path, strlen(TMS_APP_API_PREFIX));
       self::_request_api($path);
-    }
-    else if (0 === strpos($path, TMS_APP_VIEW_PREFIX . '/')) {
+    } else if (0 === strpos($path, TMS_APP_VIEW_PREFIX . '/')) {
       $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
       self::_request_view($path);
-    }
-    else {
+    } else {
       if (defined('TMS_APP_HOME') && !empty(TMS_APP_HOME)) {
         /**
          * 跳转到指定的平台首页
@@ -159,6 +155,21 @@ class TMS_APP
     return $args;
   }
   /**
+   * 检查请求是否合法
+   */
+  private static function _validateRequest()
+  {
+    /* 没有明确指定接受的类型 */
+    if (empty($_SERVER['HTTP_ACCEPT']) || $_SERVER['HTTP_ACCEPT'] === '*/*') {
+      return false;
+    }
+    if (empty($_SERVER['HTTP_USER_AGENT'])) {
+      return false;
+    }
+
+    return true;
+  }
+  /**
    * 处理API请求
    *
    * @param string $path
@@ -187,10 +198,9 @@ class TMS_APP
           if (!method_exists($obj_controller, $default_method)) {
             throw new UrlNotMatchException("操作($__controller->$default_method)不存在！");
           }
-        } else if (isset($_SERVER['HTTP_ACCEPT']) && (empty($_SERVER['HTTP_ACCEPT']) || $_SERVER['HTTP_ACCEPT'] === '*/*')) {
-          die('tms unsupported method');
-        }
-        else {
+        } else if (self::_validateRequest()) {
+          die('tms unsupported request');
+        } else {
           throw new UrlNotMatchException("操作($__controller->$default_method)不存在！");
         }
       }
@@ -547,12 +557,10 @@ class TMS_APP
       } else if (strpos($model_path, '/')) {
         $model_class = preg_replace('/^.*\//', '', $model_path);
         $model_file = $model_path;
-      }
-      else if (strpos($model_path, '.')) {
+      } else if (strpos($model_path, '.')) {
         $model_class = str_replace('.', '_', $model_path);
         $model_file = strstr($model_path, '.', true);
-      }
-      else {
+      } else {
         $model_class = $model_path;
         $model_file = $model_path;
       }
@@ -610,8 +618,7 @@ class TMS_APP
       $encoded_filename = str_replace("+", "%20", $encoded_filename);
       $encoded_filename = iconv('UTF-8', 'GBK//IGNORE', $encoded_filename);
       header('Content-Disposition: attachment; filename="' . $encoded_filename . '"');
-    }
-    else {
+    } else {
       header('Content-Disposition: attachment; filename="' . $filename . '"');
     }
 

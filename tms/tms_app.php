@@ -80,15 +80,6 @@ class TMS_APP
    */
   public static function run($config)
   {
-    global $__controller, $__action;
-
-    // 丢弃不正常的访问请求
-    // if ('GET' === $_SERVER['REQUEST_METHOD'] && '*/*' === $_SERVER['HTTP_ACCEPT']) {
-    //     header("HTTP/1.1 500 Internal Server Error");
-    //     header('Content-Type: text/plain; charset=utf-8');
-    //     die('TMS unknown request');
-    // }
-
     /* 如果不是登录状态，尝试自动登录 */
     $uid = TMS_CLIENT::get_client_uid();
     if (empty($uid)) {
@@ -198,7 +189,7 @@ class TMS_APP
           if (!method_exists($obj_controller, $default_method)) {
             throw new UrlNotMatchException("操作($__controller->$default_method)不存在！");
           }
-        } else if (self::_validateRequest()) {
+        } else if (false === self::_validateRequest()) {
           die('tms unsupported request');
         } else {
           throw new UrlNotMatchException("操作($__controller->$default_method)不存在！");

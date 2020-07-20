@@ -1,387 +1,397 @@
 <?php
+
 namespace site\fe\matter;
 
 require_once dirname(__FILE__) . '/base.php';
 /**
  * 返回访问的素材页面
  */
-class main extends \site\fe\matter\base {
+class main extends \site\fe\matter\base
+{
 
-    public function get_access_rule() {
-        $rule_action['rule_type'] = 'black';
-        $rule_action['actions'] = array();
+  public function get_access_rule()
+  {
+    $rule_action['rule_type'] = 'black';
+    $rule_action['actions'] = array();
 
-        return $rule_action;
+    return $rule_action;
+  }
+  /**
+   *
+   * @param string $id
+   * @param string $type
+   * @param string $preview
+   */
+  public function index_action($site, $id, $type, $preview = 'N')
+  {
+    if (!$this->afterSnsOAuth()) {
+      /* 检查是否需要第三方社交帐号OAuth */
+      $this->_requireSnsOAuth($site);
     }
-    /**
-     *
-     * @param string $id
-     * @param string $type
-     * @param string $shareby
-     */
-    public function index_action($site, $id, $type, $shareby = '') {
-        if (!$this->afterSnsOAuth()) {
-            /* 检查是否需要第三方社交帐号OAuth */
-            $this->_requireSnsOAuth($site);
+    /* 返回页面 */
+    switch ($type) {
+      case 'article':
+      case 'custom':
+        $modelArticle = $this->model('matter\article');
+        $article = $modelArticle->byId($id);
+        if ($article === false || $article->state != 1) {
+          $this->outputInfo('指定的对象不存在');
         }
-        /* 返回页面 */
-        switch ($type) {
-        case 'article':
-        case 'custom':
-            $modelArticle = $this->model('matter\article');
-            $article = $modelArticle->byId($id);
-            if ($article === false || $article->state != 1) {
-                $this->outputInfo('指定的对象不存在');
-            }
-            $channels = $this->model('matter\channel')->byMatter($article->id, 'article');
-            // 检测是否用过邀请
-            $modelInvite = $this->model('invite');
-            $oInvitee = new \stdClass;
-            $oInvitee->id = $article->siteid;
-            $oInvitee->type = 'S';
-            $passInvite = false; // 是否通过邀请
-            $bychannelInvite = false; // 是否有频道开启了邀请
-            if (!empty($channels)) {
-                foreach ($channels as $channel) {
-                    $oInvite = $modelInvite->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
-                    if ($oInvite && $oInvite->state === '1') {
-                        $bychannelInvite = true;
-                        $rst = $this->_checkInviteToken($this->who->uid, $channel);
-                        if ($rst[0]) {
-                            $passInvite = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (!$passInvite) {
-                $oInvite = $modelInvite->byMatter($article, $oInvitee, ['fields' => 'id,code,expire_at,state']);
-                if ($oInvite && $oInvite->state === '1') {
-                    $rst = $this->_checkInviteToken($this->who->uid, $article);
-                    if ($rst[0]) {
-                        $passInvite = true;
-                    }
-                } else {
-                    // 如果都没有开启邀请则通过
-                    if (!$bychannelInvite) {
-                        $passInvite = true;
-                    }
-                }
-            }
-            if (!$passInvite) {
-                die('邀请验证令牌未通过验证或已过有效期');
-            }
-
-            $this->checkEntryRule($article, true);
-
-            \TPL::assign('title', $article->title);
-            if ($type === 'article') {
-                \TPL::output('site/fe/matter/article/main');
-            } else {
-                \TPL::output('site/fe/matter/custom/main');
-            }
-            break;
-        case 'news':
-            \TPL::output('site/fe/matter/news/main');
-            break;
-        case 'channel':
-            $modelChn = $this->model('matter\channel');
-            $channel = $modelChn->byId($id);
-            if ($channel === false || $channel->state != 1) {
-                $this->outputInfo('指定的对象不存在');
-            }
-            $oInvitee = new \stdClass;
-            $oInvitee->id = $channel->siteid;
-            $oInvitee->type = 'S';
-            $oInvite = $this->model('invite')->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+        $channels = $this->model('matter\channel')->byMatter($article->id, 'article');
+        // 检测是否用过邀请
+        $modelInvite = $this->model('invite');
+        $oInvitee = new \stdClass;
+        $oInvitee->id = $article->siteid;
+        $oInvitee->type = 'S';
+        $passInvite = false; // 是否通过邀请
+        $bychannelInvite = false; // 是否有频道开启了邀请
+        if (!empty($channels)) {
+          foreach ($channels as $channel) {
+            $oInvite = $modelInvite->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
             if ($oInvite && $oInvite->state === '1') {
-                $rst = $this->_checkInviteToken($this->who->uid, $channel);
-                if (!$rst[0]) {
-                    die($rst[1]);
-                }
+              $bychannelInvite = true;
+              $rst = $this->_checkInviteToken($this->who->uid, $channel);
+              if ($rst[0]) {
+                $passInvite = true;
+                break;
+              }
             }
-
-            \TPL::assign('title', $channel->title);
-            \TPL::output('site/fe/matter/channel/main');
-            break;
+          }
         }
-        exit;
-    }
-    /**
-     * 检查是否需要第三方社交帐号认证
-     * 检查条件：
-     * 0、应用是否设置了需要认证
-     * 1、站点是否绑定了第三方社交帐号认证
-     * 2、平台是否绑定了第三方社交帐号认证
-     * 3、用户客户端是否可以发起认证
-     *
-     * @param string $site
-     */
-    private function _requireSnsOAuth($siteid) {
-        if ($this->userAgent() === 'wx') {
-            if (!isset($this->who->sns->wx)) {
-                $modelWx = $this->model('sns\wx');
-                if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
-                    $this->snsOAuth($wxConfig, 'wx');
-                } else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
-                    $this->snsOAuth($wxConfig, 'wx');
-                }
+        if (!$passInvite) {
+          $oInvite = $modelInvite->byMatter($article, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+          if ($oInvite && $oInvite->state === '1') {
+            $rst = $this->_checkInviteToken($this->who->uid, $article);
+            if ($rst[0]) {
+              $passInvite = true;
             }
-            if (!isset($this->who->sns->qy)) {
-                if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
-                    if ($qyConfig->joined === 'Y') {
-                        $this->snsOAuth($qyConfig, 'qy');
-                    }
-                }
+          } else {
+            // 如果都没有开启邀请则通过
+            if (!$bychannelInvite) {
+              $passInvite = true;
             }
+          }
         }
-
-        return false;
-    }
-    /**
-     * 记录访问日志
-     */
-    public function logAccess_action($site) {
-        $user = $this->who;
-        $model = $this->model();
-        $post = $this->getPostJson();
-        if (!$post || !isset($post->id) || !isset($post->type)) {
-            return new \ResponseError('参数不完整');
+        if (!$passInvite) {
+          die('邀请验证令牌未通过验证或已过有效期');
         }
-        $id = $post->id;
-        $type = $post->type;
-        $title = isset($post->title) ? $post->title : '';
-        $shareby = isset($post->shareby) ? $post->shareby : '';
-        $search = !empty($post->search) ? $post->search : (tms_get_server('QUERY_STRING') ? tms_get_server('QUERY_STRING') : '');
-        $referer = !empty($post->referer) ? $post->referer : (tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '');
+        /* 预览时跳过进入规则检查 */
+        if ($preview !== 'Y' && isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], '/rest/pl/fe') !== false)
+          $this->checkEntryRule($article, true);
 
-        if ($type === 'enroll') {
-            $userRid = !empty($post->rid) ? $post->rid : '';
-            if (empty($post->assignedNickname)) {
-                $oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
-                if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
-                    $aOptions = [];
-                    $aOptions['fields'] = 'nickname';
-                    $aOptions['rid'] = $userRid;
-                    $userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
-                    if ($userRec) {
-                        $assignedNickname = $userRec->nickname;
-                    }
-                }
-            } else {
-                $assignedNickname = $post->assignedNickname;
-            }
-        }
-
-        switch ($type) {
-        case 'article':
-            $model->update("update xxt_article set read_num=read_num+1 where id='$id'");
-            break;
-        case 'channel':
-            $model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
-            break;
-        case 'enroll':
-            $model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
-        }
-
-        !empty($assignedNickname) && $user->nickname = $assignedNickname;
-        $options = [];
-        isset($userRid) && $options['rid'] = $userRid;
-        if (!empty($post->target_type) && !empty($post->target_id)) {
-            $options['target_type'] = $post->target_type;
-            $options['target_id'] = $post->target_id;
-        }
-
-        $logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
-
-        return new \ResponseData('ok');
-    }
-    /**
-     * 记录访问日志
-     */
-    protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $search, $referer, $options = []) {
-        $logUser = new \stdClass;
-        $logUser->userid = $user->uid;
-        $logUser->nickname = $user->nickname;
-
-        $logMatter = new \stdClass;
-        $logMatter->id = $id;
-        $logMatter->type = $type;
-        $logMatter->title = $title;
-
-        $logClient = new \stdClass;
-        $logClient->agent = tms_get_server('HTTP_USER_AGENT');
-        $logClient->ip = $this->client_ip();
-
-        // 记录活动的专题页和讨论页和共享页需要单独记录
-        if ($type === 'enroll') {
-            $targets = ['topic', 'repos', 'cowork', 'rank'];
-            if (!empty($options['target_type']) && in_array($options['target_type'], $targets) && !empty($options['target_id'])) {
-                $logMatter->id = $options['target_id'];
-                $logMatter->type = 'enroll.' . $options['target_type'];
-            }
-        }
-
-        $logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
-
-        return $logid;
-    }
-    /**
-     * 记录分享动作
-     *
-     * $shareid
-     * $site 公众号ID，是当前用户
-     * $id 分享的素材ID
-     * $type 分享的素材类型
-     * $share_to  分享给好友或朋友圈
-     * $shareby 谁分享的当前素材ID
-     *
-     */
-    public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '', $rid = '', $target_type = '', $target_id = '') {
-        $model = $this->model();
-        switch ($type) {
-        case 'article':
-            $table = 'xxt_article';
-            break;
-        case 'channel':
-            $table = 'xxt_channel';
-            break;
-        case 'enroll':
-            $table = 'xxt_enroll';
-            break;
-        default:
-            return new \ResponseError('不支持的类型');
-        }
-
-        if ($shareto === 'F') {
-            $model->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
-        } else if ($shareto === 'T') {
-            $model->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
-        }
-
-        $user = $this->who;
-
-        $logUser = new \stdClass;
-        $logUser->userid = $user->uid;
-        $logUser->nickname = $user->nickname;
-
-        $logMatter = new \stdClass;
-        $logMatter->id = $id;
-        $logMatter->type = $type;
-        $logMatter->title = $title;
-
-        $logClient = new \stdClass;
-        $logClient->agent = tms_get_server('HTTP_USER_AGENT');
-        $logClient->ip = $this->client_ip();
-
-        $referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
-
-        if ($type === 'enroll') {
-            $oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
-            if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
-                $aOptions = [];
-                $aOptions['fields'] = 'nickname';
-                $aOptions['rid'] = $rid;
-                $userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
-                if ($userRec) {
-                    !empty($userRec->nickname) && $logUser->nickname = $userRec->nickname;
-                }
-            }
-
-            // 记录活动的专题页和讨论页和共享页需要单独记录
-            $targets = ['topic', 'repos', 'cowork', 'rank'];
-            if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
-                $logMatter->id = $target_id;
-                $logMatter->type = 'enroll.' . $target_type;
-            }
-        }
-
-        $this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer, $shareUrl);
-
-        /**
-         * coin log
-         */
+        \TPL::assign('title', $article->title);
         if ($type === 'article') {
-            $modelCoin = $this->model('site\coin\log');
-            $matter = $this->model('matter\article')->byId($id);
-            $modelCoin->award($matter, $user, 'site.matter.article.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
-        } else if ($type === 'enroll') {
-            $matter = $this->model('matter\enroll')->byId($id);
-            $modelMat = $this->model('matter\enroll\coin');
-            $rules = $modelMat->rulesByMatter('site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $matter);
-            $modelCoin = $this->model('site\coin\log');
-            $modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $rules);
-
-            /* 获得所属轮次 */
-            $modelRun = $this->model('matter\enroll\round');
-            if ($activeRound = $modelRun->getActive($matter)) {
-                $rid = $activeRound->rid;
-            } else {
-                $rid = '';
-            }
-            /* 更新活动用户轮次数据 */
-            $modelUsr = $this->model('matter\enroll\user');
-            $modelUsr->setOnlyWriteDbConn(true);
-            $oEnrollUsr = $modelUsr->byIdInApp($matter, $user->uid, ['fields' => 'id,nickname,user_total_coin', 'rid' => $rid]);
-            if (false === $oEnrollUsr) {
-                $inData = ['last_enroll_at' => time()];
-                $inData['user_total_coin'] = 0;
-                foreach ($rules as $rule) {
-                    $inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
-                }
-                $inData['rid'] = $rid;
-                $modelUsr->add($matter, $user, $inData);
-            } else {
-                if (count($rules)) {
-                    $upData = [];
-                    $upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
-                    foreach ($rules as $rule) {
-                        $upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
-                    }
-                    if ($upData['user_total_coin'] !== (int) $oEnrollUsr->user_total_coin) {
-                        $modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
-                    }
-                }
-            }
-
-            /* 更新活动用户总数据 */
-            $oEnrollUsrALL = $modelUsr->byIdInApp($matter, $user->uid, ['fields' => 'id,nickname,user_total_coin', 'rid' => 'ALL']);
-            if (false === $oEnrollUsrALL) {
-                $inDataALL = [];
-                $inDataALL['user_total_coin'] = 0;
-                foreach ($rules as $rule) {
-                    $inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
-                }
-
-                $inDataALL['rid'] = 'ALL';
-                $modelUsr->add($matter, $user, $inDataALL);
-            } else {
-                if (count($rules)) {
-                    $upDataALL = [];
-                    $upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
-                    foreach ($rules as $rule) {
-                        $upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
-                    }
-                    if ($upDataALL['user_total_coin'] !== (int) $oEnrollUsrALL->user_total_coin) {
-                        $modelUsr->update('xxt_enroll_user', $upDataALL, ['id' => $oEnrollUsrALL->id]);
-                    }
-                }
-            }
+          \TPL::output('site/fe/matter/article/main');
+        } else {
+          \TPL::output('site/fe/matter/custom/main');
+        }
+        break;
+      case 'news':
+        \TPL::output('site/fe/matter/news/main');
+        break;
+      case 'channel':
+        $modelChn = $this->model('matter\channel');
+        $channel = $modelChn->byId($id);
+        if ($channel === false || $channel->state != 1) {
+          $this->outputInfo('指定的对象不存在');
+        }
+        $oInvitee = new \stdClass;
+        $oInvitee->id = $channel->siteid;
+        $oInvitee->type = 'S';
+        $oInvite = $this->model('invite')->byMatter($channel, $oInvitee, ['fields' => 'id,code,expire_at,state']);
+        if ($oInvite && $oInvite->state === '1') {
+          $rst = $this->_checkInviteToken($this->who->uid, $channel);
+          if (!$rst[0]) {
+            die($rst[1]);
+          }
         }
 
-        return new \ResponseData('ok');
+        \TPL::assign('title', $channel->title);
+        \TPL::output('site/fe/matter/channel/main');
+        break;
     }
+    exit;
+  }
+  /**
+   * 检查是否需要第三方社交帐号认证
+   * 检查条件：
+   * 0、应用是否设置了需要认证
+   * 1、站点是否绑定了第三方社交帐号认证
+   * 2、平台是否绑定了第三方社交帐号认证
+   * 3、用户客户端是否可以发起认证
+   *
+   * @param string $site
+   */
+  private function _requireSnsOAuth($siteid)
+  {
+    if ($this->userAgent() === 'wx') {
+      if (!isset($this->who->sns->wx)) {
+        $modelWx = $this->model('sns\wx');
+        if (($wxConfig = $modelWx->bySite($siteid)) && $wxConfig->joined === 'Y') {
+          $this->snsOAuth($wxConfig, 'wx');
+        } else if (($wxConfig = $modelWx->bySite('platform')) && $wxConfig->joined === 'Y') {
+          $this->snsOAuth($wxConfig, 'wx');
+        }
+      }
+      if (!isset($this->who->sns->qy)) {
+        if ($qyConfig = $this->model('sns\qy')->bySite($siteid)) {
+          if ($qyConfig->joined === 'Y') {
+            $this->snsOAuth($qyConfig, 'qy');
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+  /**
+   * 记录访问日志
+   */
+  public function logAccess_action($site)
+  {
+    $user = $this->who;
+    $model = $this->model();
+    $post = $this->getPostJson();
+    if (!$post || !isset($post->id) || !isset($post->type)) {
+      return new \ResponseError('参数不完整');
+    }
+    $id = $post->id;
+    $type = $post->type;
+    $title = isset($post->title) ? $post->title : '';
+    $shareby = isset($post->shareby) ? $post->shareby : '';
+    $search = !empty($post->search) ? $post->search : (tms_get_server('QUERY_STRING') ? tms_get_server('QUERY_STRING') : '');
+    $referer = !empty($post->referer) ? $post->referer : (tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '');
+
+    if ($type === 'enroll') {
+      $userRid = !empty($post->rid) ? $post->rid : '';
+      if (empty($post->assignedNickname)) {
+        $oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
+        if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+          $aOptions = [];
+          $aOptions['fields'] = 'nickname';
+          $aOptions['rid'] = $userRid;
+          $userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
+          if ($userRec) {
+            $assignedNickname = $userRec->nickname;
+          }
+        }
+      } else {
+        $assignedNickname = $post->assignedNickname;
+      }
+    }
+
+    switch ($type) {
+      case 'article':
+        $model->update("update xxt_article set read_num=read_num+1 where id='$id'");
+        break;
+      case 'channel':
+        $model->update("update xxt_channel set read_num=read_num+1 where id='$id'");
+        break;
+      case 'enroll':
+        $model->update("update xxt_enroll set read_num=read_num+1 where id='$id'");
+    }
+
+    !empty($assignedNickname) && $user->nickname = $assignedNickname;
+    $options = [];
+    isset($userRid) && $options['rid'] = $userRid;
+    if (!empty($post->target_type) && !empty($post->target_id)) {
+      $options['target_type'] = $post->target_type;
+      $options['target_id'] = $post->target_id;
+    }
+
+    $logid = $this->logRead($site, $user, $id, $type, $title, $shareby, $search, $referer, $options);
+
+    return new \ResponseData('ok');
+  }
+  /**
+   * 记录访问日志
+   */
+  protected function logRead($siteId, $user, $id, $type, $title, $shareby = '', $search, $referer, $options = [])
+  {
+    $logUser = new \stdClass;
+    $logUser->userid = $user->uid;
+    $logUser->nickname = $user->nickname;
+
+    $logMatter = new \stdClass;
+    $logMatter->id = $id;
+    $logMatter->type = $type;
+    $logMatter->title = $title;
+
+    $logClient = new \stdClass;
+    $logClient->agent = tms_get_server('HTTP_USER_AGENT');
+    $logClient->ip = $this->client_ip();
+
+    // 记录活动的专题页和讨论页和共享页需要单独记录
+    if ($type === 'enroll') {
+      $targets = ['topic', 'repos', 'cowork', 'rank'];
+      if (!empty($options['target_type']) && in_array($options['target_type'], $targets) && !empty($options['target_id'])) {
+        $logMatter->id = $options['target_id'];
+        $logMatter->type = 'enroll.' . $options['target_type'];
+      }
+    }
+
+    $logid = $this->model('matter\log')->addMatterRead($siteId, $logUser, $logMatter, $logClient, $shareby, $search, $referer, $options);
+
+    return $logid;
+  }
+  /**
+   * 记录分享动作
+   *
+   * $shareid
+   * $site 公众号ID，是当前用户
+   * $id 分享的素材ID
+   * $type 分享的素材类型
+   * $share_to  分享给好友或朋友圈
+   * $shareby 谁分享的当前素材ID
+   *
+   */
+  public function logShare_action($shareid, $site, $id, $type, $title, $shareto, $shareby = '', $shareUrl = '', $rid = '', $target_type = '', $target_id = '')
+  {
+    $model = $this->model();
+    switch ($type) {
+      case 'article':
+        $table = 'xxt_article';
+        break;
+      case 'channel':
+        $table = 'xxt_channel';
+        break;
+      case 'enroll':
+        $table = 'xxt_enroll';
+        break;
+      default:
+        return new \ResponseError('不支持的类型');
+    }
+
+    if ($shareto === 'F') {
+      $model->update("update $table set share_friend_num=share_friend_num+1 where id='$id'");
+    } else if ($shareto === 'T') {
+      $model->update("update $table set share_timeline_num=share_timeline_num+1 where id='$id'");
+    }
+
+    $user = $this->who;
+
+    $logUser = new \stdClass;
+    $logUser->userid = $user->uid;
+    $logUser->nickname = $user->nickname;
+
+    $logMatter = new \stdClass;
+    $logMatter->id = $id;
+    $logMatter->type = $type;
+    $logMatter->title = $title;
+
+    $logClient = new \stdClass;
+    $logClient->agent = tms_get_server('HTTP_USER_AGENT');
+    $logClient->ip = $this->client_ip();
+
+    $referer = tms_get_server('HTTP_REFERER') ? tms_get_server('HTTP_REFERER') : '';
+
+    if ($type === 'enroll') {
+      $oApp = $this->model('matter\enroll')->byId($id, ['fields' => 'siteid,id,round_cron,assigned_nickname', 'cascaded' => 'N']);
+      if ((isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') && isset($oApp->assignedNickname->schema->id)) {
+        $aOptions = [];
+        $aOptions['fields'] = 'nickname';
+        $aOptions['rid'] = $rid;
+        $userRec = $this->model('matter\enroll\record')->lastByUser($oApp, $user, $aOptions);
+        if ($userRec) {
+          !empty($userRec->nickname) && $logUser->nickname = $userRec->nickname;
+        }
+      }
+
+      // 记录活动的专题页和讨论页和共享页需要单独记录
+      $targets = ['topic', 'repos', 'cowork', 'rank'];
+      if (!empty($target_type) && in_array($target_type, $targets) && !empty($target_id)) {
+        $logMatter->id = $target_id;
+        $logMatter->type = 'enroll.' . $target_type;
+      }
+    }
+
+    $this->model('matter\log')->addShareAction($site, $shareid, $shareto, $shareby, $logUser, $logMatter, $logClient, $referer, $shareUrl);
+
     /**
-     *
+     * coin log
      */
-    private function _checkInviteToken($userid, $oMatter) {
-        if (empty($_GET['inviteToken'])) {
-            die('参数不完整，未通过邀请访问控制');
+    if ($type === 'article') {
+      $modelCoin = $this->model('site\coin\log');
+      $matter = $this->model('matter\article')->byId($id);
+      $modelCoin->award($matter, $user, 'site.matter.article.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto]);
+    } else if ($type === 'enroll') {
+      $matter = $this->model('matter\enroll')->byId($id);
+      $modelMat = $this->model('matter\enroll\coin');
+      $rules = $modelMat->rulesByMatter('site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $matter);
+      $modelCoin = $this->model('site\coin\log');
+      $modelCoin->award($matter, $user, 'site.matter.enroll.share.' . ['F' => 'friend', 'T' => 'timeline'][$shareto], $rules);
+
+      /* 获得所属轮次 */
+      $modelRun = $this->model('matter\enroll\round');
+      if ($activeRound = $modelRun->getActive($matter)) {
+        $rid = $activeRound->rid;
+      } else {
+        $rid = '';
+      }
+      /* 更新活动用户轮次数据 */
+      $modelUsr = $this->model('matter\enroll\user');
+      $modelUsr->setOnlyWriteDbConn(true);
+      $oEnrollUsr = $modelUsr->byIdInApp($matter, $user->uid, ['fields' => 'id,nickname,user_total_coin', 'rid' => $rid]);
+      if (false === $oEnrollUsr) {
+        $inData = ['last_enroll_at' => time()];
+        $inData['user_total_coin'] = 0;
+        foreach ($rules as $rule) {
+          $inData['user_total_coin'] = $inData['user_total_coin'] + (int) $rule->actor_delta;
         }
-        $inviteToken = $_GET['inviteToken'];
+        $inData['rid'] = $rid;
+        $modelUsr->add($matter, $user, $inData);
+      } else {
+        if (count($rules)) {
+          $upData = [];
+          $upData['user_total_coin'] = (int) $oEnrollUsr->user_total_coin;
+          foreach ($rules as $rule) {
+            $upData['user_total_coin'] = $upData['user_total_coin'] + (int) $rule->actor_delta;
+          }
+          if ($upData['user_total_coin'] !== (int) $oEnrollUsr->user_total_coin) {
+            $modelUsr->update('xxt_enroll_user', $upData, ['id' => $oEnrollUsr->id]);
+          }
+        }
+      }
 
-        $rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
+      /* 更新活动用户总数据 */
+      $oEnrollUsrALL = $modelUsr->byIdInApp($matter, $user->uid, ['fields' => 'id,nickname,user_total_coin', 'rid' => 'ALL']);
+      if (false === $oEnrollUsrALL) {
+        $inDataALL = [];
+        $inDataALL['user_total_coin'] = 0;
+        foreach ($rules as $rule) {
+          $inDataALL['user_total_coin'] = $inDataALL['user_total_coin'] + (int) $rule->actor_delta;
+        }
 
-        return $rst;
+        $inDataALL['rid'] = 'ALL';
+        $modelUsr->add($matter, $user, $inDataALL);
+      } else {
+        if (count($rules)) {
+          $upDataALL = [];
+          $upDataALL['user_total_coin'] = (int) $oEnrollUsrALL->user_total_coin;
+          foreach ($rules as $rule) {
+            $upDataALL['user_total_coin'] = $upDataALL['user_total_coin'] + (int) $rule->actor_delta;
+          }
+          if ($upDataALL['user_total_coin'] !== (int) $oEnrollUsrALL->user_total_coin) {
+            $modelUsr->update('xxt_enroll_user', $upDataALL, ['id' => $oEnrollUsrALL->id]);
+          }
+        }
+      }
     }
+
+    return new \ResponseData('ok');
+  }
+  /**
+   *
+   */
+  private function _checkInviteToken($userid, $oMatter)
+  {
+    if (empty($_GET['inviteToken'])) {
+      die('参数不完整，未通过邀请访问控制');
+    }
+    $inviteToken = $_GET['inviteToken'];
+
+    $rst = $this->model('invite\token')->checkToken($inviteToken, $userid, $oMatter);
+
+    return $rst;
+  }
 }

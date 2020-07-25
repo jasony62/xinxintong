@@ -222,13 +222,15 @@ class user_model
           $rst = $this->storeBase64Image($img->imgSrc);
         }
       }
+    } else {
+      return [false, '图片上传失败：没有传递图片数据'];
     }
 
     if (isset($rst)) {
       return $rst;
-    } else {
-      return [false, '图片上传失败：只能上传png、jpg、gif、bmp格式图片'];
     }
+
+    return [false, '图片上传失败'];
   }
   /**
    * 保存微信录音文件

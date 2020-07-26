@@ -97,6 +97,7 @@ define(['frame'], function (ngApp) {
           switch (type) {
             case 'link':
             case 'article':
+            case 'channel':
               url += type + '/remove?id=' + id + '&site=' + _oMission.siteid
               break
           }

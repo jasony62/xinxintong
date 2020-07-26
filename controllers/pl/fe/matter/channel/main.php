@@ -57,10 +57,9 @@ class main extends \pl\fe\matter\main_base
    * 团队下的频道
    *
    * @param string $site site's id
-   * @param string $acceptType 频道素材类型
    * @param string $cascade 是否获得频道内的素材和访问控制列表
    */
-  public function list_action($site, $page = 1, $size = 12, $acceptType = null, $cascade = 'Y')
+  public function list_action($site, $page = 1, $size = 12, $cascade = 'Y')
   {
     $modelChn = $this->model('matter\channel');
     $oOptions = $this->getPostJson();
@@ -72,13 +71,6 @@ class main extends \pl\fe\matter\main_base
       'xxt_channel c',
       "siteid = '" . $site . "' and state = 1",
     ];
-    if (!empty($acceptType)) {
-      $acceptType = ['', $acceptType];
-      $acceptType = "('";
-      $acceptType .= implode("','", $v);
-      $acceptType .= "')";
-      $q[2] .= " and matter_type in $acceptType";
-    }
     if (!empty($oOptions->byTitle)) {
       $q[2] .= " and title like '%" . $oOptions->byTitle . "%'";
     }
@@ -397,7 +389,7 @@ class main extends \pl\fe\matter\main_base
   public function remove_action($id)
   {
     $modelCh = $this->model('matter\channel');
-    $oChannel = $modelCh->byId($id, ['fields' => 'id,title']);
+    $oChannel = $modelCh->byId($id, ['fields' => $modelCh::LOG_FIELDS]);
     if (false === $oChannel) {
       return new \ObjectNotFoundError();
     }

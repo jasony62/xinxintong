@@ -9,7 +9,7 @@ class channel_model extends article_base
   /**
    * 记录日志时需要的列
    */
-  const LOG_FIELDS = 'siteid,id,title';
+  const LOG_FIELDS = 'siteid,mission_id,id,title';
   /**
    *
    */

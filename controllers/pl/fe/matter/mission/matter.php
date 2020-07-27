@@ -29,7 +29,7 @@ class matter extends \pl\fe\matter\base
 
     /* 检查权限 */
     $modelAcl = $this->model('matter\mission\acl');
-    if (false === ($acl = $modelAcl->byCoworker($id, $oUser->id))) {
+    if (false === $modelAcl->byCoworker($id, $oUser->id)) {
       return new \ResponseError('数据不存在');
     }
 

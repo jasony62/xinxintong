@@ -5,7 +5,7 @@ namespace matter;
 /**
  * 素材基类
  */
-class base_model extends \TMS_MODEL
+abstract class base_model extends \TMS_MODEL
 {
   /**
    * byId方法中的id字段
@@ -14,6 +14,10 @@ class base_model extends \TMS_MODEL
   {
     return 'id';
   }
+  /**
+   * 
+   */
+  abstract protected function table();
   /**
    * 素材类型名称
    */

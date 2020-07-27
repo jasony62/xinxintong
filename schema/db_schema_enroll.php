@@ -61,8 +61,8 @@ $sql .= ",absent_cause text null";
 $sql .= ",wxacode_url text null"; // 微信小程序
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动页面
@@ -87,8 +87,8 @@ $sql .= ",data_schemas longtext"; // 填写项定义
 $sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动轮次
@@ -110,8 +110,8 @@ $sql .= ",mission_rid varchar(13) not null default ''"; // 关联的项目轮次
 $sql .= ",task_id int not null default 0"; // 活动任务
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动任务（提问、回答、投票、打分）
@@ -128,8 +128,8 @@ $sql .= ",start_at int not null"; // 轮次开始时间
 $sql .= ",end_at int not null"; // 轮次结束时间
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动填写记录
@@ -173,8 +173,8 @@ $sql .= ",vote_cowork_num int not null default 0"; // 协作填写数据获得�
 $sql .= ",upgrade_flag int not null default 0"; // 用于记录数据维护状态
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 填写项的数据
@@ -212,8 +212,8 @@ $sql .= ",vote_num int not null default 0"; // 获得投票数
 $sql .= ",upgrade_flag int not null default 0"; // 用于记录数据维护状态
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录所属的轮次，支持1条记录出现在多个轮次
@@ -229,8 +229,8 @@ $sql .= ",add_at int not null"; // 加入轮次的时间
 $sql .= ",add_cause char(1) not null"; // 加入的原因 Create:创建新记录，Revise：修订
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动填写记录间的关联
@@ -253,8 +253,8 @@ $sql .= ",assoc_text text null"; // 关联描述
 $sql .= ",assoc_reason varchar(255) not null default ''"; // 关联理由
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动标签指定记录
@@ -274,8 +274,8 @@ $sql .= ',undo_log_id bigint not null default 0';
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 自定义登记数据统计
@@ -292,8 +292,8 @@ $sql .= ",l text null";
 $sql .= ",c double not null";
 $sql .= ") ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动内容留言
@@ -330,8 +330,8 @@ $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",as_cowork_id int not null default 0"; // 作为协作数据后对应的协作数据id
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动的参与人及行为汇总，包含：登记人和留言人
@@ -417,8 +417,8 @@ $sql .= ",modify_log longtext null"; // 数据修改日志
 $sql .= ",custom text null"; // 用户自定义设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动分组用户数据汇总
@@ -475,8 +475,8 @@ $sql .= ",score_rank int not null default 0"; // 数据分在轮次中的排名
 $sql .= ",state tinyint not null default 1"; //0:clean,1:normal,2:as invite log,100:后台删除
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动页面记录追踪
@@ -501,8 +501,8 @@ $sql .= ",user_agent text null";
 $sql .= ",client_ip varchar(40) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 填写记录的收藏记录
@@ -517,8 +517,8 @@ $sql .= ",favor_at int not null"; // 收藏填写的时间
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 填写记录的投票记录
@@ -537,8 +537,8 @@ $sql .= ",nickname varchar(255) not null default ''";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动填写记录主题
@@ -561,8 +561,8 @@ $sql .= ",is_public char(1) not null default 'N'"; // 是否为公共专题
 $sql .= ",task_id int not null default 0"; // 关联的活动任务
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 活动填写记录主题与记录
@@ -578,8 +578,8 @@ $sql .= ",assign_at int not null"; // 指定时间
 $sql .= ",seq int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动标签
@@ -595,8 +595,8 @@ $sql .= ",public char(1) not null default 'N'";
 $sql .= ",forbidden char(1) not null default 'N'";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动用户标签
@@ -612,8 +612,8 @@ $sql .= ",state tinyint not null default 1"; // 事件是否有效
 $sql .= ",assign_num int not null default 0";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动标签指定记录
@@ -630,8 +630,8 @@ $sql .= ',target_id int not null'; // 被打标签的填写记录
 $sql .= ',target_type tinyint not null default 1'; // 1:record
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 记录活动标签指定记录
@@ -648,8 +648,8 @@ $sql .= ',target_type tinyint not null default 1'; // 1:record
 $sql .= ',assign_num int not null';
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_enroll_log(";
@@ -680,8 +680,8 @@ $sql .= ",reset_at int not null default 0"; //
 $sql .= ",reset_event_id int not null default 0"; // 被重置的记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 //
 $sql = "create table if not exists xxt_enroll_notice(";
@@ -703,8 +703,8 @@ $sql .= ",event_at int not null";
 $sql .= ",state tinyint not null default 1";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  *
@@ -720,8 +720,8 @@ $sql .= ",agreed char(1) not null default ''"; // 是否推荐（Y：推荐）
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  *
@@ -739,8 +739,8 @@ $sql .= ",used_num int not null default 0"; // 使用总数
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /************************************************
  *签到活动
@@ -781,8 +781,8 @@ $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_group): ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error(xxt_group): ' . $mysqli->error;
 }
 /**
  * 签到活动轮次
@@ -806,8 +806,8 @@ $sql .= ",pic text"; // 分享或生成链接时的图片
 $sql .= ",state tinyint not null default 0"; // 0:新建|1:启用|2:停用
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 签到活动页面
@@ -828,8 +828,8 @@ $sql .= ",data_schemas text"; // 填写项定义
 $sql .= ",act_schemas text"; // 登记操作定义
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 签到填写记录
@@ -854,8 +854,8 @@ $sql .= ",verified char(1) not null default 'Y'"; // 记录是否已通过审核
 $sql .= ",verified_enroll_key varchar(32) not null default ''"; // 如果是通过了报名表的验证，记录关联的报名记录
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 自定义签到数据
@@ -868,8 +868,8 @@ $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(aid,enroll_key,name)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 签到活动签到记录
@@ -886,8 +886,8 @@ $sql .= ",signin_at int not null default 0"; // 签到时间
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /*****************************************
  * 分组活动
@@ -912,7 +912,7 @@ $sql .= ",mission_id int not null default 0"; // 所属项目
 $sql .= ",scenario varchar(255) not null default ''"; // 分组活动场景
 $sql .= ",source_app varchar(255) not null default ''"; // 关联的登记或签到活动，{"id":"579e9f186a859","type":"signin"}
 $sql .= ",auto_sync char(1) not null default 'N'"; // 是否默认同步，
-$sql .= ",sync_round varchar(32) not null default ''"; // 默认同步的组
+$sql .= ",sync_rule text null"; // 同步规则（筛选条件，目标组）
 $sql .= ",last_sync_at int not null default 0"; // 最后同步的时间
 $sql .= ",group_rule text null"; // 分组规则
 $sql .= ",data_schemas text null";
@@ -929,8 +929,8 @@ $sql .= ",op_short_url_code char(4) not null default ''"; // 运营管理页面�
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error(xxt_group): ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error(xxt_group): ' . $mysqli->error;
 }
 /**
  * 分组团队
@@ -950,8 +950,8 @@ $sql .= ",targets text null";
 $sql .= ",extattrs text null"; //扩展属性
 $sql .= ",primary key(aid,team_id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 分组活动用户记录
@@ -976,8 +976,8 @@ $sql .= ",draw_at int not null"; // 加入人员分组的时间
 $sql .= ",data text null"; // 登记的数据项
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 自定义登记数据
@@ -990,8 +990,8 @@ $sql .= ",value text";
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(aid,enroll_key,name,state)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 请假
@@ -1010,8 +1010,8 @@ $sql .= ",cancel_at int not null default 0"; // 撤销时间
 $sql .= ",state tinyint not null default 1"; //0:remove,1:normal
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 /**
  * 后台进程执行任务
@@ -1033,8 +1033,8 @@ $sql .= ",state tinyint not null default 1"; //1:waiting,0:finished
 $sql .= ",reason varchar(255) not null default ''";
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
-    header('HTTP/1.0 500 Internal Server Error');
-    echo 'database error: ' . $mysqli->error;
+  header('HTTP/1.0 500 Internal Server Error');
+  echo 'database error: ' . $mysqli->error;
 }
 
 echo 'finish enroll.' . PHP_EOL;

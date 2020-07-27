@@ -244,6 +244,94 @@ angular
               'assigned_nickname',
             ])
           },
+          setSyncFilter: function () {
+            if (!_oApp.sourceApp) noticebox.warn('没有指定分组用户来源活动')
+            if (_oApp.sourceApp.type !== 'mschema')
+              noticebox.warn('只支持对通讯录活动设置用户同步筛选条件')
+            var optSchemas // 作为筛选条件的单选题
+            if (_oApp.sourceApp.extAttrs && _oApp.sourceApp.extAttrs.length) {
+              optSchemas = _oApp.sourceApp.extAttrs.filter((ea) =>
+                /single|multiple/.test(ea.type)
+              )
+            }
+            if (!optSchemas || optSchemas.length === 0)
+              noticebox.warn(
+                '通讯录中没有包含可用于筛选条件的题目（仅限单选题和多选题）'
+              )
+
+            var defer = $q.defer()
+
+            http2
+              .post('/rest/script/time', {
+                html: {
+                  filter:
+                    '/views/default/pl/fe/matter/group/component/syncFilter',
+                },
+              })
+              .then(function (rsp) {
+                $uibModal
+                  .open({
+                    templateUrl:
+                      '/views/default/pl/fe/matter/group/component/syncFilter.html?_' +
+                      rsp.data.html.filter.time,
+                    controller: [
+                      '$scope',
+                      '$uibModalInstance',
+                      function ($scope2, $mi) {
+                        var syncRule = _oApp.syncRule
+                        var _rules = []
+                        $scope2.data = {
+                          logicOR: false,
+                        }
+                        if (syncRule) {
+                          if (syncRule.rules && syncRule.rules.length) {
+                            syncRule.rules.forEach((r) => {
+                              let schema, op
+                              schema = optSchemas.find((s) => s.id === r.schema)
+                              if (schema && Array.isArray(schema.ops)) {
+                                op = schema.ops.find((op) => op.v === r.op)
+                              }
+                              _rules.push({ schema, op })
+                            })
+                          }
+                          if (syncRule.logicOR === true)
+                            $scope2.data.logicOR = true
+                        }
+                        $scope2.optSchemas = optSchemas
+                        $scope2.rules = _rules
+                        $scope2.addRule = function () {
+                          _rules.push({})
+                        }
+                        $scope2.removeRule = function (oRule) {
+                          _rules.splice(_rules.indexOf(oRule), 1)
+                        }
+                        $scope2.cleanRule = function () {
+                          _rules.splice(0, _rules.length)
+                        }
+                        $scope2.ok = function () {
+                          var oConfig = {
+                            rules: [],
+                            logicOR: $scope2.data.logicOR,
+                          }
+                          _rules.forEach((oRule) => {
+                            oConfig.rules.push({
+                              schema: oRule.schema.id,
+                              op: oRule.op.v,
+                            })
+                          })
+                          $mi.close(oConfig)
+                        }
+                        $scope2.cancel = function () {
+                          $mi.dismiss()
+                        }
+                      },
+                    ],
+                    backdrop: 'static',
+                  })
+                  .result.then((newSyncRule) => defer.resolve(newSyncRule))
+              })
+            return defer.promise
+          },
           export: function () {
             var url = '/rest/pl/fe/matter/group/record/export?app=' + _appId
             window.open(url)

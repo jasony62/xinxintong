@@ -660,9 +660,44 @@ class record_model extends \matter\enroll\record_base
     return $rst;
   }
   /**
+   * 检查数据是否和同步筛选条件匹配
+   */
+  public function matchSyncFilter($syncRule, $data)
+  {
+    if (empty($syncRule) || empty($syncRule->rules)) return false;
+    if (!$data || !is_object($data)) return false;
+
+    $rules = $syncRule->rules;
+    $logicOR = empty($syncRule->logicOR) ? false : true;
+
+    $matched = false;
+    if ($logicOR === true) {
+      /* 满足任意一条规则就可以 */
+      foreach ($rules as $r) {
+        if (empty($r->schema) || empty($r->op)) continue;
+        if (isset($data->{$r->schema}) &&  ($data->{$r->schema} === $r->op || $data->{$r->schema}->{$r->op} === true)) {
+          $matched = true;
+          break;
+        }
+      }
+    } else {
+      /* 满足所有规则 */
+      $allpass = true;
+      foreach ($rules as $r) {
+        if (empty($r->schema) || empty($r->op)) continue;
+        if (empty($data->{$r->schema}) || ($data->{$r->schema} !== $r->op && $data->{$r->schema}->{$r->op} !== true)) {
+          $allpass = false;
+          break;
+        }
+      }
+      $matched = $allpass;
+    }
+    return $matched;
+  }
+  /**
    * 同步数据
    */
-  public function syncRecord($siteId, &$objGrp, &$records, &$modelRec, $type = '', $assignRound = '')
+  public function syncRecord($siteId, &$objGrp, &$records, &$modelRec, $type = '', $assignTeam = null)
   {
     $this->setOnlyWriteDbConn(true);
     $cnt = 0;
@@ -683,9 +718,9 @@ class record_model extends \matter\enroll\record_base
           $oGrpUser->nickname = $oRecord->nickname;
           if ($oBeforeGrpUser = $this->byIdInApp($objGrp->id, $oRecord->enroll_key, ['cascaded' => 'N'])) {
             $updata = [];
-            if (!empty($assignRound) && is_object($assignRound)) {
-              $updata['team_id'] = $assignRound->team_id;
-              $updata['team_title'] = $this->escape($assignRound->title);
+            if (!empty($assignTeam) && is_object($assignTeam)) {
+              $updata['team_id'] = $assignTeam->team_id;
+              $updata['team_title'] = $this->escape($assignTeam->title);
             }
             if ($oBeforeGrpUser->nickname !== $oGrpUser->nickname) {
               $updata['nickname'] = $this->escape($oGrpUser->nickname);
@@ -698,9 +733,9 @@ class record_model extends \matter\enroll\record_base
           } else {
             // 新用户
             $aOptions2 = ['enroll_key' => $oRecord->enroll_key, 'enroll_at' => $oRecord->enroll_at];
-            if (!empty($assignRound) && is_object($assignRound)) {
-              $aOptions2['team_id'] = $assignRound->team_id;
-              $aOptions2['team_title'] = $this->escape($assignRound->title);
+            if (!empty($assignTeam) && is_object($assignTeam)) {
+              $aOptions2['team_id'] = $assignTeam->team_id;
+              $aOptions2['team_title'] = $this->escape($assignTeam->title);
             }
             $this->enroll($objGrp, $oGrpUser, $aOptions2);
             $this->setData($objGrp, $oRecord->enroll_key, $oRecord->data);

@@ -20,6 +20,55 @@ class group_model extends app_base
     return 'xxt_group';
   }
   /**
+   * 处理从数据库中获得数据
+   */
+  private function _db2obj(&$oApp, $fields = '*', $cascaded = 'N')
+  {
+    $oApp->type = 'group';
+    if (isset($oApp->siteid) && isset($oApp->id)) {
+      $oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
+    }
+    if ($cascaded === 'Y') {
+      $aTeamOptions = isset($aOptions['team']) ? $aOptions['team'] : [];
+      $oApp->teams = $this->model('matter\group\team')->byApp($oApp->id, $aTeamOptions);
+    }
+    if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
+      if (!empty($oApp->data_schemas)) {
+        $oApp->dataSchemas = json_decode($oApp->data_schemas);
+      } else {
+        $oApp->dataSchemas = [];
+      }
+      unset($oApp->data_schemas);
+    }
+    if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
+      if (!empty($oApp->assigned_nickname)) {
+        $oApp->assignedNickname = json_decode($oApp->assigned_nickname);
+      } else {
+        $oApp->assignedNickname = new \stdClass;
+      }
+    }
+    if ($fields === '*' || false !== strpos($fields, 'group_rule')) {
+      if (!empty($oApp->group_rule)) {
+        $oApp->groupRule = json_decode($oApp->group_rule);
+      } else {
+        $oApp->groupRule = new \stdClass;
+      }
+    }
+    if ($fields === '*' || false !== strpos($fields, 'sync_rule')) {
+      if (!empty($oApp->sync_rule)) {
+        $oApp->syncRule = json_decode($oApp->sync_rule);
+      } else {
+        $oApp->syncRule = new \stdClass;
+      }
+      unset($oApp->sync_rule);
+    }
+    if (!empty($oApp->matter_mg_tag)) {
+      $oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
+    }
+
+    return $oApp;
+  }
+  /**
    *
    */
   public function getEntryUrl($siteId, $id)
@@ -54,39 +103,7 @@ class group_model extends app_base
     ];
 
     if ($oApp = $this->query_obj_ss($q)) {
-      $oApp->type = 'group';
-      if (isset($oApp->siteid) && isset($oApp->id)) {
-        $oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
-      }
-      if ($cascaded === 'Y') {
-        $aTeamOptions = isset($aOptions['team']) ? $aOptions['team'] : [];
-        $oApp->teams = $this->model('matter\group\team')->byApp($aid, $aTeamOptions);
-      }
-      if ($fields === '*' || false !== strpos($fields, 'data_schemas')) {
-        if (!empty($oApp->data_schemas)) {
-          $oApp->dataSchemas = json_decode($oApp->data_schemas);
-        } else {
-          $oApp->dataSchemas = [];
-        }
-        unset($oApp->data_schemas);
-      }
-      if ($fields === '*' || false !== strpos($fields, 'assigned_nickname')) {
-        if (!empty($oApp->assigned_nickname)) {
-          $oApp->assignedNickname = json_decode($oApp->assigned_nickname);
-        } else {
-          $oApp->assignedNickname = new \stdClass;
-        }
-      }
-      if ($fields === '*' || false !== strpos($fields, 'group_rule')) {
-        if (!empty($oApp->group_rule)) {
-          $oApp->groupRule = json_decode($oApp->group_rule);
-        } else {
-          $oApp->groupRule = new \stdClass;
-        }
-      }
-      if (!empty($oApp->matter_mg_tag)) {
-        $oApp->matter_mg_tag = json_decode($oApp->matter_mg_tag);
-      }
+      $this->_db2obj($oApp, $fields, $cascaded);
     }
 
     return $oApp;
@@ -137,6 +154,9 @@ class group_model extends app_base
       $q[2]['auto_sync'] = $aOptions['autoSync'];
     }
     $apps = $this->query_objs_ss($q);
+    foreach ($apps as $app) {
+      $this->_db2obj($app, $fields);
+    }
 
     return $apps;
   }

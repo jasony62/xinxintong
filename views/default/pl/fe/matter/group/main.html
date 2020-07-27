@@ -1,115 +1,118 @@
 <div class='col-md-6 col-md-offset-3'>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>活动名称</label>
-                <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-            </div>
-            <div class='form-group'>
-                <label>活动说明</label>
-                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-            </div>
-            <div class='row'>
-                <div class='col-md-6'>
-                    <div class='form-group'>
-                        <label>开始时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
-                    </div>
-                </div>
-                <div class='col-md-6'>
-                    <div class='form-group'>
-                        <label>结束时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-                    </div>
-                </div>
-            </div>
-            <div class='form-group' ng-if="app&&!app.mission">
-                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-            </div>
-            <div class='form-group' ng-if="app.mission">
-                <label>所属项目</label>
-                <div class="input-group">
-                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
-                            <span class='glyphicon glyphicon-new-window'></span>
-                        </a>
-                    </div>
-                </div>
-            </div>
+  <div class='panel panel-default'>
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>活动名称</label>
+        <input type='text' class='form-control' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+      </div>
+      <div class='form-group'>
+        <label>活动说明</label>
+        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+      </div>
+      <div class='row'>
+        <div class='col-md-6'>
+          <div class='form-group'>
+            <label>开始时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-state='start_at'></tms-datepicker>
+          </div>
         </div>
-    </div>
-    <div class='panel panel-default ng-cloak'>
-        <div class='panel-body'>
-            <div class='form-group' ng-if="app&&!app.sourceApp">
-                <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
-            </div>
-            <div class='form-group' ng-if="app.sourceApp">
-                <label>分组用户来源</label>
-                <div class="form-group">
-                    <div class="input-group">
-                        <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
-                        <div class="input-group-btn">
-                            <button class="btn btn-default" ng-click="cancelSourceApp()">
-                                <span class='glyphicon glyphicon-remove'></span>
-                            </button>
-                            <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group" ng-if="app.sourceApp.type=='mschema'||chooseAssocWitchApp.sourceApp.type=='memberschema'">
-                    <p>
-                        <label class='checkbox-inline'>
-                            <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.auto_sync' ng-change="update('auto_sync')">自动同步用户
-                        </label>
-                    </p>
-                    <div class="form-group" ng-if="app.auto_sync=='Y'">
-                        <label>默认同步到</label>
-                        <select class="form-control" ng-model="app.sync_round" ng-change="update('sync_round')">
-                            <option value="">无</option>
-                            <option value="{{team.team_id}}" ng-repeat="team in app.teams">{{team.title}}</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+        <div class='col-md-6'>
+          <div class='form-group'>
+            <label>结束时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+          </div>
         </div>
-    </div>
-    <div class='panel panel-default' ng-if="app.entryUrl">
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>自助分组链接</label>
-                <div class='pl-input-group'>
-                    <div class='form-control pl-line' ng-bind="app.entryUrl"></div>
-                    <a class='btn btn-default' ng-href="{{app.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
-                </div>
-            </div>
-            <div class='form-group'>
-                <label>分享卡片头图（可选，建议尺寸360*200）</label>
-                <div style='position:relative'>
-                    <div style="width:182px;border:1px solid #CCC">
-                        <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
-                            <button class='btn btn-default' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
-                        </div>
-                        <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
-                            <img name='pic' ng-src="{{app.pic}}" width='180px' />
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
-                                <span class='glyphicon glyphicon-picture'></span>
-                            </button>
-                            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
-                                <span class='glyphicon glyphicon-trash'></span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class='form-group' ng-if="app&&!app.mission">
+        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+      </div>
+      <div class='form-group' ng-if="app.mission">
+        <label>所属项目</label>
+        <div class="input-group">
+          <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+          <div class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+              <span class='glyphicon glyphicon-remove'></span>
+            </button>
+            <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+              <span class='glyphicon glyphicon-new-window'></span>
+            </a>
+          </div>
         </div>
+      </div>
     </div>
-    <hr>
-    <div class='form-group'>
-        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+  </div>
+  <div class='panel panel-default ng-cloak'>
+    <div class='panel-body'>
+      <div class='form-group' ng-if="app&&!app.sourceApp">
+        <button class='btn btn-block btn-success' ng-click="assocWithApp()">导入用户</button>
+      </div>
+      <div class='form-group' ng-if="app.sourceApp">
+        <label>分组用户来源</label>
+        <div class="form-group">
+          <div class="input-group">
+            <input class='form-control' value="{{app.sourceApp.title}}" disabled="">
+            <div class="input-group-btn">
+              <button class="btn btn-default" ng-click="cancelSourceApp()">
+                <span class='glyphicon glyphicon-remove'></span>
+              </button>
+              <a class='btn btn-default' href='' ng-click="gotoSourceApp()"><span class='glyphicon glyphicon-new-window'></span></a>
+            </div>
+          </div>
+        </div>
+        <div class="form-group" ng-if="app.sourceApp.type=='mschema'||chooseAssocWitchApp.sourceApp.type=='memberschema'">
+          <div class="checkbox">
+            <label class='checkbox-inline'>
+              <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model='app.auto_sync' ng-change="update('auto_sync')">自动同步用户
+            </label>
+          </div>
+          <div class="form-group" ng-if="app.auto_sync=='Y'">
+            <label>默认同步到</label>
+            <select class="form-control" ng-model="app.syncRule.team_id" ng-change="update('syncRule')">
+              <option value="">无</option>
+              <option value="{{team.team_id}}" ng-repeat="team in app.teams">{{team.title}}</option>
+            </select>
+          </div>
+          <div class="form-group" ng-if="app.sourceApp.type=='mschema'||chooseAssocWitchApp.sourceApp.type=='memberschema'">
+            <button class="btn btn-default" ng-click="setSyncFilter()">同步筛选条件<span ng-if="app.syncRule.rules">(<span ng-bind="app.syncRule.rules.length"></span>)</span></button>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+  <div class='panel panel-default' ng-if="app.entryUrl">
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>自助分组链接</label>
+        <div class='pl-input-group'>
+          <div class='form-control pl-line' ng-bind="app.entryUrl"></div>
+          <a class='btn btn-default' ng-href="{{app.entryUrl}}" target='_blank' title='打开'><i class='glyphicon glyphicon-open'></i></a>
+        </div>
+      </div>
+      <div class='form-group'>
+        <label>分享卡片头图（可选，建议尺寸360*200）</label>
+        <div style='position:relative'>
+          <div style="width:182px;border:1px solid #CCC">
+            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!app.pic">
+              <button class='btn btn-default' ng-click='setPic();'>
+                <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+            </div>
+            <div style='position:relative' ng-if="app.pic!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+              <img name='pic' ng-src="{{app.pic}}" width='180px' />
+              <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic();'>
+                <span class='glyphicon glyphicon-picture'></span>
+              </button>
+              <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic();'>
+                <span class='glyphicon glyphicon-trash'></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr>
+  <div class='form-group'>
+    <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+  </div>
 </div>

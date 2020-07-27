@@ -170,15 +170,24 @@ class main extends main_base
   {
     $oOpUser = $this->user;
     $oMatter = $this->app;
+    $modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
+    $oUpdated = new \stdClass;
+
     /**
      * 处理数据
      */
-    $oUpdated = $this->getPostJson();
-    foreach ($oUpdated as $n => $v) {
-      $oMatter->{$n} = $v;
+    $oPosted = $this->getPostJson();
+    foreach ($oPosted as $field => $v) {
+      switch ($field) {
+        case 'syncRule':
+          $oUpdated->sync_rule = $modelApp->escape($modelApp->toJson($v));
+          break;
+        default:
+          $oUpdated->{$field} = $v;
+      }
+      $oMatter->{$field} = $v;
     }
 
-    $modelApp = $this->model('matter\group')->setOnlyWriteDbConn(true);
     if ($oMatter = $modelApp->modify($oOpUser, $oMatter, $oUpdated)) {
       $this->model('matter\log')->matterOp($oMatter->siteid, $oOpUser, $oMatter, 'U');
     }

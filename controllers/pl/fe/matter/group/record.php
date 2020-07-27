@@ -352,9 +352,9 @@ class record extends \pl\fe\matter\base
    *
    * 同步在最后一次同步之后的数据或已经删除的数据
    */
-  public function syncByApp_action($app, $onlySpeaker = 'N')
+  public function syncByApp_action($app)
   {
-    if (false === ($user = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
     $modelGrp = $this->model('matter\group');
@@ -373,11 +373,13 @@ class record extends \pl\fe\matter\base
         $count = $this->_syncByMschema($oApp->siteid, $oApp, $sourceApp->id);
       }
       // 更新同步时间
-      $modelGrp->update(
-        'xxt_group',
-        ['last_sync_at' => time()],
-        ['id' => $oApp->id]
-      );
+      if ($count > 0) {
+        $modelGrp->update(
+          'xxt_group',
+          ['last_sync_at' => time()],
+          ['id' => $oApp->id]
+        );
+      }
     }
 
     return new \ResponseData($count);
@@ -392,13 +394,26 @@ class record extends \pl\fe\matter\base
     /* 获取变化的登记数据 */
     $modelRec = $this->model('site\user\member');
     $q = [
-      'id enroll_key,forbidden state',
+      'id enroll_key,forbidden state,extattr',
       'xxt_site_member',
       "schema_id = $bySchema and (modify_at > {$objGrp->last_sync_at} or forbidden <> 'N')",
     ];
     $records = $modelRec->query_objs_ss($q);
 
     $modelGrpRec = $this->model('matter\group\record');
+
+    /* 如果分组活动指定同步筛选条件，按筛选条件过滤 */
+    if (isset($objGrp->syncRule) && !empty($objGrp->syncRule->rules)) {
+      $filtered = [];
+      foreach ($records as $rec) {
+        $extattr = empty($rec->extattr) ? null : json_decode($rec->extattr);
+        if ($extattr && is_object($extattr)) {
+          $matched = $modelGrpRec->matchSyncFilter($objGrp->syncRule, $extattr);
+          if ($matched === true) $filtered[] = $rec;
+        }
+      }
+      $records = $filtered;
+    }
 
     return $modelGrpRec->syncRecord($siteId, $objGrp, $records, $modelRec, 'mschema');
   }

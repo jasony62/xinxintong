@@ -1049,7 +1049,7 @@ class user_model extends \TMS_MODEL
     $enrollees = $modelEnlRec->query_objs_ss($q);
     foreach ($enrollees as $oEnrollee) {
       if ($oEnrollee->rid === 'ALL') {
-        $rec = $modelEnlRec->lastByUser($oApp, $oEnrollee);
+        $rec = $modelEnlRec->lastByUser($oApp, $oEnrollee, ['rid' => false]);
       } else {
         $rec = $modelEnlRec->lastByUser($oApp, $oEnrollee, ['rid' => $oEnrollee->rid]);
       }

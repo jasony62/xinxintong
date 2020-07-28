@@ -156,6 +156,15 @@ define(['frame'], function (ngApp) {
           }.bind(this)
         )
       }
+      this.repairNickname = function () {
+        var url = '/rest/pl/fe/matter/enroll/repair/userNickname'
+        url += '?app=' + this.app.id
+        http2.get(url).then(
+          function () {
+            this.list(1)
+          }.bind(this)
+        )
+      }
       this.export = function () {
         var url = '/rest/pl/fe/matter/enroll/export/enrollee'
         url += '?app=' + this.app.id

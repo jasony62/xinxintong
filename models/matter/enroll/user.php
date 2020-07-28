@@ -1027,6 +1027,43 @@ class user_model extends \TMS_MODEL
     return $updatedCount;
   }
   /**
+   * 更新活动用户昵称
+   */
+  public function repairNickname($oApp)
+  {
+    if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y')
+      return 0;
+
+    $nameSchemaId = $this->getDeepValue($oApp, 'assignedNickname.schema.id');
+    if (empty($nameSchemaId))
+      return 0;
+
+    $updatedCount = 0;
+    $modelEnlRec = $this->model('matter\enroll\record');
+
+    $q = [
+      'id,rid,userid uid,nickname',
+      'xxt_enroll_user',
+      ['aid' => $oApp->id, 'state' => 1],
+    ];
+    $enrollees = $modelEnlRec->query_objs_ss($q);
+    foreach ($enrollees as $oEnrollee) {
+      if ($oEnrollee->rid === 'ALL') {
+        $rec = $modelEnlRec->lastByUser($oApp, $oEnrollee);
+      } else {
+        $rec = $modelEnlRec->lastByUser($oApp, $oEnrollee, ['rid' => $oEnrollee->rid]);
+      }
+      if (!$rec) continue;
+      $name = $this->getDeepValue($rec, 'data.' . $nameSchemaId);
+      if (!empty($name) && $name !== $oEnrollee->nickname) {
+        $modelEnlRec->update('xxt_enroll_user', ['nickname' => $name], ['id' => $oEnrollee->id]);
+        $updatedCount++;
+      }
+    }
+
+    return $updatedCount;
+  }
+  /**
    * 活动用户获得奖励行为分
    */
   public function awardCoin($oApp, $userid, $rid, $coinEvent, $coinRules = null)

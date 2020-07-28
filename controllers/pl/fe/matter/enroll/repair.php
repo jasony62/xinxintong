@@ -110,6 +110,20 @@ class repair extends record_base
     return new \ResponseData($updatedCount);
   }
   /**
+   * 更新活动用户昵称
+   */
+  public function userNickname_action()
+  {
+    $oApp = $this->app;
+    if (!isset($oApp->assignedNickname)) {
+      return new \ResponseError('没有指定用户昵称字段');
+    }
+
+    $updatedCount = $this->model('matter\enroll\user')->repairNickname($oApp);
+
+    return new \ResponseData($updatedCount);
+  }
+  /**
    * 更新指定活动下所有记录的数据分
    */
   public function recordScoreByRound_action($app, $rid = null)

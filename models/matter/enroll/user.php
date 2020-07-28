@@ -1032,11 +1032,11 @@ class user_model extends \TMS_MODEL
   public function repairNickname($oApp)
   {
     if ($this->getDeepValue($oApp, 'assignedNickname.valid') !== 'Y')
-      return 0;
+      return -1;
 
     $nameSchemaId = $this->getDeepValue($oApp, 'assignedNickname.schema.id');
     if (empty($nameSchemaId))
-      return 0;
+      return -2;
 
     $updatedCount = 0;
     $modelEnlRec = $this->model('matter\enroll\record');

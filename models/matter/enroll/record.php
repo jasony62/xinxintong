@@ -326,16 +326,18 @@ class record_model extends record_base
       $q[2]['state'] = $aOptions['state'];
     }
     /* 指定填写轮次 */
-    if (empty($assignedRid)) {
-      if (isset($oApp->appRound->rid)) {
-        $q[2]['rid'] = $oApp->appRound->rid;
-      } else {
-        if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
-          $q[2]['rid'] = $oActiveRnd->rid;
+    if ($assignedRid !== false) {
+      if (empty($assignedRid)) {
+        if (isset($oApp->appRound->rid)) {
+          $q[2]['rid'] = $oApp->appRound->rid;
+        } else {
+          if ($oActiveRnd = $this->model('matter\enroll\round')->getActive($oApp)) {
+            $q[2]['rid'] = $oActiveRnd->rid;
+          }
         }
+      } else {
+        $q[2]['rid'] = $assignedRid;
       }
-    } else {
-      $q[2]['rid'] = $assignedRid;
     }
     /* 记录的时间 */
     $q2 = [

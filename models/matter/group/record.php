@@ -675,7 +675,9 @@ class record_model extends \matter\enroll\record_base
       /* 满足任意一条规则就可以 */
       foreach ($rules as $r) {
         if (empty($r->schema) || empty($r->op)) continue;
-        if (isset($data->{$r->schema}) &&  ($data->{$r->schema} === $r->op || $data->{$r->schema}->{$r->op} === true)) {
+        if (!isset($data->{$r->schema})) continue;
+        $dataops = $this->getDataOpsArray($data->{$r->schema});
+        if (in_array($r->op, $dataops)) {
           $matched = true;
           break;
         }
@@ -685,7 +687,12 @@ class record_model extends \matter\enroll\record_base
       $allpass = true;
       foreach ($rules as $r) {
         if (empty($r->schema) || empty($r->op)) continue;
-        if (empty($data->{$r->schema}) || ($data->{$r->schema} !== $r->op && $data->{$r->schema}->{$r->op} !== true)) {
+        if (empty($data->{$r->schema})) {
+          $allpass = false;
+          break;
+        }
+        $dataops = $this->getDataOpsArray($data->{$r->schema});
+        if (!in_array($r->op, $dataops)) {
           $allpass = false;
           break;
         }

@@ -723,6 +723,24 @@ angular
             })
             return defer.promise
           },
+          setIsLeader: function (isLeader, users) {
+            let defer, url, eks
+
+            defer = $q.defer()
+            url = `/rest/pl/fe/matter/group/record/setIsLeader?app=${_appId}&isLeader=${isLeader}`
+            eks = users.map((oRec) => oRec.enroll_key)
+
+            http2.post(url, eks).then((rsp) => {
+              var oResult = rsp.data
+              users.forEach((oRec) => {
+                if (oResult[oRec.enroll_key] !== false) {
+                  oRec.is_leader = isLeader
+                }
+              })
+              defer.resolve()
+            })
+            return defer.promise
+          },
           add: function (oRec) {
             var defer = $q.defer(),
               url

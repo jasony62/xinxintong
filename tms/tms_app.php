@@ -151,12 +151,11 @@ class TMS_APP
   private static function _validateRequest()
   {
     /* 没有明确指定接受的类型 */
-    if (empty($_SERVER['HTTP_ACCEPT']) || $_SERVER['HTTP_ACCEPT'] === '*/*') {
+    if (empty($_SERVER['HTTP_ACCEPT']) || $_SERVER['HTTP_ACCEPT'] === '*/*')
       return false;
-    }
-    if (empty($_SERVER['HTTP_USER_AGENT'])) {
+
+    if (empty($_SERVER['HTTP_USER_AGENT']) || strlen($_SERVER['HTTP_USER_AGENT']) < 65)
       return false;
-    }
 
     return true;
   }

@@ -32,9 +32,15 @@
         </ul>
       </div>
       <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
-        <button class="btn btn-default" uib-dropdown-toggle><span ng-bind="rows.records.length"></span>个用户加入到...<i class="caret"></i></button>
+        <button class="btn btn-default" uib-dropdown-toggle>加入<span ng-bind="rows.records.length"></span>个用户到...<i class="caret"></i></button>
         <ul uib-dropdown-menu>
           <li ng-repeat="team in roleTeams"><a href ng-click="joinGroup(team,rows.records)">{{team.title}}</a></li>
+        </ul>
+      </div>
+      <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
+        <button class="btn btn-default" uib-dropdown-toggle>设置<span ng-bind="rows.records.length"></span>个用户为...<i class="caret"></i></button>
+        <ul uib-dropdown-menu>
+          <li ng-repeat="(v,l) in cstApp.naming.is_leader"><a href ng-click="setIsLeader(v,rows.records)">{{l}}</a></li>
         </ul>
       </div>
       <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
@@ -53,7 +59,7 @@
   </div>
   <!-- result -->
   <div tms-flex-height top='72' bottom='72' class='form-group'>
-    <div tms-table-wrap ready='tableReady' overflow-x='auto' ng-include="'/views/default/pl/fe/matter/group/component/records.html?_='+frameTemplates.compRecords.time"></div>
+    <div tms-table-wrap ready='tableReady' ng-include="'/views/default/pl/fe/matter/group/component/records.html?_='+frameTemplates.compRecords.time"></div>
   </div>
   <!-- end result -->
 </div>

@@ -56,6 +56,7 @@ define(['frame'], function (ngApp) {
         } else {
           srvGrpRec.list(_oCriteria[arg], arg)
         }
+        $scope.tableReady = 'Y'
       }
       $scope.editRec = function (oRecord) {
         srvGrpRec.edit(oRecord).then(function (oResult) {
@@ -114,6 +115,13 @@ define(['frame'], function (ngApp) {
           })
         }
       }
+      $scope.setIsLeader = function (isLeader, records) {
+        if (records.length && isLeader !== undefined) {
+          srvGrpRec.setIsLeader(isLeader, records).then(function () {
+            $scope.rows.reset()
+          })
+        }
+      }
       $scope.notify = function (isBatch) {
         srvGrpRec.notify(isBatch ? $scope.rows : undefined)
       }
@@ -122,6 +130,7 @@ define(['frame'], function (ngApp) {
       // 表格定义是否准备完毕
       $scope.tableReady = 'N'
       // 当前选中的行
+      $scope.page = {} // 分页条件
       $scope.rows = {
         reset: function () {
           this.allSelected = 'N'
@@ -161,7 +170,6 @@ define(['frame'], function (ngApp) {
         }
         srvGrpRec.init(_records).then(function () {
           $scope.list('team')
-          $scope.tableReady = 'Y'
         })
       })
       srvGrpTeam.list().then(function (teams) {

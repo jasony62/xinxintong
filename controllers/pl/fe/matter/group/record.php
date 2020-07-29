@@ -160,6 +160,41 @@ class record extends \pl\fe\matter\base
     return new \ResponseData($oResult);
   }
   /**
+   * 将用户移入分组
+   */
+  public function setIsLeader_action($app, $isLeader)
+  {
+    if (false === ($oOpUser = $this->accountUser())) return new \ResponseTimeout();
+
+    $oApp = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) return new \ObjectNotFoundError();
+
+    if (!in_array($isLeader, ['N', 'Y', 'S', 'O'])) return new \ResponseError('不支持指定的角色【' . $isLeader . '】');
+
+    $eks = $this->getPostJson();
+    if (empty($eks)) return new \ResponseError('没有指定用户');
+
+    $oResult = new \stdClass;
+    $modelUsr = $this->model('matter\group\record');
+    foreach ($eks as $ek) {
+      if ($oUser = $modelUsr->byIdInApp($oApp->id, $ek)) {
+        $rst = $modelUsr->update(
+          'xxt_group_record',
+          ['is_leader' => $isLeader],
+          ["id" => $oUser->id]
+        );
+        $oResult->{$ek} = $rst ? $isLeader : false;
+      } else {
+        $oResult->{$ek} = false;
+      }
+    }
+
+    // 记录操作日志
+    $this->model('matter\log')->matterOp($oApp->siteid, $oOpUser, $oApp, 'setIsLeader', $oResult);
+
+    return new \ResponseData($oResult);
+  }
+  /**
    * 将用户移出分组 (团队分组)
    */
   public function quitGroup_action($app)

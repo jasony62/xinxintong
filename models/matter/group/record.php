@@ -253,8 +253,9 @@ class record_model extends \matter\enroll\record_base
   public function byApp($oApp, $oOptions = null)
   {
     if (is_string($oApp)) {
-      $oApp = (object) ['id' => $oApp];
+      $oApp = $this->model('matter\group')->byId($oApp);
     }
+
     if ($oOptions) {
       is_array($oOptions) && $oOptions = (object) $oOptions;
       $page = isset($oOptions->page) ? $oOptions->page : null;
@@ -262,6 +263,8 @@ class record_model extends \matter\enroll\record_base
     }
 
     $fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,team_id,team_title,role_teams';
+
+    $aSchemasById = $this->model('matter\group\schema')->asAssoc($oApp->dataSchemas);
 
     /* 数据过滤条件 */
     $w = "state=1 and aid='{$oApp->id}'";
@@ -273,25 +276,79 @@ class record_model extends \matter\enroll\record_base
       }
     }
     if (isset($oOptions->teamId)) {
-      if ($oOptions->teamId === 'inTeam') {
+      if ($oOptions->teamId === 'inTeam') { // 已分组
         $w .= " and team_id <> ''";
-      } else if ($oOptions->teamId === '' || $oOptions->teamId === 'pending') {
+      } else if ($oOptions->teamId === '' || $oOptions->teamId === 'pending') { // 未分组
         $w .= " and team_id = ''";
-      } else if (strcasecmp($oOptions->teamId, 'all') !== 0) {
+      } else if (strcasecmp($oOptions->teamId, 'all') !== 0) { // 指定分组
         $w .= " and team_id = '" . $oOptions->teamId . "' and userid <> ''";
       }
     }
-    if (!empty($oOptions->roleTeamId)) {
-      $w .= " and role_teams like '%\"" . $oOptions->roleTeamId . "\"%' and userid <> ''";
+    if (isset($oOptions->roleTeamId)) {
+      if ($oOptions->roleTeamId === 'pending') { // 未指定角色
+        $w .= " and (role_teams = '' or role_teams = '[]')";
+      } else if (!empty($oOptions->roleTeamId)) { // 角色组
+        $w .= " and role_teams like '%\"" . $oOptions->roleTeamId . "\"%' and userid <> ''";
+      }
     }
     // 根据用户昵称过滤
     if (!empty($oOptions->nickname)) {
       $w .= " and nickname like '%{$oOptions->nickname}%'";
     }
-    // 用户角色过滤
+    // 用户组内角色过滤
     if (!empty($oOptions->leader) && is_array($oOptions->leader)) {
       $leader = "('" . implode("','", $oOptions->leader) . "')";
       $w .= " and is_leader in {$leader}";
+    }
+    // 按扩展字段进行筛选
+    // 指定了记录数据过滤条件
+    if (isset($oOptions->data)) {
+      $whereByData = '';
+      foreach ($oOptions->data as $k => $v) {
+        if (!empty($v) && isset($aSchemasById[$k])) {
+          $oSchema = $aSchemasById[$k];
+          $whereByData .= ' and (';
+          if ($oSchema->type === 'multiple') {
+            // 选项ID是否互斥，不存在，例如：v1和v11
+            $bOpExclusive = true;
+            $strOpVals = '';
+            foreach ($oSchema->ops as $op) {
+              $strOpVals .= ',' . $op->v;
+            }
+            foreach ($oSchema->ops as $op) {
+              if (false !== strpos($strOpVals, $op->v)) {
+                $bOpExclusive = false;
+                break;
+              }
+            }
+            // 拼写sql
+            $v2 = explode(',', $v);
+            foreach ($v2 as $index => $v2v) {
+              if ($index > 0) {
+                $whereByData .= ' and ';
+              }
+              // 获得和题目匹配的子字符串
+              $dataBySchema = 'substr(substr(data,locate(\'"' . $k . '":"\',data)),1,locate(\'"\',substr(data,locate(\'"' . $k . '":"\',data)),' . (strlen($k) + 5) . '))';
+              $whereByData .= '(';
+              if ($bOpExclusive) {
+                $whereByData .= $dataBySchema . ' like \'%' . $v2v . '%\'';
+              } else {
+                $whereByData .= $dataBySchema . ' like \'%"' . $v2v . '"%\'';
+                $whereByData .= ' or ' . $dataBySchema . ' like \'%"' . $v2v . ',%\'';
+                $whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . ',%\'';
+                $whereByData .= ' or ' . $dataBySchema . ' like \'%,' . $v2v . '"%\'';
+              }
+              $whereByData .= ')';
+            }
+          } else if ($oSchema->type === 'single') {
+            $whereByData .= 'data like \'%"' . $k . '":"' . $v . '"%\'';
+          } else {
+            $whereByData .= 'data like \'%"' . $k . '":"%' . $v . '%"%\'';
+          }
+          $whereByData .= ')';
+        }
+      }
+      $w .= $whereByData;
     }
     $q = [
       $fields,
@@ -489,40 +546,6 @@ class record_model extends \matter\enroll\record_base
     }
 
     return [true, $oMatchedGrpUsr];
-  }
-  /**
-   * 有资格参加指定轮次分组的用户(团队分组)
-   */
-  public function &pendings($appId)
-  {
-    /* 没有抽中过的用户 */
-    $q = [
-      'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_teams',
-      'xxt_group_record',
-      "aid='$appId' and state=1 and team_id=0",
-    ];
-    $q2['o'] = 'enroll_at desc';
-    /* 获得用户的登记数据 */
-    $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($appId));
-
-    return $records;
-  }
-  /**
-   * 没有参加角色分组的用户(角色分组)
-   */
-  public function &pendingsRole($appId)
-  {
-    /* 没有抽中过的用户 */
-    $q = [
-      'id,enroll_key,nickname,userid,enroll_at,data,tags,comment,role_teams',
-      'xxt_group_record',
-      "aid='$appId' and state=1 and (role_teams = '' or role_teams = '[]')",
-    ];
-    $q2['o'] = 'enroll_at desc';
-    /* 获得用户的登记数据 */
-    $records = $this->query_objs_ss($q, $q2, $this->_callableDbRecordHandler($appId));
-
-    return $records;
   }
   /**
    * 获得分组内用户的数量（团队分组）

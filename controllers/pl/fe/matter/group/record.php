@@ -21,28 +21,26 @@ class record extends \pl\fe\matter\base
    */
   public function list_action($app)
   {
-    if (false === $this->accountUser()) {
-      return new \ResponseTimeout();
-    }
+    if (false === $this->accountUser()) return new \ResponseTimeout();
 
     $modelGrp = $this->model('matter\group');
     $oApp = $modelGrp->byId($app);
-    if (false === $oApp || $oApp->state !== '1') {
-      return new \ObjectNotFoundError();
-    }
+    if (false === $oApp || $oApp->state !== '1') return new \ObjectNotFoundError();
 
     $oPosted = $this->getPostJson();
 
     $aOptions = [];
-    if (isset($oPosted->roleTeamId)) {
+    if (isset($oPosted->roleTeamId))
       $aOptions['roleTeamId'] = $oPosted->roleTeamId;
-    }
-    if (isset($oPosted->teamId)) {
+
+    if (isset($oPosted->teamId))
       $aOptions['teamId'] = $oPosted->teamId;
-    }
-    if (!empty($oPosted->kw) && !empty($oPosted->by)) {
+
+    if (!empty($oPosted->kw) && !empty($oPosted->by))
       $aOptions[$oPosted->by] = $oPosted->kw;
-    }
+
+    if (isset($oPosted->data))
+      $aOptions['data'] = $oPosted->data;
 
     $modelGrpRec = $this->model('matter\group\record');
     $oResult = $modelGrpRec->byApp($oApp, $aOptions);
@@ -67,25 +65,6 @@ class record extends \pl\fe\matter\base
     $cnt = (int) $this->model()->query_val_ss($q);
 
     return new \ResponseData($cnt);
-  }
-  /**
-   * 属于指定分组的人
-   */
-  public function byTeam_action($app, $tid)
-  {
-    if (false === $this->accountUser()) {
-      return new \ResponseTimeout();
-    }
-
-    $oTeam = $this->model('matter\group\team')->byId($tid);
-    if (false === $oTeam) {
-      return new \ObjectNotFoundError();
-    }
-
-    $modelGrpRec = $this->model('matter\group\record');
-    $oResult = $modelGrpRec->byTeam($oTeam->team_id);
-
-    return new \ResponseData($oResult);
   }
   /**
    * 从其他活动导入数据
@@ -535,21 +514,6 @@ class record extends \pl\fe\matter\base
     $modelGrpRec = $this->model('matter\group\record');
 
     return $modelGrpRec->syncRecord($oGrpApp->siteid, $oGrpApp, $records, $modelRec, 'mschema');
-  }
-  /**
-   * 未分组的人
-   *
-   * @param $teamType 分组类型 “T” 团队分组，"R" 角色分组
-   */
-  public function pendingsGet_action($app, $rid = null, $teamType = 'T')
-  {
-    if ($teamType === 'R') {
-      $result = $this->model('matter\group\record')->pendingsRole($app);
-    } else {
-      $result = $this->model('matter\group\record')->pendings($app);
-    }
-
-    return new \ResponseData($result);
   }
   /**
    * 导出分组数据

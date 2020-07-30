@@ -952,8 +952,7 @@ angular
       function ($q, http2, $uibModal, noticebox) {
         return {
           open: function (oMatter, oMschema) {
-            var defer = $q.defer(),
-              url
+            var defer = $q.defer()
             $uibModal
               .open({
                 templateUrl: '/views/default/pl/fe/_module/memberPicker.html',
@@ -1035,18 +1034,43 @@ angular
                 },
                 controller: [
                   '$scope',
+                  '$timeout',
                   '$uibModalInstance',
                   'http2',
                   'tmsSchema',
                   'action',
-                  function ($scope2, $mi, http2, tmsSchema, _oAction) {
+                  function (
+                    $scope2,
+                    $timeout,
+                    $mi,
+                    http2,
+                    tmsSchema,
+                    _oAction
+                  ) {
                     var _oPage, _oRows, _bAdded, _oMschema, doSearch
+                    $scope2.tableReady = 'N'
                     $scope2.action = _oAction
+                    $scope2.searchBys = []
+                    oMschema.attr_name[0] == 0 &&
+                      $scope2.searchBys.push({
+                        n: '姓名',
+                        v: 'name',
+                      })
+                    oMschema.attr_mobile[0] == 0 &&
+                      $scope2.searchBys.push({
+                        n: '手机号',
+                        v: 'mobile',
+                      })
+                    oMschema.attr_email[0] == 0 &&
+                      $scope2.searchBys.push({
+                        n: '邮箱',
+                        v: 'email',
+                      })
                     $scope2.page = _oPage = {
                       at: 1,
                       size: 30,
                       keyword: '',
-                      //searchBy: $scope2.searchBys[0].v
+                      searchBy: $scope2.searchBys[0].v,
                     }
                     // 选中的记录
                     $scope2.rows = _oRows = {
@@ -1081,10 +1105,9 @@ angular
                         })
                     }
                     $scope2.doSearch = doSearch = function (pageAt) {
+                      let url, filter, selectedSchemaId
                       pageAt && (_oPage.at = pageAt)
-                      var url,
-                        filter = '',
-                        selectedSchemaId
+                      filter = ''
                       selectedSchemaId = _oRows.impschemaId
                         ? _oRows.impschemaId
                         : oMschema.id
@@ -1096,20 +1119,15 @@ angular
                         filter = '&kw=' + _oPage.keyword
                         filter += '&by=' + _oPage.searchBy
                       }
-                      url =
-                        '/rest/pl/fe/site/member/list?site=' +
-                        oMschema.siteid +
-                        '&schema=' +
-                        selectedSchemaId
-                      url +=
-                        '&page=' + _oPage.at + '&size=' + _oPage.size + filter
-                      url += '&contain=total'
-                      http2.get(url).then(function (rsp) {
-                        var members
+                      url = `/rest/pl/fe/site/member/list?site=${oMschema.siteid}&schema=${selectedSchemaId}`
+                      url += `&page=${_oPage.at}&size=${_oPage.size}${filter}&contain=total`
+
+                      http2.get(url).then((rsp) => {
+                        let members
                         members = rsp.data.members
                         if (members.length) {
                           if (_oMschema.extAttrs.length) {
-                            members.forEach(function (oMember) {
+                            members.forEach((oMember) => {
                               oMember._extattr = tmsSchema.member.getExtattrsUIValue(
                                 _oMschema.extAttrs,
                                 oMember
@@ -1120,6 +1138,7 @@ angular
                         $scope2.members = members
                         _oPage.total = rsp.data.total
                         _oRows.reset()
+                        $timeout(() => ($scope2.tableReady = 'Y'), 500)
                       })
                     }
                     $scope2.cancel = function () {

@@ -1,7 +1,7 @@
 define(['frame'], function (ngApp) {
   ngApp.provider.controller('ctrlRecord', [
     '$scope',
-    'noticebox',
+    '$timeout',
     'srvGroupApp',
     'srvGroupTeam',
     'srvGroupRec',
@@ -9,7 +9,7 @@ define(['frame'], function (ngApp) {
     'facListFilter',
     function (
       $scope,
-      noticebox,
+      $timeout,
       srvGrpApp,
       srvGrpTeam,
       srvGrpRec,
@@ -49,14 +49,14 @@ define(['frame'], function (ngApp) {
         srvGrpRec.execute()
       }
       $scope.list = function (arg) {
-        if (_oCriteria[arg].team_id === 'all') {
-          srvGrpRec.list(null, arg)
-        } else if (_oCriteria[arg].team_id === 'pending') {
-          srvGrpRec.list(false, arg)
-        } else {
-          srvGrpRec.list(_oCriteria[arg], arg)
-        }
-        $scope.tableReady = 'Y'
+        srvGrpRec
+          .list(_oCriteria[arg].team_id === 'all' ? null : _oCriteria[arg], arg)
+          .then(() => {
+            $timeout(() => ($scope.tableReady = 'Y'), 500)
+          })
+      }
+      $scope.openFilter = function () {
+        srvGrpRec.filter()
       }
       $scope.editRec = function (oRecord) {
         srvGrpRec.edit(oRecord).then(function (oResult) {

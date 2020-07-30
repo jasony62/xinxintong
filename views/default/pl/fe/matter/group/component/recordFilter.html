@@ -1,0 +1,32 @@
+<style>
+  #recordFilter ul {
+    padding-left: 0;
+  }
+</style>
+<div class="modal-header">
+  <button class="close" type="button" ng-click="cancel()">×</button>
+  <h5 class="modal-title">筛选条件</h5>
+</div>
+<div class="modal-body">
+  <div class="form-group" ng-repeat="schema in schemas" id="recordFilter">
+    <label>{{schema.title}}</label>
+    <div>
+      <input type='text' class='form-control' ng-if="['shorttext','location'].indexOf(schema.type)!==-1" ng-model="criteria.data[schema.id]">
+      <textarea class='form-control' ng-if="'longtext'===schema.type" ng-model="criteria.data[schema.id]"></textarea>
+      <select class='form-control' ng-if="'single'===schema.type" ng-model="criteria.data[schema.id]" ng-options="op.v as op.l for op in schema.ops">
+        <option></option>
+      </select>
+      <ul ng-if="schema.type==='multiple'">
+        <li class='checkbox' ng-repeat="op in schema.ops">
+          <label>
+            <input type="checkbox" name="{{schema.id}}" ng-model="criteria.data[schema.id][op.v]" /><span>{{op.l}}</span></label>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" ng-click="clean()">清除条件</button>
+  <button class="btn btn-default" ng-click="cancel()">关闭</button>
+  <button class="btn btn-primary" ng-click="ok()">确定</button>
+</div>

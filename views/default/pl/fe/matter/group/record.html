@@ -23,6 +23,9 @@
           </div>
         </div>
       </div>
+      <button class="btn btn-default" ng-click="openFilter()">
+        <i class="glyphicon glyphicon-filter"></i> <span>筛选</span>
+      </button>
       <button class='btn btn-success' ng-disabled="!app.sourceApp||!teams.length" ng-click="execute()">自动分组</button>
       <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
         <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.records.length"></span>个用户到...<i class="caret"></i></button>

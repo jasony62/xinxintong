@@ -195,48 +195,49 @@ class group_model extends app_base
    */
   public function execute($appId)
   {
-    $app = $this->model('matter\group')->byId($appId);
+    $oApp = $this->model('matter\group')->byId($appId);
 
     $modelTeam = $this->model('matter\group\team');
-    $rst = $modelTeam->clean($appId);
-    $rounds = $modelTeam->byApp($appId);
-    if (empty($rounds)) {
+    $modelTeam->clean($appId);
+    $teams = $modelTeam->byApp($appId);
+    if (empty($teams)) {
       return [false, '没有指定分组'];
     }
 
     $modelGrpRec = \TMS_APP::M('matter\group\record');
-    $players = $modelGrpRec->pendings($appId);
+    $oResult = $modelGrpRec->byApp($oApp);
+    $records = $oResult->records;
 
-    $lenOfRounds = count($rounds);
-    $lenOfPlayers = count($players);
+    $lenOfRounds = count($teams);
+    $lenOfPlayers = count($records);
     $spaceOfRound = ceil($lenOfPlayers / $lenOfRounds);
     $hasSpace = true;
     $current = time();
     $submittedWinners = [];
 
-    while (count($players) && $hasSpace) {
+    while (count($records) && $hasSpace) {
       $hasSpace = false;
-      foreach ($rounds as &$round) {
-        !isset($round->winners) && $round->winners = [];
-        is_string($round->targets) && $round->targets = json_decode($round->targets);
-        $round->times == 0 && ($round->times = $spaceOfRound);
-        if ($round->times > count($round->winners)) {
-          $winner4Round = $this->_getWinner4Round($round, $players);
-          $winner4Round->team_id = $round->team_id;
+      foreach ($teams as &$team) {
+        !isset($team->winners) && $team->winners = [];
+        is_string($team->targets) && $team->targets = json_decode($team->targets);
+        $team->times == 0 && ($team->times = $spaceOfRound);
+        if ($team->times > count($team->winners)) {
+          $winner4Round = $this->_getWinner4Team($team, $records);
+          $winner4Round->team_id = $team->team_id;
           $submittedWinners[] = $winner4Round;
           /*保存结果*/
           $winner = array(
-            'team_id' => $round->team_id,
-            'team_title' => $this->escape($round->title),
+            'team_id' => $team->team_id,
+            'team_title' => $this->escape($team->title),
             'draw_at' => $current,
           );
           $modelGrpRec->update('xxt_group_record', $winner, "aid='$appId' and enroll_key='{$winner4Round->enroll_key}'");
           /*轮次是否还可以继续放用户*/
-          if ($round->times > count($round->winners)) {
+          if ($team->times > count($team->winners)) {
             $hasSpace = true;
           }
         }
-        if (count($players) === 0) {
+        if (count($records) === 0) {
           break;
         }
       }
@@ -247,13 +248,13 @@ class group_model extends app_base
   /**
    *
    */
-  private function _getWinner4Round(&$round, &$players)
+  private function _getWinner4Team(&$team, &$records)
   {
     $steps = rand(0, 10);
-    $matchedPos = $startPos = $steps % count($players);
-    $winner = $players[$startPos];
+    $matchedPos = $startPos = $steps % count($records);
+    $winner = $records[$startPos];
 
-    $target = $round->targets ? $round->targets[count($round->winners) % count($round->targets)] : false;
+    $target = $team->targets ? $team->targets[count($team->winners) % count($team->targets)] : false;
     if ($target) {
       /* 设置了用户抽取规则 */
       if (count(get_object_vars($target)) > 0) {
@@ -261,10 +262,10 @@ class group_model extends app_base
         $matched = $this->_matched($winner, $target);
         while (!$matched) {
           $matchedPos++;
-          if ($matchedPos === count($players)) {
+          if ($matchedPos === count($records)) {
             $matchedPos = 0;
           }
-          $winner = $players[$matchedPos];
+          $winner = $records[$matchedPos];
           if ($matchedPos === $startPos) {
             /*比较了所有的候选者，没有匹配的*/
             break;
@@ -275,10 +276,10 @@ class group_model extends app_base
         }
       }
     }
-    $round->winners[] = $winner;
+    $team->winners[] = $winner;
 
     /* 从候选者中去掉 */
-    array_splice($players, $matchedPos, 1);
+    array_splice($records, $matchedPos, 1);
 
     return $winner;
   }

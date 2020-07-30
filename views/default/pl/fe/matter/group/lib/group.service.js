@@ -539,7 +539,7 @@ angular
     ]
   })
   .provider('srvGroupRec', function () {
-    var _oApp, _siteId, _appId, _aPlayers
+    let _oApp, _siteId, _appId, _oCriteria
     this.$get = [
       '$q',
       '$uibModal',
@@ -561,12 +561,13 @@ angular
       ) {
         return {
           init: function (aCachedUsers) {
-            var defer = $q.defer()
-            srvGroupApp.get().then(function (oApp) {
+            let defer = $q.defer()
+            srvGroupApp.get().then((oApp) => {
               _oApp = oApp
               _siteId = oApp.siteid
               _appId = oApp.id
               _aGrpRecords = aCachedUsers
+              this.criteria = _oCriteria = { data: {} }
               defer.resolve()
             })
             return defer.promise
@@ -575,47 +576,25 @@ angular
             var _self = this
             if (window.confirm('本操作将清除已有分组数据，确定执行?')) {
               http2
-                .get(
-                  '/rest/pl/fe/matter/group/execute?site=' +
-                    _siteId +
-                    '&app=' +
-                    _appId
-                )
-                .then(function (rsp) {
-                  _self.list()
-                })
+                .get(`/rest/pl/fe/matter/group/execute?app=${_appId}`)
+                .then(() => _self.list())
             }
           },
           list: function (oTeam, arg, filterByKeyword) {
-            function fnTeam(obj) {
-              if (oTeam === null) {
-                return obj.all(filterByKeyword || {})
-              } else if (oTeam === false) {
-                return obj.pendings('T')
-              } else {
-                return obj.winners(oTeam, 'T')
-              }
+            let defer, filter, teamTypeId, url
+            defer = $q.defer()
+            filter = filterByKeyword || {}
+            if (oTeam !== null) {
+              teamTypeId = arg === 'team' ? 'teamId' : 'roleTeamId'
+              filter[teamTypeId] = oTeam === false ? 'pending' : oTeam.team_id
             }
 
-            function fnRoleTeam(obj) {
-              if (oTeam === null) {
-                return obj.all(filterByKeyword || {})
-              } else if (oTeam === false) {
-                return obj.pendings('R')
-              } else {
-                return obj.winners(oTeam, 'R')
-              }
-            }
-            arg === 'team' ? fnTeam(this) : fnRoleTeam(this)
-          },
-          all: function (oFilter) {
-            var defer = $q.defer(),
-              url = '/rest/pl/fe/matter/group/record/list?app=' + _appId
+            url = `/rest/pl/fe/matter/group/record/list?app=${_appId}`
 
             _aGrpRecords.splice(0, _aGrpRecords.length)
-            http2.post(url, oFilter).then(function (rsp) {
+            http2.post(url, filter).then((rsp) => {
               if (rsp.data.total) {
-                rsp.data.records.forEach(function (oRec) {
+                rsp.data.records.forEach((oRec) => {
                   tmsSchema.forTable(oRec, _oApp._schemasById)
                   srvGroupApp.dealData(oRec)
                   _aGrpRecords.push(oRec)
@@ -625,44 +604,44 @@ angular
             })
             return defer.promise
           },
-          winners: function (oTeam, teamType) {
-            var defer = $q.defer(),
-              url =
-                '/rest/pl/fe/matter/group/record/byTeam?app=' +
-                _appId +
-                '&tid=' +
-                oTeam.team_id +
-                '&teamType=' +
-                teamType
-
-            _aGrpRecords.splice(0, _aGrpRecords.length)
-            http2.get(url).then(function (rsp) {
-              rsp.data.forEach(function (oRec) {
-                tmsSchema.forTable(oRec, _oApp._schemasById)
-                srvGroupApp.dealData(oRec)
-                _aGrpRecords.push(oRec)
+          filter: function () {
+            let defer, that
+            defer = $q.defer()
+            that = this
+            http2
+              .post('/rest/script/time', {
+                html: {
+                  filter:
+                    '/views/default/pl/fe/matter/group/component/recordFilter',
+                },
               })
-              defer.resolve(rsp.data)
-            })
-            return defer.promise
-          },
-          pendings: function (teamType) {
-            var defer = $q.defer(),
-              url =
-                '/rest/pl/fe/matter/group/record/pendingsGet?app=' +
-                _appId +
-                '&teamType=' +
-                teamType
-
-            _aGrpRecords.splice(0, _aGrpRecords.length)
-            http2.get(url).then(function (rsp) {
-              rsp.data.forEach(function (oRec) {
-                tmsSchema.forTable(oRec, _oApp._schemasById)
-                srvGroupApp.dealData(oRec)
-                _aGrpRecords.push(oRec)
+              .then((rsp) => {
+                $uibModal
+                  .open({
+                    templateUrl: `/views/default/pl/fe/matter/group/component/recordFilter.html?_=${rsp.data.html.filter.time}`,
+                    controller: 'ctrlRecordFilter',
+                    windowClass: 'auto-height',
+                    backdrop: 'static',
+                    resolve: {
+                      app: function () {
+                        return _oApp
+                      },
+                      dataSchemas: function () {
+                        return _oApp.dataSchemas
+                      },
+                      criteria: function () {
+                        return angular.copy(_oCriteria)
+                      },
+                    },
+                  })
+                  .result.then(function (oCriteria) {
+                    defer.resolve()
+                    angular.extend(_oCriteria, oCriteria)
+                    that.list(null, null, _oCriteria).then(() => {
+                      defer.resolve()
+                    })
+                  })
               })
-              defer.resolve(rsp.data)
-            })
             return defer.promise
           },
           quitGroup: function (users) {
@@ -903,6 +882,68 @@ angular
       },
     ]
   })
+  /**
+   * filter
+   */
+  .controller('ctrlRecordFilter', [
+    '$scope',
+    '$uibModalInstance',
+    'dataSchemas',
+    'criteria',
+    function ($scope, $mi, dataSchemas, lastCriteria) {
+      var canFilteredSchemas = []
+
+      dataSchemas.forEach(function (schema) {
+        if (
+          false === /image|file|score|html/.test(schema.type) &&
+          schema.id.indexOf('member') !== 0
+        ) {
+          canFilteredSchemas.push(schema)
+        }
+        if (/multiple/.test(schema.type)) {
+          let options = {}
+          if (lastCriteria.data[schema.id]) {
+            lastCriteria.data[schema.id].split(',').forEach(function (key) {
+              options[key] = true
+            })
+            lastCriteria.data[schema.id] = options
+          }
+        }
+        $scope.schemas = canFilteredSchemas
+        $scope.criteria = lastCriteria
+      })
+      $scope.checkedRounds = {}
+      $scope.clean = function () {
+        var oCriteria = $scope.criteria
+        if (oCriteria.data) {
+          angular.forEach(oCriteria.data, function (val, key) {
+            oCriteria.data[key] = null
+          })
+        }
+      }
+      $scope.ok = function () {
+        let oCriteria = $scope.criteria,
+          optionCriteria
+        /* 将单选题/多选题的结果拼成字符串 */
+        canFilteredSchemas.forEach((schema) => {
+          let result
+          if (/multiple/.test(schema.type)) {
+            if ((optionCriteria = oCriteria.data[schema.id])) {
+              result = []
+              Object.keys(optionCriteria).forEach(function (key) {
+                optionCriteria[key] && result.push(key)
+              })
+              if (result.length) oCriteria.data[schema.id] = result.join(',')
+            }
+          }
+        })
+        $mi.close(oCriteria)
+      }
+      $scope.cancel = function () {
+        $mi.dismiss('cancel')
+      }
+    },
+  ])
   .controller('ctrlGrpRecEditor', [
     '$scope',
     '$uibModalInstance',

@@ -203,6 +203,7 @@ class member extends \site\fe\base
     $oNewMember->unionid = $siteUser->unionid;
     /* check auth data */
     if ($errMsg = $modelMem->rejectAuth($oNewMember, $oMschema)) {
+      $errMsg .= '[' . $cookieUser->uid . ']';
       return new \ParameterError($errMsg);
     }
     /* 验证状态 */

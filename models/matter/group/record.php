@@ -669,13 +669,28 @@ class record_model extends \matter\enroll\record_base
   /**
    * 移出分组 （团队分组）
    */
-  public function quitGroup($appId, $ek)
+  public function quitTeam($appId, $ek)
   {
     $rst = $this->update(
       'xxt_group_record',
       [
         'team_id' => 0,
         'team_title' => '',
+      ],
+      ["aid" => $appId, "enroll_key" => $ek]
+    );
+
+    return $rst;
+  }
+  /**
+   * 退出用户的所有角色分组 
+   */
+  public function quitRoleTeam($appId, $ek)
+  {
+    $rst = $this->update(
+      'xxt_group_record',
+      [
+        'role_teams' => '[]',
       ],
       ["aid" => $appId, "enroll_key" => $ek]
     );

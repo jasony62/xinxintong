@@ -101,12 +101,9 @@ define(['frame'], function (ngApp) {
           $scope.rows.reset()
         }
       }
-      $scope.quitGroup = function (records) {
-        if (records.length) {
-          srvGrpRec.quitGroup(records).then(function () {
-            $scope.rows.reset()
-          })
-        }
+      $scope.quitTeam = function (records, type) {
+        if (records.length)
+          srvGrpRec.quitTeam(records, type).then(() => $scope.rows.reset())
       }
       $scope.joinGroup = function (oTeam, records) {
         if (records.length && oTeam) {

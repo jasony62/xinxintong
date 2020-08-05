@@ -176,36 +176,39 @@ class record extends \pl\fe\matter\base
   /**
    * 将用户移出分组 (团队分组)
    */
-  public function quitGroup_action($app)
+  public function quitTeam_action($app, $type = 'T')
   {
-    if (false === ($oOpUser = $this->accountUser())) {
+    if (false === ($oOpUser = $this->accountUser()))
       return new \ResponseTimeout();
-    }
+
+    if (!in_array($type, ['T', 'R']))
+      return new \ResponseError("不支持指定的分组类型【{$type}】");
+
     $oApp = $this->model('matter\group')->byId($app, ['cascaded' => 'N']);
-    if (false === $oApp) {
+    if (false === $oApp)
       return new \ObjectNotFoundError();
-    }
+
     $eks = $this->getPostJson();
-    if (empty($eks)) {
+    if (empty($eks))
       return new \ResponseError('没有指定用户');
-    }
 
     $oResult = new \stdClass;
     $modelUsr = $this->model('matter\group\record');
     foreach ($eks as $ek) {
       if ($oUser = $modelUsr->byIdInApp($oApp->id, $ek)) {
-        if ($modelUsr->quitGroup($oApp->id, $ek)) {
-          $oResult->{$ek} = $oUser->team_id;
+        if ($type === 'T') {
+          $rst = $modelUsr->quitTeam($oApp->id, $ek);
+          $oResult->{$ek} = $rst ? $oUser->team_id : false;
         } else {
-          $oResult->{$ek} = false;
+          $rst = $modelUsr->quitRoleTeam($oApp->id, $ek);
+          $oResult->{$ek} = $rst ? true : false;
         }
-      } else {
+      } else
         $oResult->{$ek} = false;
-      }
     }
 
     // 记录操作日志
-    $this->model('matter\log')->matterOp($oApp->siteid, $oOpUser, $oApp, 'quitGroup', $oResult);
+    $this->model('matter\log')->matterOp($oApp->siteid, $oOpUser, $oApp, 'quitTeam', $oResult);
 
     return new \ResponseData($oResult);
   }

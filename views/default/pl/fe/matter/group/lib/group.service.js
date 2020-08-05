@@ -644,23 +644,26 @@ angular
               })
             return defer.promise
           },
-          quitGroup: function (users) {
-            var defer = $q.defer(),
-              url,
-              eks = []
+          quitTeam: function (users, type) {
+            let defer, url, eks
+            defer = $q.defer()
+            url = `/rest/pl/fe/matter/group/record/quitTeam?app=${_appId}&type=${type}`
+            eks = users.reduce((a, oRec) => {
+              a.push(oRec.enroll_key)
+              return a
+            }, [])
 
-            url = '/rest/pl/fe/matter/group/record/quitGroup?app=' + _appId
-
-            users.forEach(function ($oRec) {
-              eks.push($oRec.enroll_key)
-            })
-
-            http2.post(url, eks).then(function (rsp) {
-              var oResult = rsp.data
-              users.forEach(function (oRec) {
+            http2.post(url, eks).then((rsp) => {
+              let oResult = rsp.data
+              users.forEach((oRec) => {
                 if (oResult[oRec.enroll_key] !== false) {
-                  oRec.team_id = ''
-                  oRec.team_title = ''
+                  if (type === 'T') {
+                    oRec.team_id = ''
+                    oRec.team_title = ''
+                  } else {
+                    oRec.role_teams = []
+                    oRec.role_team_titles = ''
+                  }
                   tmsSchema.forTable(oRec, _oApp._schemasById)
                 }
               })

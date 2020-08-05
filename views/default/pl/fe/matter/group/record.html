@@ -31,13 +31,14 @@
         <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.records.length"></span>个用户到...<i class="caret"></i></button>
         <ul uib-dropdown-menu>
           <li ng-repeat="team in teams"><a href ng-click="joinGroup(team,rows.records)">{{team.title}}</a></li>
-          <li><a href ng-click="quitGroup(rows.records)">未分组</a></li>
+          <li><a href ng-click="quitTeam(rows.records,'T')">未分组</a></li>
         </ul>
       </div>
       <div class="btn-group" uib-dropdown ng-if="app.sourceApp">
-        <button class="btn btn-default" uib-dropdown-toggle>加入<span ng-bind="rows.records.length"></span>个用户到...<i class="caret"></i></button>
+        <button class="btn btn-default" uib-dropdown-toggle>移动<span ng-bind="rows.records.length"></span>个用户到...<i class="caret"></i></button>
         <ul uib-dropdown-menu>
           <li ng-repeat="team in roleTeams"><a href ng-click="joinGroup(team,rows.records)">{{team.title}}</a></li>
+          <li><a href ng-click="quitTeam(rows.records,'R')">未分组</a></li>
         </ul>
       </div>
       <div class="btn-group" uib-dropdown ng-if="app.sourceApp">

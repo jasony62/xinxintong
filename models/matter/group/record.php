@@ -715,9 +715,11 @@ class record_model extends \matter\enroll\record_base
         if (empty($r->schema) || empty($r->op)) continue;
         if (!isset($data->{$r->schema})) continue;
         $dataops = $this->getDataOpsArray($data->{$r->schema});
-        if (in_array($r->op, $dataops)) {
-          $matched = true;
-          break;
+        if (is_array($dataops) && !empty($dataops)) {
+          if (in_array($r->op, $dataops)) {
+            $matched = true;
+            break;
+          }
         }
       }
     } else {
@@ -730,7 +732,7 @@ class record_model extends \matter\enroll\record_base
           break;
         }
         $dataops = $this->getDataOpsArray($data->{$r->schema});
-        if (!in_array($r->op, $dataops)) {
+        if (!is_array($dataops) || empty($dataops) || !in_array($r->op, $dataops)) {
           $allpass = false;
           break;
         }

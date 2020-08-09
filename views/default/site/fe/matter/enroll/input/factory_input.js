@@ -11,7 +11,9 @@ module.exports = [
       if (oPage.dataSchemas && oPage.dataSchemas.length) {
         for (var i = 0; i < oPage.dataSchemas.length; i++) {
           oSchemaWrap = oPage.dataSchemas[i]
+          if (!oSchemaWrap || typeof oSchemaWrap !== 'object') continue
           oSchema = oSchemaWrap.schema
+          if (!oSchema || typeof oSchema !== 'object') continue
           /* 隐藏题和协作题不做检查 */
           if (
             (!oSchema.visibility ||

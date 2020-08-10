@@ -103,6 +103,7 @@ class group_model extends app_base
     ];
 
     if ($oApp = $this->query_obj_ss($q)) {
+      if (!isset($oApp->id)) $oApp->id = $aid;
       $this->_db2obj($oApp, $fields, $cascaded);
     }
 

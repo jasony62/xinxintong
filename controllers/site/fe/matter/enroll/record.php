@@ -466,8 +466,10 @@ class record extends base
                 } else {
                   $opCount = 0;
                 }
-                if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
-                  return [false, '【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项'];
+                if ($opCount > 0 || $oSchema->required === 'Y') {
+                  if ($opCount < $oSchema->range[0] || $opCount > $oSchema->range[1]) {
+                    return [false, '【' . $oSchema->title . '】中最多只能选择(' . $oSchema->range[1] . ')项，最少需要选择(' . $oSchema->range[0] . ')项'];
+                  }
                 }
               }
               break;

@@ -28,7 +28,7 @@ function show_error($message)
 {
   require_once 'tms/tms_app.php';
   $modelLog = TMS_APP::M('log');
-  if ($message instanceof UrlNotMatchException) {
+  if ($message instanceof UrlNotMatchException || $message instanceof SiteUserException) {
     $msg = $message->getMessage();
   } else if ($message instanceof Exception) {
     $excep = $message->getMessage();
@@ -47,26 +47,13 @@ function show_error($message)
     } else {
       $msg = '应用程序内部错误';
     }
+  } else if (is_string($message)) {
+    $msg = $message;
   } else {
-    if (is_object($message)) {
-      $excep = $message->getMessage();
-      $trace = $message->getTrace();
-      foreach ($trace as $t) {
-        $excep .= '<br>';
-        foreach ($t as $k => $v) {
-          if (!in_array($k, ['file', 'line'])) {
-            continue;
-          }
-          $excep .= $modelLog->toJson($v) . ' ';
-        }
-      }
-      if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
-        $msg = $excep;
-      } else {
-        $msg = '应用程序内部错误';
-      }
+    if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
+      $msg = json_encode($message);
     } else {
-      $msg = $message;
+      $msg = '应用程序内部错误';
     }
   }
   /* 返回信息 */
@@ -79,7 +66,6 @@ function show_error($message)
   if (isset($excep)) {
     $msg = str_replace('<br>', "\n", $excep);
   }
-
 
   $msg = $modelLog->escape($msg);
 

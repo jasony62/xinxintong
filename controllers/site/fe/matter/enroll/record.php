@@ -104,12 +104,14 @@ class record extends base
     /* 检查是否允许提交记录 */
     $aResultCanSubmit = $this->_canSubmit($oEnlApp, $oUser, $oEnlData, $ek, $rid);
     if ($aResultCanSubmit[0] === false) {
+      $modelLog->setResult($logid, $aResultCanSubmit[1]);
       return new \ResponseError($aResultCanSubmit[1]);
     }
     /* 检查是否存在匹配的记录活动记录 */
     if (!empty($oEnlApp->entryRule->enroll->id)) {
       $aMatchResult = $this->_matchEnlRec($oUser, $oEnlApp, $oEnlApp->entryRule->enroll->id, $oEnlData);
       if (false === $aMatchResult[0]) {
+        $modelLog->setResult($logid, $aMatchResult[1]);
         return new \ParameterError($aMatchResult[1]);
       }
       $oMatchedEnlRec = $aMatchResult[1];
@@ -119,6 +121,7 @@ class record extends base
       $modelGrpUsr = $this->model('matter\group\record');
       $aMatchResult = $modelGrpUsr->matchByData($oEnlApp->entryRule->group->id, $oEnlApp, $oEnlData, $oUser);
       if (false === $aMatchResult[0]) {
+        $modelLog->setResult($logid, $aMatchResult[1]);
         return new \ParameterError($aMatchResult[1]);
       }
       $oMatchedGrpRec = $aMatchResult[1];
@@ -147,6 +150,7 @@ class record extends base
       }
     }
     if (false === $aResultSetData[0]) {
+      $modelLog->setResult($logid, $aResultSetData[1]);
       return new \ResponseError($aResultSetData[1]);
     }
     /**

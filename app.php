@@ -86,7 +86,7 @@ function show_error($message)
 
   /* 错误信息报错的到数据库 */
   if ($message instanceof SiteUserException) {
-    $modelLog->log($message->getUserid(), $method, $msg);
+    $modelLog->log($message->getUserid(), $method, $msg, '', '', $message->getDebugInfo());
   } else {
     $modelLog->log('error', $method, $msg);
   }

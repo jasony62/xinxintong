@@ -605,16 +605,25 @@ class SiteUserException extends Exception
    * 站点用户id
    */
   protected $uid;
+  /**
+   * 调试信息
+   */
+  protected $debug;
 
-  public function __construct($msg, $uid)
+  public function __construct($msg, $uid, $debug = '')
   {
     parent::__construct($msg);
     $this->uid = $uid;
+    $this->debug = $debug;
   }
 
   final public function getUserid()
   {
     return $this->uid;
+  }
+  final public function getDebugInfo()
+  {
+    return $this->debug;
   }
 }
 /**************************

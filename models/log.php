@@ -8,7 +8,7 @@ class log_model extends TMS_MODEL
   /**
    *
    */
-  public function log($siteid, $method, $data, $agent = '', $referer = '')
+  public function log($siteid, $method, $data, $agent = '', $referer = '', $result = '')
   {
     if (empty($agent) && isset($_SERVER['HTTP_USER_AGENT'])) {
       $agent = tms_get_server('HTTP_USER_AGENT');
@@ -27,6 +27,7 @@ class log_model extends TMS_MODEL
     $log['referer'] = $referer;
     $log['request_method'] = tms_get_server('REQUEST_METHOD');
     $log['http_accept'] = tms_get_server('HTTP_ACCEPT');
+    $log['result'] = $this->escape(is_string($result) ? $result : json_encode($result));
 
     $logid = $this->insert('xxt_log', $log, true);
 

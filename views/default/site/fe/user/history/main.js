@@ -53,7 +53,7 @@ ngApp.controller('ctrlMain', [
         $scope.myMissions = missions
       })
       $scope.site = rsp.data
-      var eleLoading, eleStyle
+      var eleLoading
       eleLoading = document.querySelector('.loading')
       eleLoading.parentNode.removeChild(eleLoading)
     })

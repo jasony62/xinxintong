@@ -485,6 +485,12 @@ class record_model extends \matter\enroll\record_base
     return $records;
   }
   /**
+   * 检查是否可以根据yong
+   */
+  private function _matchByName()
+  {
+  }
+  /**
    * 检查是否存在匹配的分组记录
    *
    * 只读的题目不做检查
@@ -516,11 +522,11 @@ class record_model extends \matter\enroll\record_base
     /* 在指定的分组活动中检查数据 */
     $groupUsers = $this->byData($oGroupApp, $oRequireCheckedData);
     if (empty($groupUsers)) {
-      return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录'];
+      return [false, '未在指定的分组活动［' . $oGroupApp->title . '］中找到与提交数据相匹配的记录', $oRequireCheckedData];
     }
     /* 如果匹配的分组数据不唯一，怎么办？ */
     if (count($groupUsers) > 1) {
-      return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一'];
+      return [false, '在指定的分组活动［' . $oGroupApp->title . '］中找到多条与提交数据相匹配的记录，匹配关系不唯一', $oRequireCheckedData];
     }
     $oMatchedGrpUsr = $groupUsers[0];
     /* 如果分组数据中未包含用户信息，更新用户信息 */

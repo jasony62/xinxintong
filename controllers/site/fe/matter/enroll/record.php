@@ -121,7 +121,7 @@ class record extends base
       $modelGrpUsr = $this->model('matter\group\record');
       $aMatchResult = $modelGrpUsr->matchByData($oEnlApp->entryRule->group->id, $oEnlApp, $oEnlData, $oUser);
       if (false === $aMatchResult[0]) {
-        $modelLog->setResult($logid, $aMatchResult[1]);
+        $modelLog->setResult($logid, $aMatchResult);
         return new \ParameterError($aMatchResult[1]);
       }
       $oMatchedGrpRec = $aMatchResult[1];

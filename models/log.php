@@ -38,7 +38,7 @@ class log_model extends TMS_MODEL
    */
   public function setResult($logid, $result)
   {
-    if (!is_string($result)) $result = json_encode($result);
+    if (!is_string($result)) $result = $this->toJson($result);
 
     $rst = $this->update('xxt_log', ['result' => $this->escape($result)], ['id' => $logid]);
 

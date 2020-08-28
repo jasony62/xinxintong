@@ -87,7 +87,8 @@ class main extends main_base
       $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
       if ($oEnlRndUser) {
         $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
-        $oEnlRndUser->custom = $oEnlAppUser->custom;
+        if ($oEnlAppUser)
+          $oEnlRndUser->custom = $oEnlAppUser->custom;
       }
       $oUser->enrollUser = $oEnlRndUser;
     }

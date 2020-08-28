@@ -503,7 +503,7 @@ class TMS_DB
    */
   private function _throwError($msg, $table = null)
   {
-    if (isset($table) && $table !== 'xxt_log')
+    if (!isset($table) || $table !== 'xxt_log')
       throw new Exception($msg);
   }
 }

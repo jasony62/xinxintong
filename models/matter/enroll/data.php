@@ -257,8 +257,7 @@ class data_model extends entity_model
             ['id' => $oLastSchemaValues[0]->id]
           );
         }
-      }
-      else {
+      } else {
         /* 获得一道题目的多条数据，多项填写题型 */
         if ($oSchema->type === 'multitext') {
           $fnUpdItems($schemaId, $treatedValue, $oLastSchemaValues);
@@ -312,11 +311,9 @@ class data_model extends entity_model
               $oDbData->{$schemaId} = $treatedValue;
             } else if (empty($submitVal)) {
               $oDbData->{$schemaId} = $treatedValue = '';
-            }
-            else if (is_string($submitVal)) {
+            } else if (is_string($submitVal)) {
               $oDbData->{$schemaId} = $submitVal;
-            }
-            else {
+            } else {
               throw new \Exception('填写数据的类型和填写项【image】需要的类型不匹配');
             }
             break;
@@ -367,8 +364,7 @@ class data_model extends entity_model
               $oDbData->{$schemaId} = $treatedValue;
             } else if (is_string($submitVal)) {
               $oDbData->{$schemaId} = $submitVal;
-            }
-            else {
+            } else {
               throw new \Exception('填写数据的类型和填写项【file】需要的类型不匹配');
             }
             break;
@@ -399,8 +395,7 @@ class data_model extends entity_model
               $oDbData->{$schemaId} = $treatedValue;
             } else if (is_string($submitVal)) {
               $oDbData->{$schemaId} = $submitVal;
-            }
-            else {
+            } else {
               throw new \Exception('填写数据的类型和填写项【multiple】需要的类型不匹配');
             }
             break;
@@ -415,8 +410,7 @@ class data_model extends entity_model
             }
             $oDbData->{$schemaId} = $submitVal;
         }
-      }
-      else {
+      } else {
         /* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在题目定义中 */
         $oDbData->{$schemaId} = $submitVal;
       }
@@ -606,8 +600,7 @@ class data_model extends entity_model
             } elseif ($userAnswer === $oSchema->answer) {
               // 如果提交的内容和答案完全一样
               $quizScore = $oSchema->score;
-            }
-            else {
+            } else {
               $quizScore = 0;
               // 用分号区分条件组，条件组之间是或的关系，只要有一组满足就给分
               $answerKwGrps = preg_split('/[;]+/', $oSchema->answer);
@@ -615,6 +608,7 @@ class data_model extends entity_model
                 // 用空格和逗号区分条件，条件间是或的关系
                 $answerKws = preg_split('/[\s,]+/', $answerKwGrp);
                 $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
+                  if (empty($kw)) return false;
                   return strpos($userAnswer, $kw) === false;
                 });
                 if (count($notmatched) === 0) {
@@ -998,8 +992,7 @@ class data_model extends entity_model
       $q[2] .= " and userid='{$oOptions->owner}'";
     } else if (!empty($oUser->uid)) {
       $q[2] .= " and (agreed<>'N' or userid='{$oUser->uid}')";
-    }
-    else {
+    } else {
       $q[2] .= " and agreed<>'N'";
     }
     /*限制标签*/
@@ -1290,8 +1283,7 @@ class data_model extends entity_model
             }
           } else if ($oSchema->type === 'single') {
             $whereByData .= 'r.data like \'%"' . $k . '":"' . $v . '"%\'';
-          }
-          else {
+          } else {
             $whereByData .= 'r.data like \'%"' . $k . '":"%' . $v . '%"%\'';
           }
           $whereByData .= ')';

@@ -878,7 +878,6 @@ class schema_model extends \TMS_MODEL
       /* 目标活动的统计结果 */
       $modelRec = $this->model('matter\enroll\record');
       $aTargetData = $modelRec->getStat($oTargetApp, !empty($oTargetAppRnd) ? $oTargetAppRnd->rid : '', 'N');
-      $modelDat = $this->model('matter\enroll\data');
       $newSchemas = []; // 根据记录创建的题目
       foreach ($targetSchemas as $oTargetSchema) {
         switch ($oTargetSchema->type) {

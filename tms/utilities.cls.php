@@ -550,9 +550,9 @@ class InvalidAccessToken extends ResponseData
 }
 class ParameterError extends ResponseData
 {
-  public function __construct($msg = '参数错误。')
+  public function __construct($msg = '参数错误。', $data = null)
   {
-    parent::__construct(null, 100, $msg);
+    parent::__construct($data, 100, $msg);
   }
 }
 class ObjectNotFoundError extends ResponseData

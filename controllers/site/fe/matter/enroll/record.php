@@ -55,10 +55,9 @@ class record extends base
    * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）
    * @param string $ek enrollKey 如果要更新之前已经提交的数据，需要指定
    * @param string $submitkey 支持文件分段上传
-   * @param int $task 对应的任务
    *
    */
-  public function submit_action($rid = '', $ek = null, $submitkey = '', $task = null)
+  public function submit_action($rid = '', $ek = null, $submitkey = '')
   {
     $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
@@ -111,6 +110,7 @@ class record extends base
     if (!empty($oEnlApp->entryRule->enroll->id)) {
       $aMatchResult = $this->_matchEnlRec($oUser, $oEnlApp, $oEnlApp->entryRule->enroll->id, $oEnlData);
       if (false === $aMatchResult[0]) {
+
         $modelLog->setResult($logid, $aMatchResult[1]);
         return new \ParameterError($aMatchResult[1]);
       }
@@ -121,6 +121,34 @@ class record extends base
       $modelGrpUsr = $this->model('matter\group\record');
       $aMatchResult = $modelGrpUsr->matchByData($oEnlApp->entryRule->group->id, $oEnlApp, $oEnlData, $oUser);
       if (false === $aMatchResult[0]) {
+        if (isset($aMatchResult[2])) {
+          /*返回了需要进行匹配的数据*/
+          if ($this->getDeepValue($oEnlApp->assignedNickname, 'valid') === 'Y') {
+            $nicknameSchemaId = $this->getDeepValue($oEnlApp->assignedNickname, 'schema.id');
+            $checkData = $aMatchResult[2];
+            if (!empty($nicknameSchemaId) && isset($oEnlData->{$nicknameSchemaId}) && isset($checkData->{$nicknameSchemaId}) && $oEnlData->{$nicknameSchemaId} === $checkData->{$nicknameSchemaId}) {
+              $sameNameUsrs = $modelGrpUsr->byData($oEnlApp->entryRule->group, (object)[$nicknameSchemaId => $oEnlData->{$nicknameSchemaId}]);
+              if (count($sameNameUsrs) === 1) {
+                /* 存在唯一的同名用户，检查不匹配数据并提示 */
+                $aSchemasById = [];
+                foreach ($oEnlApp->dynaDataSchemas as $schema) {
+                  $aSchemasById[$schema->id] = $schema;
+                }
+                $sameNameUsr = $sameNameUsrs[0];
+                $aDiffData = [];
+                foreach ($checkData as $schemaId => $val) {
+                  if ($this->getDeepValue($sameNameUsr, 'data.' . $schemaId) !== $val) {
+                    if (isset($aSchemasById[$schemaId])) {
+                      $aDiffData[$aSchemasById[$schemaId]->title] = $val;
+                    }
+                  }
+                }
+                $modelLog->setResult($logid, [$aMatchResult[1], $aDiffData]);
+                return new \ParameterError($aMatchResult[1] . '。请检查题目【' . implode(',', array_keys($aDiffData)) . '】是否填写正确', $aDiffData);
+              }
+            }
+          }
+        }
         $modelLog->setResult($logid, $aMatchResult);
         return new \ParameterError($aMatchResult[1]);
       }

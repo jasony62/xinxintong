@@ -485,15 +485,9 @@ class record_model extends \matter\enroll\record_base
     return $records;
   }
   /**
-   * 检查是否可以根据yong
-   */
-  private function _matchByName()
-  {
-  }
-  /**
    * 检查是否存在匹配的分组记录
    *
-   * 只读的题目不做检查
+   * 只读的题目不做检查（做检查有副作用吗？）
    */
   public function matchByData($targetAppId, $oSrcApp, &$oEnlData, $oUser = null)
   {
@@ -502,15 +496,15 @@ class record_model extends \matter\enroll\record_base
     $oRequireCheckedData = new \stdClass;
     $dataSchemas = isset($oSrcApp->dynaDataSchemas) ? $oSrcApp->dynaDataSchemas : $oSrcApp->dataSchemas;
     foreach ($dataSchemas as $oSchema) {
-      if ($this->getDeepValue($oSchema, 'readonly') !== 'Y') {
-        if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
-          $countRequireCheckedData++;
-          $val = $this->getValueBySchema($oSchema, $oEnlData);
-          if (!empty($val)) {
-            $oRequireCheckedData->{$oSchema->id} = $val;
-          }
+      //if ($this->getDeepValue($oSchema, 'readonly') !== 'Y') {
+      if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+        $countRequireCheckedData++;
+        $val = $this->getValueBySchema($oSchema, $oEnlData);
+        if (!empty($val)) {
+          $oRequireCheckedData->{$oSchema->id} = $val;
         }
       }
+      //}
     }
     if ($countRequireCheckedData === 0) {
       return [true, null];

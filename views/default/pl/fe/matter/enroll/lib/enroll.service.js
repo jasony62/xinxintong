@@ -603,7 +603,8 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
                 )[0].click()
               }
               var rndEntryUrl
-              rndEntryUrl = oApp.entryUrl + '&rid=' + oRound.rid
+              rndEntryUrl =
+                oApp.entryUrl + '&rid=' + oRound.rid + '&page=enroll'
               $scope2.entry = {
                 url: rndEntryUrl,
                 qrcode:

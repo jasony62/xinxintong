@@ -496,15 +496,15 @@ class record_model extends \matter\enroll\record_base
     $oRequireCheckedData = new \stdClass;
     $dataSchemas = isset($oSrcApp->dynaDataSchemas) ? $oSrcApp->dynaDataSchemas : $oSrcApp->dataSchemas;
     foreach ($dataSchemas as $oSchema) {
-      //if ($this->getDeepValue($oSchema, 'readonly') !== 'Y') {
-      if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
-        $countRequireCheckedData++;
-        $val = $this->getValueBySchema($oSchema, $oEnlData);
-        if (!empty($val)) {
-          $oRequireCheckedData->{$oSchema->id} = $val;
+      if ($this->getDeepValue($oSchema, 'readonly') !== 'Y') {
+        if ($this->getDeepValue($oSchema, 'requireCheck') === 'Y' && $this->getDeepValue($oSchema, 'fromApp') === $targetAppId) {
+          $countRequireCheckedData++;
+          $val = $this->getValueBySchema($oSchema, $oEnlData);
+          if (!empty($val)) {
+            $oRequireCheckedData->{$oSchema->id} = $val;
+          }
         }
       }
-      //}
     }
     if ($countRequireCheckedData === 0) {
       return [true, null];

@@ -137,7 +137,11 @@ class record extends base
                 $sameNameUsr = $sameNameUsrs[0];
                 $aDiffData = [];
                 foreach ($checkData as $schemaId => $val) {
-                  $sameNameVal = $this->getDeepValue($sameNameUsr, 'data.' . $schemaId);
+                  if ($schemaId === '_round_id') {
+                    $sameNameVal = $this->getDeepValue($sameNameUsr, 'team_id');
+                  } else {
+                    $sameNameVal = $this->getDeepValue($sameNameUsr, 'data.' . $schemaId);
+                  }
                   if ($sameNameVal !== $val) {
                     if (isset($aSchemasById[$schemaId])) {
                       $aDiffData[$aSchemasById[$schemaId]->title] = $sameNameVal;

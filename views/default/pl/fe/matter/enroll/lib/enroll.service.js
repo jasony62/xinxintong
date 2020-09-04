@@ -1425,8 +1425,12 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
           if (oRecord && oRecord.data) {
             url = '/rest/pl/fe/matter/enroll/record/matchGroup?app=' + _appId
             http2.post(url, oRecord.data).then(function (rsp) {
-              angular.extend(oRecord.data, rsp.data.data)
-              noticebox.success('找到匹配记录')
+              if (rsp && rsp.data && rsp.data.data) {
+                angular.extend(oRecord.data, rsp.data.data)
+                noticebox.success('找到匹配记录')
+              } else {
+                noticebox.success('未找到匹配记录')
+              }
             })
           } else {
             noticebox.error('没有指定要同步的记录')

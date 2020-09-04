@@ -1400,7 +1400,6 @@ class record extends record_base
    */
   public function matchGroup_action()
   {
-    $modelApp = $this->model('matter\enroll');
     $oEnlApp = $this->app;
     if (empty($oEnlApp->dataSchemas)) {
       return new \ObjectNotFoundError();
@@ -1416,7 +1415,10 @@ class record extends record_base
     $aMatchResult = $modelGrpUser->matchByData($matchedGroupId, $oEnlApp, $oEnlRecord);
     if (false === $aMatchResult[0]) {
       return new \ParameterError($aMatchResult[1]);
+    } else if (empty($aMatchResult[1])) {
+      return new  \ParameterError('没有找到匹配的分组数据');
     }
+
     $oMatchedGrpRec = $aMatchResult[1];
 
     return new \ResponseData($oMatchedGrpRec);

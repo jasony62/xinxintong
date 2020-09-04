@@ -1422,11 +1422,15 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
         }
         _ins.syncByGroup = function (oRecord) {
           var url
-          url = '/rest/pl/fe/matter/enroll/record/matchGroup?app=' + _appId
-          http2.post(url, oRecord.data).then(function (rsp) {
-            angular.extend(oRecord.data, rsp.data.data)
-            noticebox.success('找到匹配记录')
-          })
+          if (oRecord && oRecord.data) {
+            url = '/rest/pl/fe/matter/enroll/record/matchGroup?app=' + _appId
+            http2.post(url, oRecord.data).then(function (rsp) {
+              angular.extend(oRecord.data, rsp.data.data)
+              noticebox.success('找到匹配记录')
+            })
+          } else {
+            noticebox.error('没有指定要同步的记录')
+          }
         }
         /**
          * 从其他活动导入记录

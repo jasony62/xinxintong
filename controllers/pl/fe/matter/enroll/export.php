@@ -230,7 +230,7 @@ class export extends record_base
             continue;
           }
         }
-
+        // 填写值  
         $v = $modelRec->getDeepValue($oRecData, $oSchema->id, '');
 
         switch ($oSchema->type) {
@@ -280,7 +280,16 @@ class export extends record_base
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;
           case 'file':
-            $v0 = '';
+            if (is_array($v) && !empty($v)) {
+              $v0 = array_reduce($v, function ($names, $item) {
+                if (is_object($item) && !empty($item->name))
+                  $names[] = $item->name;
+                return $names;
+              }, []);
+              $v0 = implode(',', $v0);
+            } else {
+              $v0 = '';
+            }
             $objActiveSheet->setCellValueExplicitByColumnAndRow($recColNum++, $rowIndex, $v0, \PHPExcel_Cell_DataType::TYPE_STRING);
             $objActiveSheet->getStyleByColumnAndRow($recColNum - 1, $rowIndex)->getAlignment()->setWrapText(true);
             break;
@@ -407,7 +416,7 @@ class export extends record_base
    *
    * @param string $rid 轮次id
    */
-  public function image_action($app, $rid = '', $range = '1,30')
+  public function image_action($rid = '', $range = '1,30')
   {
     $oNameSchema = null;
     $aImageSchemas = [];

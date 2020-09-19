@@ -13,12 +13,14 @@ services:
   php-fpm:
     build: ./docker/php-fpm
     image: xxt/php-fpm
+    restart: always
     volumes:
       - .:/usr/share/nginx/html
 
   nginx:
     build: ./docker/nginx
     image: xxt/nginx
+    restart: always
     volumes:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - .:/usr/share/nginx/html

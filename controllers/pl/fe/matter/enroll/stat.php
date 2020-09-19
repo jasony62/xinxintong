@@ -53,7 +53,7 @@ class stat extends main_base
         if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
           $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：%.1f%%');
         } else {
-          $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：' . $op->c);
+          $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：') . $op->c;
         }
       }
     }
@@ -212,7 +212,6 @@ class stat extends main_base
     $footer = $section->addFooter();
     $footer->addPreserveText('Page {PAGE} of {NUMPAGES}.', null, ['alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER]);
 
-    $mappingOfImages = [];
     $modelRec = $this->model('matter\enroll\record');
 
     $scoreSummary = []; //所有打分题汇总数据

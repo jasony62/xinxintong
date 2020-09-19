@@ -53,7 +53,8 @@ class stat extends main_base
         if (isset($oPlConfig->label) && $oPlConfig->label === 'percentage') {
           $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：%.1f%%');
         } else {
-          $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：') . strval($op->c);
+          // 不知道为什么最后1位的0会被吞掉
+          $labels[] = iconv("UTF-8", "GB2312//IGNORE", '选项' . ($i + 1) . '：') . strval($op->c) . ' ';
         }
       }
     }

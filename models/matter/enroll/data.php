@@ -34,7 +34,7 @@ class data_model extends entity_model
       $aSchemasById[$oSchema->id] = $oSchema;
     };
 
-    $dbData = $this->disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord);
+    $dbData = $this->disposRecordData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord);
     if ($dbData[0] === false) {
       return $dbData;
     }
@@ -271,7 +271,7 @@ class data_model extends entity_model
    * 处理提交的数据
    * 包括：图片和文件的上传；计算题求值
    */
-  public function disposRecrdData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord)
+  public function disposRecordData($oApp, $aSchemasById, $submitData, $submitkey, $oRecord)
   {
     if (empty($submitData) || (!is_object($submitData) && !is_array($submitData))) {
       return [false, '填写记录【' . $oRecord->id . '】数据格式错误'];

@@ -493,12 +493,13 @@ class proxy_model extends \sns\proxybase
       return $rst[1];
     }
 
-    $url = 'http://file.api.weixin.qq.com/cgi-bin/media/get';
+    $url = 'https://file.api.weixin.qq.com/cgi-bin/media/get';
     $url .= "?access_token={$rst[1]}";
     $url .= "&media_id=$mediaId";
 
     return [true, $url];
   }
+
   /**
    * 获得指定媒体资料的内容
    * httpGet不支持返回媒体内容
@@ -510,12 +511,12 @@ class proxy_model extends \sns\proxybase
       return $rst[1];
     }
 
-    $url = 'http://file.api.weixin.qq.com/cgi-bin/media/get';
+    $url = 'https://file.api.weixin.qq.com/cgi-bin/media/get';
     $url .= "?access_token={$rst[1]}";
     $url .= "&media_id=$mediaId";
 
     /* 下载文件 */
-    $mediaContent = file_get_contents($url);
+    $mediaContent = $this->file_get_contents($url);
 
     /* 解析响应头 */
     $aRspHeaders = $http_response_header;
@@ -613,7 +614,7 @@ class proxy_model extends \sns\proxybase
     /**
      * upload image
      */
-    $cmd = 'http://file.api.weixin.qq.com/cgi-bin/media/upload';
+    $cmd = 'https://file.api.weixin.qq.com/cgi-bin/media/upload';
     $cmd .= "?type=$mediaType";
 
     $rst = $this->httpPost($cmd, $uploaded);

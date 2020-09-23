@@ -145,20 +145,28 @@ abstract class proxybase
   public function file_get_contents($url)
   {
     if (strpos($url, 'https') === 0) {
-      $ch = curl_init($url);
-      curl_setopt($ch, CURLOPT_HEADER, 0);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-      curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-      if (false === ($response = curl_exec($ch))) {
-        $err = curl_error($ch);
-        curl_close($ch);
-        return [false, $err];
-      }
-      curl_close($ch);
+      // $ch = curl_init($url);
+      // curl_setopt($ch, CURLOPT_HEADER, 0);
+      // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+      // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+      // curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+      // if (false === ($response = curl_exec($ch))) {
+      //   $err = curl_error($ch);
+      //   curl_close($ch);
+      //   return [false, $err];
+      // }
+      // curl_close($ch);
 
-      return $response;
+      // return $response;
+      $opts = [
+        "ssl" => [
+          "verify_peer" => false,
+          "verify_peer_name" => false,
+        ]
+      ];
+
+      return file_get_contents($url, false, $opts);
     }
 
     return file_get_contents($url);

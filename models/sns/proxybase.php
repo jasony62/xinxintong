@@ -165,8 +165,9 @@ abstract class proxybase
           "verify_peer_name" => false,
         ]
       ];
+      $context  = stream_context_create($opts);
 
-      return file_get_contents($url, false, $opts);
+      return file_get_contents($url, false, $context);
     }
 
     return file_get_contents($url);

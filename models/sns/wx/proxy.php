@@ -516,10 +516,9 @@ class proxy_model extends \sns\proxybase
     $url .= "&media_id=$mediaId";
 
     /* 下载文件 */
-    $mediaContent = $this->file_get_contents($url);
+    list($mediaContent, $aRspHeaders) = $this->file_get_contents($url);
 
     /* 解析响应头 */
-    $aRspHeaders = $http_response_header;
     foreach ($aRspHeaders as $header) {
       if (stripos($header, "Content-Type") !== false) {
         $contentType = explode(':', $header)[1];

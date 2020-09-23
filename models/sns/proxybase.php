@@ -145,20 +145,6 @@ abstract class proxybase
   public function file_get_contents($url)
   {
     if (strpos($url, 'https') === 0) {
-      // $ch = curl_init($url);
-      // curl_setopt($ch, CURLOPT_HEADER, 0);
-      // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-      // curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-      // curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
-      // if (false === ($response = curl_exec($ch))) {
-      //   $err = curl_error($ch);
-      //   curl_close($ch);
-      //   return [false, $err];
-      // }
-      // curl_close($ch);
-
-      // return $response;
       $opts = [
         "ssl" => [
           "verify_peer" => false,
@@ -167,10 +153,12 @@ abstract class proxybase
       ];
       $context  = stream_context_create($opts);
 
-      return file_get_contents($url, false, $context);
+      $content = file_get_contents($url, false, $context);
+    } else {
+      $content = file_get_contents($url);
     }
 
-    return file_get_contents($url);
+    return [$content, $http_response_header];
   }
   /**
    * 将url的数据抓取到本地并保存在临时文件中返回

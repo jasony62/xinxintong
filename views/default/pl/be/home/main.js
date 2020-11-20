@@ -52,20 +52,9 @@ define(['frame'], function (ngApp) {
   ngApp.provider.controller('ctrlHomeCarousel', [
     '$scope',
     'tmsfinder',
-    'mediagallery',
-    function ($scope, tmsfinder, mediagallery) {
+    function ($scope, tmsfinder) {
       var slides
       $scope.add = function () {
-        var options = {
-          callback: function (url) {
-            if (url) {
-              slides.push({
-                picUrl: url + '?_=' + new Date() * 1,
-              })
-              $scope.update('home_carousel')
-            }
-          },
-        }
         tmsfinder.open('platform').then(function (result) {
           if (result.url) {
             slides.push({

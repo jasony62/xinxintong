@@ -174,10 +174,10 @@ angular
           })
           window.addEventListener(
             'message',
-            (e) => {
+            (event) => {
               const origin = event.origin || event.originalEvent.origin
               if (rsp.data.TMS_FINDER_ADDRESS.match(origin)) {
-                modalInstance.close({ url: e.data })
+                modalInstance.close({ url: event.data })
               }
             },
             false

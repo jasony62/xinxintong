@@ -452,7 +452,16 @@ angular
                       return d
                     })()
                     $scope.mask = mask
-                    $scope.years = [2015, 2016, 2017, 2018, 2019, 2020]
+                    $scope.years = [
+                      2015,
+                      2016,
+                      2017,
+                      2018,
+                      2019,
+                      2020,
+                      2021,
+                      2022,
+                    ]
                     $scope.months = []
                     $scope.days = []
                     $scope.hours = []
@@ -757,21 +766,21 @@ angular
                   // We also cache a reference to its branch node which will
                   // be used as the parentNode in the next level of recursion
                   if (!cached) {
-                    transclude(parentScope.$new(), function (
-                      clone,
-                      childScope
-                    ) {
-                      childScope[childExpr] = child
-                      cached = {
-                        scope: childScope,
-                        parentScope: parentScope,
-                        element: clone[0],
-                        branch: clone.find(branchExpr)[0],
+                    transclude(
+                      parentScope.$new(),
+                      function (clone, childScope) {
+                        childScope[childExpr] = child
+                        cached = {
+                          scope: childScope,
+                          parentScope: parentScope,
+                          element: clone[0],
+                          branch: clone.find(branchExpr)[0],
+                        }
+                        // This had to happen during transclusion so inherited
+                        // controllers, among other things, work properly
+                        parentNode.insertBefore(cached.element, cursor)
                       }
-                      // This had to happen during transclusion so inherited
-                      // controllers, among other things, work properly
-                      parentNode.insertBefore(cached.element, cursor)
-                    })
+                    )
                   } else if (cached.element !== cursor) {
                     parentNode.insertBefore(cached.element, cursor)
                   }
@@ -1225,12 +1234,12 @@ angular
             // add ng-bind attribute to each span element.
             // NOTE: you need angular-sanitize to use ng-bind-html
             var bindSwitch = function (iElement, html) {
-              angular.forEach(iElement[0].children[0].children, function (
-                span,
-                index
-              ) {
-                bindSpan(span, html)
-              })
+              angular.forEach(
+                iElement[0].children[0].children,
+                function (span, index) {
+                  bindSpan(span, html)
+                }
+              )
             }
 
             scope.$watch('html', function (newValue) {

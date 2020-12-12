@@ -53,6 +53,10 @@ class rank extends base
       'xxt_enroll_user u left join xxt_site_account a on u.userid = a.uid and u.siteid = a.siteid',
       "u.aid='{$oApp->id}' and u.state=1",
     ];
+    // 指定了按分组过滤
+    if (!empty($oCriteria->group) && !empty($oCriteria->group->id)) {
+      $q[2] .= " and u.group_id='{$oCriteria->group->id}'";
+    }
     // 用户分组信息，必须是分组活动中的用户，排除旁观者
     if (!empty($oApp->entryRule->group->id)) {
       $q[0] .= ',u.group_id,g.team_title';
@@ -163,6 +167,10 @@ class rank extends base
       'xxt_enroll_record_data r',
       ['r.aid' => $oApp->id, 'r.state' => 1, 'r.schema_id' => $schemaId, 'r.userid' => (object) ['op' => '<>', 'pat' => '']],
     ];
+    // 指定了按分组过滤
+    if (!empty($oCriteria->group) && !empty($oCriteria->group->id)) {
+      $q[2] .= " and r.group_id='{$oCriteria->group->id}'";
+    }
     // 用户分组信息，必须是分组活动中的用户，排除旁观者和缺席者
     if (!empty($oApp->entryRule->group->id)) {
       $q[0] .= ',r.group_id,g.team_title';
@@ -225,7 +233,7 @@ class rank extends base
   /**
    * 用户排行榜
    */
-  public function userByApp_action($app, $page = 1, $size = 100)
+  public function userByApp_action($app, $samegroup = 'N', $page = 1, $size = 100)
   {
     $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
     if (false === $oApp || $oApp->state !== '1') {
@@ -235,6 +243,15 @@ class rank extends base
     $oCriteria = $this->getPostJson();
     if (empty($oCriteria->orderby)) {
       return new \ParameterError();
+    }
+
+    /* 和当前用户同组的用户 */
+    if ($samegroup === 'Y') {
+      /* 当前访问用户的基本信息 */
+      $oUser = $this->getUser($oApp);
+      if (!empty($oUser->group_id)) {
+        $oCriteria->group = (object)['id' => $oUser->group_id];
+      }
     }
 
     if (0 === strpos($oCriteria->orderby, 'schema_')) {

@@ -261,9 +261,10 @@ class user_model extends \TMS_MODEL
     }
     if (!empty($aDbData)) {
       $rst = $this->update('xxt_enroll_user', $aDbData, ['id' => $oBeforeData->id]);
+      return $rst;
     }
 
-    return $rst;
+    return 0;
   }
   /**
    * 根据汇总轮次进行用户数据汇总

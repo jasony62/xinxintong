@@ -1,138 +1,81 @@
 <!DOCTYPE html>
 <html ng-app="app" ng-controller="ctrlMain">
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      content="width=device-width,user-scalable=no,initial-scale=1.0"
-      name="viewport"
-    />
-    <base href="/" />
-    <title>
-      <?php TPL::pt('title');?>
-    </title>
-    <link
-      crossorigin="anonymous"
-      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-      href="https://lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="<?php echo auto_version('/static/css/site.fe.css');?>"
-      rel="stylesheet"
-    />
-    <style ng-if="page.css" ng-bind="page.css"></style>
-  </head>
 
-  <body
-    ng-controller="ctrlView"
-    tms-trace
-    send-url="/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=view"
-    ready-sign="openLogAnalysis"
-  >
-    <header
-      ng-if="app.use_site_header==='Y'"
-      dynamic-html="site.header_page.html"
-    ></header>
-    <header
-      ng-if="app.use_mission_header==='Y'"
-      dynamic-html="mission.header_page.html"
-    ></header>
-    <nav class="navbar site-navbar-default navbar-fixed-top">
-      <div class="container">
-        <div
-          class="navbar-header pull-left"
-          ng-if="app.scenarioConfig.can_repos==='Y'"
-        >
-          <a href class="navbar-brand" ng-click="gotoHome()">
-            <i class="glyphicon glyphicon-home"></i>
-            <span class="visible-lg-inline">首页</span>
-          </a>
-        </div>
-        <ul class="nav navbar-nav pull-right">
-          <li class="pull-left">
-            <a href ng-click="siteUser(app.siteid)"
-              ><i class="glyphicon glyphicon-user"></i
-              ><span class="visible-lg-inline"> 个人中心</span></a
-            >
-          </li>
-        </ul>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width,user-scalable=no,initial-scale=1.0" name="viewport" />
+  <base href="/" />
+  <title>
+    <?php TPL::pt('title');?>
+  </title>
+  <link crossorigin="anonymous" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" href="https://lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="<?php echo auto_version('/static/css/site.fe.css');?>" rel="stylesheet" />
+  <style ng-if="page.css" ng-bind="page.css"></style>
+</head>
+
+<body ng-controller="ctrlView" tms-trace send-url="/rest/site/fe/matter/enroll/analysis/submit?site={{app.siteid}}&app={{app.id}}&page=view" ready-sign="openLogAnalysis">
+  <header ng-if="app.use_site_header==='Y'" dynamic-html="site.header_page.html"></header>
+  <header ng-if="app.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
+  <nav class="navbar site-navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header pull-left" ng-if="app.scenarioConfig.can_repos==='Y'">
+        <a href class="navbar-brand" ng-click="gotoHome()">
+          <i class="glyphicon glyphicon-home"></i>
+          <span class="visible-lg-inline">首页</span>
+        </a>
       </div>
-    </nav>
-    <div ng-cloak class="ng-cloak app">
-      <div class="container">
-        <div class="form-group" ng-if="rounds.length>1">
-          <div class="btn-group" uib-dropdown dropdown-append-to-body="true">
-            <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-              <span ng-bind="Record.current.round.title"></span>
-              <span class="glyphicon glyphicon-triangle-bottom"></span>
-            </button>
-            <ul class="dropdown-menu" uib-dropdown-menu>
-              <li ng-repeat="rnd in rounds">
-                <a href ng-click="shiftRound(rnd)">{{rnd.title}}</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div
-          class="form-group"
-          ng-if="recordsOfRound.page.total>recordsOfRound.page.size"
-        >
-          <div class="site-pagination">
-            <ul
-              uib-pagination
-              class="pagination-sm"
-              total-items="recordsOfRound.page.total"
-              max-size="5"
-              items-per-page="recordsOfRound.page.size"
-              rotate="false"
-              ng-model="recordsOfRound.page.at"
-              previous-text="&lsaquo;"
-              next-text="&rsaquo;"
-              ng-change="recordsOfRound.shift()"
-            ></ul>
-          </div>
-        </div>
-        <div dynamic-html="page.html" class="data"></div>
-      </div>
+      <ul class="nav navbar-nav pull-right">
+        <li class="pull-left">
+          <a href ng-click="siteUser(app.siteid)"><i class="glyphicon glyphicon-user"></i><span class="visible-lg-inline"> 个人中心</span></a>
+        </li>
+      </ul>
     </div>
-    <nav class="navbar site-navbar-light navbar-fixed-bottom">
-      <div class="container-fluid text-center">
-        <button
-          ng-repeat="act in page.actSchemas"
-          class="btn button-highlight navbar-btn"
-          ng-click="doAction($event,act)"
-        >
-          <span>{{::act.label}}</span>
-        </button>
+  </nav>
+  <div ng-cloak class="ng-cloak app">
+    <div class="container">
+      <div class="form-group" ng-if="rounds.length>1">
+        <div class="btn-group" uib-dropdown dropdown-append-to-body="true">
+          <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+            <span ng-bind="Record.current.round.title"></span>
+            <span class="glyphicon glyphicon-triangle-bottom"></span>
+          </button>
+          <ul class="dropdown-menu" uib-dropdown-menu>
+            <li ng-repeat="rnd in rounds">
+              <a href ng-click="shiftRound(rnd)">{{rnd.title}}</a>
+            </li>
+          </ul>
+        </div>
       </div>
-    </nav>
-    <footer
-      ng-if="app.use_mission_footer==='Y'"
-      dynamic-html="mission.footer_page.html"
-    ></footer>
-    <footer
-      ng-if="app.use_site_footer==='Y'"
-      dynamic-html="site.footer_page.html"
-    ></footer>
-    <div class="loading">
-      <div class="loading-indicator"><i></i></div>
+      <div class="form-group" ng-if="recordsOfRound.page.total>recordsOfRound.page.size">
+        <div class="site-pagination">
+          <ul uib-pagination class="pagination-sm" total-items="recordsOfRound.page.total" max-size="5" items-per-page="recordsOfRound.page.size" rotate="false" ng-model="recordsOfRound.page.at" previous-text="&lsaquo;" next-text="&rsaquo;" ng-change="recordsOfRound.shift()"></ul>
+        </div>
+      </div>
+      <div dynamic-html="page.html" class="data"></div>
     </div>
-    <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
-    <script
-      crossorigin="anonymous"
-      integrity="sha384-yIqa4x9Cpx9ZK4TKjprtQfMzhBQaotZRqdvNR6Y0Ozb+/2TaeBTqxr9ko1tQhSgU"
-      src="https://lib.baomitu.com/angular.js/1.5.6/angular.min.js"
-    ></script>
-    <script
-      crossorigin="anonymous"
-      integrity="sha384-ZMAEdOI2sIITIxBxuVYqa65dU/e+EAn0FipL8GgKP4KFa8k3KJ4ca5boS2jupnmh"
-      src="https://lib.baomitu.com/angular.js/1.5.6/angular-sanitize.min.js"
-    ></script>
-    <script
-      crossorigin="anonymous"
-      integrity="sha384-nijripvvJaj00xjRW/uCHifFw+Ajgjp0uANZHEvOW+OlJfyY2fgMIQY836w6qTio"
-      src="https://lib.baomitu.com/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"
-    ></script>
-    <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/view.js');?>"></script>
-  </body>
+  </div>
+  <nav class="navbar site-navbar-light navbar-fixed-bottom">
+    <div class="container-fluid text-center">
+      <button ng-repeat="act in page.actSchemas" class="btn button-highlight navbar-btn" ng-click="doAction($event,act)">
+        <span>{{::act.label}}</span>
+      </button>
+    </div>
+  </nav>
+  <footer ng-if="app.use_mission_footer==='Y'" dynamic-html="mission.footer_page.html"></footer>
+  <footer ng-if="app.use_site_footer==='Y'" dynamic-html="site.footer_page.html"></footer>
+  <div class="loading">
+    <div class="loading-indicator"><i></i></div>
+  </div>
+  <script src="<?php echo auto_version('/static/js/xxt.ui.error.js');?>"></script>
+  <script src="/static/js/angular.min.js"></script>
+  <script src="/static/js/angular-sanitize.min.js"></script>
+  <script src="/static/js/ui-bootstrap-tpls.min.js"></script>
+  <!--
+    <script crossorigin="anonymous" integrity="sha384-yIqa4x9Cpx9ZK4TKjprtQfMzhBQaotZRqdvNR6Y0Ozb+/2TaeBTqxr9ko1tQhSgU" src="https://lib.baomitu.com/angular.js/1.5.6/angular.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-ZMAEdOI2sIITIxBxuVYqa65dU/e+EAn0FipL8GgKP4KFa8k3KJ4ca5boS2jupnmh" src="https://lib.baomitu.com/angular.js/1.5.6/angular-sanitize.min.js"></script>
+    <script crossorigin="anonymous" integrity="sha384-nijripvvJaj00xjRW/uCHifFw+Ajgjp0uANZHEvOW+OlJfyY2fgMIQY836w6qTio" src="https://lib.baomitu.com/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
+  -->
+  <script src="<?php echo auto_version('/bundles/default/site/fe/matter/enroll/view.js');?>"></script>
+</body>
+
 </html>

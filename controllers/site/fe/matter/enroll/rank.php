@@ -169,7 +169,7 @@ class rank extends base
     ];
     // 指定了按分组过滤
     if (!empty($oCriteria->group) && !empty($oCriteria->group->id)) {
-      $q[2] .= " and r.group_id='{$oCriteria->group->id}'";
+      $q[2]['r.group_id'] = $oCriteria->group->id;
     }
     // 用户分组信息，必须是分组活动中的用户，排除旁观者和缺席者
     if (!empty($oApp->entryRule->group->id)) {

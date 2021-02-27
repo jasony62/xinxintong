@@ -288,7 +288,7 @@ class history extends \site\fe\base
   {
     $unionid = $this->_getUnionid();
 
-    if (empty($unionid)) return new ResponseError('只允许注册用户访问');
+    if (empty($unionid)) return new ResponseError('请登录后访问');
 
     $missions = $this->_missionList($unionid);
 
@@ -304,7 +304,7 @@ class history extends \site\fe\base
   {
     $unionid = $this->_getUnionid();
 
-    if (empty($unionid)) return new ResponseError('只允许注册用户访问');
+    if (empty($unionid)) return new ResponseError('请登录后访问');
 
     $missions = $this->_missionList($unionid);
 

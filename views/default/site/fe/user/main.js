@@ -223,13 +223,13 @@ ngApp.controller('ctrlMain', [
               newSubscriptions(lastCachedStatus.lastAt)
             }
           }
-        } else {
-          http2
-            .get('/rest/site/fe/user/history/missionCount2?site=' + LS.s().site)
-            .then(function (rsp) {
-              $scope.count.mission = rsp.data
-            })
         }
+        http2
+          .get('/rest/site/fe/user/history/missionCount2?site=' + LS.s().site)
+          .then(function (rsp) {
+            $scope.count.mission = rsp.data
+          })
+
         var eleLoading
         eleLoading = document.querySelector('.loading')
         eleLoading.parentNode.removeChild(eleLoading)

@@ -310,8 +310,6 @@ class way_model extends \TMS_MODEL
       $this->cleanCookieUser($siteId);
       return false;
     }
-    /*通过cookie返回登录状态*/
-    $this->setCookieLogin($siteId, $who);
 
     return true;
   }
@@ -526,7 +524,7 @@ class way_model extends \TMS_MODEL
     /* qy用户 */
     if (!empty($oSiteUser->qy_openid)) {
       $modelQyFan = \TMS_App::M('sns\qy\fan');
-      $fullUser->sns->qy = $modelQyFan->byOpenid($account->siteid, $oSiteUser->qy_openid);
+      $fullUser->sns->qy = $modelQyFan->byOpenid($oSiteUser->siteid, $oSiteUser->qy_openid);
     }
 
     return $fullUser;

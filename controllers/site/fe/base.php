@@ -275,7 +275,7 @@ class base extends \site\base
             $proxy = $this->model('sns\qy\proxy', $snsConfig);
             $message['touser'] = $snsUser->openid;
             $message['agentid'] = $snsConfig->agentid;
-            $rst = $mpproxy->messageSend($message, $snsUser->openid);
+            $rst = $proxy->messageSend($message, $snsUser->openid);
           }
         }
         break;

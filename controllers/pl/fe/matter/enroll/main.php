@@ -419,7 +419,7 @@ class main extends main_base
     $modelApp->modify($this->user, $oSourceApp, $oUpdated, ['id' => $oSourceApp->id]);
 
     if (count($aUpdatedScoreSchemas)) {
-      $modelApp->modify($oUser, $oScoreApp, (object) ['data_schemas' => $modelApp->escape($modelApp->toJson($oScoreApp->dataSchemas))], ['id' => $oScoreApp->id]);
+      $modelApp->modify($this->user, $oScoreApp, (object) ['data_schemas' => $modelApp->escape($modelApp->toJson($oScoreApp->dataSchemas))], ['id' => $oScoreApp->id]);
     }
 
     return new \ResponseData(['config' => $oScoreConfig, 'updatedSchemas' => $aUpdatedSourceSchemas]);

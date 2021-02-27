@@ -241,17 +241,32 @@ class history extends \site\fe\base
     return $missions;
   }
   /**
+   * 获得当前用户的unionid
+   */
+  private function _getUnionid()
+  {
+    $unionid = false;
+    if ($this->who->unionid) {
+      $unionid = $this->who->unionid;
+    } else {
+      $modelAct = $this->model('site\user\account');
+      $acnt = $modelAct->byId($this->who->uid);
+      if ($acnt && !empty($acnt->uniionid)) {
+        $unionid = $acnt->uniionid;
+      }
+    }
+    return $unionid;
+  }
+  /**
    * 获得当前用户在指定团队参与的项目
    * 
    * 1、项目的进入规则为通讯录，用户加入了通讯录
-   *
-   * @param string $site
    */
   public function missionList2_action()
   {
-    if (empty($this->who->unionid)) return new ResponseError('请登录后再访问');
+    $unionid = $this->_getUnionid();
 
-    $unionid = $this->who->unionid;
+    if (empty($unionid)) return new ResponseError('只允许注册用户访问');
 
     $missions = $this->_missionList($unionid);
 
@@ -262,12 +277,12 @@ class history extends \site\fe\base
   }
   /**
    * 获得当前用户在指定站点参与的项目的数量
-   *
-   * @param string $site
    */
-  public function missionCount2_action($site, $userid = '')
+  public function missionCount2_action()
   {
-    if (empty($this->who->unionid)) return new ResponseError('请登录后再访问');
+    $unionid = $this->_getUnionid();
+
+    if (empty($unionid)) return new ResponseError('只允许注册用户访问');
 
     $unionid = $this->who->unionid;
 

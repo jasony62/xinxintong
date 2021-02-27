@@ -4,6 +4,13 @@ namespace site\fe;
 
 /**
  * who are you
+ * 
+ * uid
+ * nickname
+ * expire
+ * 
+ * unionid
+ * loginExpire
  */
 class way_model extends \TMS_MODEL
 {

@@ -253,10 +253,32 @@ class history extends \site\fe\base
       $acnt = $modelAct->byId($this->who->uid);
       if ($acnt && !empty($acnt->uniionid)) {
         $unionid = $acnt->uniionid;
+      } else if (!empty($acnt->wx_openid)) {
+        /**
+         * 和微信openid绑定的注册账号
+         */
+        $userAgent = $this->userAgent();
+        if (in_array($userAgent, ['wx'])) {
+          /* 已经存在绑定了主注册账号的团队账号 */
+          $regAnts = $modelAct->byOpenid($acnt->siteid, 'wx', $acnt->wx_openid, ['fields' => 'uid,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
+          if (count($regAnts) === 1) {
+            $oRegAnt = $regAnts[0];
+            $unionid = $oRegAnt->unionid;
+          }
+        } else {
+          /* 同站点下没有绑定了主注册账号的团队账号，获得用户在平台的注册账号 */
+          $aUnionids = $modelAct->byOpenid(null, 'wx', $acnt->wx_openid, ['is_reg_primary' => 'Y', 'fields' => 'distinct unionid']);
+          if (count($aUnionids) === 1) {
+            $oUnionid = $aUnionids[0];
+            $unionid = $oUnionid->unionid;
+          }
+        }
       }
     }
+
     return $unionid;
   }
+
   /**
    * 获得当前用户在指定团队参与的项目
    * 

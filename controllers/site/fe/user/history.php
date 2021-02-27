@@ -246,7 +246,7 @@ class history extends \site\fe\base
   private function _getUnionid()
   {
     $unionid = false;
-    if ($this->who->unionid) {
+    if (!empty($this->who->unionid)) {
       $unionid = $this->who->unionid;
     } else {
       $modelAct = $this->model('site\user\account');

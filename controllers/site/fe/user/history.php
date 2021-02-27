@@ -259,10 +259,11 @@ class history extends \site\fe\base
          */
         $userAgent = $this->userAgent();
         if (in_array($userAgent, ['wx'])) {
-          $aUnionids = $modelAct->byOpenid(null, 'wx', $acnt->wx_openid, ['is_reg_primary' => 'Y', 'fields' => 'distinct unionid']);
-          if (count($aUnionids) === 1) {
-            $oUnionid = $aUnionids[0];
-            $unionid = $oUnionid->unionid;
+          /* 已经存在绑定了主注册账号的团队账号 */
+          $regAnts = $modelAct->byOpenid($acnt->siteid, 'wx', $acnt->wx_openid, ['fields' => 'uid,unionid,is_wx_primary,is_reg_primary', 'is_reg_primary' => 'Y', 'has_unionid' => true]);
+          if (count($regAnts) === 1) {
+            $oRegAnt = $regAnts[0];
+            $unionid = $oRegAnt->unionid;
           }
         }
       }

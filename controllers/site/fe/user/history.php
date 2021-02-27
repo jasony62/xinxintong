@@ -11,10 +11,15 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
 class history extends \site\fe\base
 {
   /**
-   *
+   * 进入我的活动页
    */
-  public function index_action()
+  public function index_action($site)
   {
+    /* 检查是否需要第三方社交帐号OAuth */
+    if (!$this->afterSnsOAuth()) {
+      $this->requireSnsOAuth($site);
+    }
+
     \TPL::output('/site/fe/user/history/main');
     exit;
   }

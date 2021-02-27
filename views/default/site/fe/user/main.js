@@ -198,11 +198,6 @@ ngApp.controller('ctrlMain', [
               $scope.count.app = rsp.data
             })
           http2
-            .get('/rest/site/fe/user/history/missionCount2?site=' + LS.s().site)
-            .then(function (rsp) {
-              $scope.count.mission = rsp.data
-            })
-          http2
             .get('/rest/site/fe/user/invite/count?site=' + LS.s().site)
             .then(function (rsp) {
               $scope.count.invite = rsp.data
@@ -228,8 +223,14 @@ ngApp.controller('ctrlMain', [
               newSubscriptions(lastCachedStatus.lastAt)
             }
           }
+        } else {
+          http2
+            .get('/rest/site/fe/user/history/missionCount2?site=' + LS.s().site)
+            .then(function (rsp) {
+              $scope.count.mission = rsp.data
+            })
         }
-        var eleLoading, eleStyle
+        var eleLoading
         eleLoading = document.querySelector('.loading')
         eleLoading.parentNode.removeChild(eleLoading)
       })

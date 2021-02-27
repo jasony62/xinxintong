@@ -306,8 +306,6 @@ class history extends \site\fe\base
 
     if (empty($unionid)) return new ResponseError('只允许注册用户访问');
 
-    $unionid = $this->who->unionid;
-
     $missions = $this->_missionList($unionid);
 
     $count = count($missions);

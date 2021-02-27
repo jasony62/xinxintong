@@ -406,6 +406,24 @@ class record extends base
     return [true, $oRecordRnd->rid];
   }
   /**
+   * 活动是否处于开放时间
+   */
+  private function _appOpened($oApp)
+  {
+    /**
+     * 检查活动是否在进行过程中
+     */
+    $current = time();
+    if (!empty($oApp->start_at) && $oApp->start_at > $current) {
+      return [false, '活动没有开始，不允许修改数据'];
+    }
+    if (!empty($oApp->end_at) && $oApp->end_at < $current) {
+      return [false, '活动已经结束，不允许修改数据'];
+    }
+
+    return [true];
+  }
+  /**
    * 检查是否允许用户进行记录
    *
    * 检查内容：
@@ -419,12 +437,9 @@ class record extends base
     /**
      * 检查活动是否在进行过程中
      */
-    $current = time();
-    if (!empty($oApp->start_at) && $oApp->start_at > $current) {
-      return [false, '活动没有开始，不允许修改数据'];
-    }
-    if (!empty($oApp->end_at) && $oApp->end_at < $current) {
-      return [false, '活动已经结束，不允许修改数据'];
+    $openedResult = $this->_appOpened($oApp);
+    if ($openedResult[0] === false) {
+      return $openedResult;
     }
 
     if (empty($oApp->entryRule->exclude_action->submit_record) || $oApp->entryRule->exclude_action->submit_record != "Y") {
@@ -1039,6 +1054,12 @@ class record extends base
     if ($oApp === false || $oApp->state !== '1') {
       return new \ObjectNotFoundError();
     }
+    /* 只有在活动开放时间范围内才能删除 */
+    $aOpenedResult = $this->_appOpened($oApp);
+    if ($aOpenedResult[0] === false) {
+      return new \ResponseError($aOpenedResult[1]);
+    }
+
     $modelRec = $this->model('matter\enroll\record');
     $oRecord = $modelRec->byId($ek, ['fields' => 'id,userid,nickname,state,enroll_key,data,rid']);
     if (false === $oRecord || $oRecord->state !== '1') {

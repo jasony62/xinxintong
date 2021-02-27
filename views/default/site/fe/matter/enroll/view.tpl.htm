@@ -56,7 +56,7 @@
   </div>
   <nav class="navbar site-navbar-light navbar-fixed-bottom">
     <div class="container-fluid text-center">
-      <button ng-repeat="act in page.actSchemas" class="btn button-highlight navbar-btn" ng-click="doAction($event,act)">
+      <button ng-repeat="act in page.actSchemas" class="btn button-highlight navbar-btn" ng-disabled="act.disabled" ng-click="doAction($event,act)">
         <span>{{::act.label}}</span>
       </button>
     </div>

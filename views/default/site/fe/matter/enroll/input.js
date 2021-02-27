@@ -85,7 +85,7 @@ ngApp.controller('ctrlInput', [
     enlTask
   ) {
     function fnHidePageActions() {
-      var domActs, domAct
+      var domActs
       if ((domActs = document.querySelectorAll('[wrap=button]'))) {
         angular.forEach(domActs, function (domAct) {
           domAct.style.display = 'none'

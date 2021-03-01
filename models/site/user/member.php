@@ -423,7 +423,6 @@ class member_model extends \TMS_MODEL
     $user = $this->byid($oNewMember->id, ['fields' => 'id enroll_key,forbidden state,extattr']);
     if (false === $user) return [];
 
-
     $modelGrp = $this->model('matter\group');
     $groups = $modelGrp->bySchemaApp($schemaId, ['autoSync' => 'Y']);
     if (empty($groups)) return [];
@@ -434,7 +433,7 @@ class member_model extends \TMS_MODEL
     $groupIds = [];
     foreach ($groups as $group) {
       /* 是否符合通过过滤条件 */
-      if (isset($group->syncRule))
+      if (isset($group->syncRule) && !empty($group->syncRule->rules))
         if (true !== $modelGrpUsr->matchSyncFilter($group->syncRule, $user->extattr)) continue;
       /* 是否同步到指定分组 */
       $assignTeam = null;

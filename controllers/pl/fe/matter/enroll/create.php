@@ -50,7 +50,7 @@ class create extends main_base {
         }
 
         $modelApp = $this->model('matter\enroll');
-        $oSourceApp = $modelApp->byId($app, 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,sync_mission_round,data_schemas');
+        $oSourceApp = $modelApp->byId($app, ['fields' => 'id,siteid,title,summary,pic,scenario,start_at,end_at,mission_id,sync_mission_round,data_schemas']);
         if (false === $oSourceApp || $oSourceApp->state !== '1') {
             return new \ObjectNotFoundError('指定的活动不存在');
         }

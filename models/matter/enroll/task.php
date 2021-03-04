@@ -805,12 +805,12 @@ class task_model extends \TMS_MODEL {
                 'xxt_group_record',
                 "aid = '{$oGrpApp->id}' and userid <> '' and state = 1",
             ];
-            if (isset($oTask->groups) && !empty($oTask->groups)) {
+            if (isset($oTask->groups) && is_array($oTask->groups) && !empty($oTask->groups)) {
                 $temIds = implode("','", $oTask->groups);
                 $g[2] .= " and team_id in ('{$temIds}')";
             } else if (isset($oEntryRule->group->team)) {
                 $temId = $oEntryRule->group->team->id;
-                $g[2] .= " and team_id = '{$temId}')";
+                $g[2] .= " and team_id = '{$temId}'";
             }
 
             $usersSum = (int) $this->query_val_ss($g);

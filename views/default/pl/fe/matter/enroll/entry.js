@@ -1,6 +1,6 @@
 define(['frame', 'groupService'], function (ngApp) {
     'use strict';
-    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$timeout', '$uibModal', 'srvEnrollApp', 'srvTimerNotice', function ($scope, mediagallery, $timeout, $uibModal, srvEnlApp, srvTimerNotice) {
+    ngApp.provider.controller('ctrlEntry', ['$scope', 'mediagallery', '$uibModal', 'srvEnrollApp', 'srvTimerNotice', function ($scope, mediagallery, $uibModal, srvEnlApp, srvTimerNotice) {
         $scope.setPic = function () {
             var options = {
                 callback: function (url) {

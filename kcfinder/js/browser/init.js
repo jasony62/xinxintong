@@ -1,32 +1,18 @@
-<?php
-
-/** This file is part of KCFinder project
-  *
-  *      @desc Object initializations
-  *   @package KCFinder
-  *   @version 2.51
-  *    @author Pavel Tzonkov <pavelc@users.sourceforge.net>
-  * @copyright 2010, 2011 KCFinder Project
-  *   @license http://www.opensource.org/licenses/gpl-2.0.php GPLv2
-  *   @license http://www.opensource.org/licenses/lgpl-2.1.php LGPLv2
-  *      @link http://kcfinder.sunhater.com
-  */?>
-
-browser.init = function() {
+browser.init = function () {
     if (!this.checkAgent()) return;
 
-    $('body').click(function() {
+    $('body').click(function () {
         browser.hideDialog();
     });
-    $('#shadow').click(function() {
+    $('#shadow').click(function () {
         return false;
     });
     $('#dialog').unbind();
-    $('#dialog').click(function() {
+    $('#dialog').click(function () {
         return false;
     });
     $('#alert').unbind();
-    $('#alert').click(function() {
+    $('#alert').click(function () {
         return false;
     });
     this.initOpeners();
@@ -37,7 +23,7 @@ browser.init = function() {
     this.initDropUpload();
 };
 
-browser.checkAgent = function() {
+browser.checkAgent = function () {
     if (!$.browser.version ||
         ($.browser.msie && (parseInt($.browser.version) < 7) && !this.support.chromeFrame) ||
         ($.browser.opera && (parseInt($.browser.version) < 10)) ||
@@ -53,8 +39,8 @@ browser.checkAgent = function() {
     return true;
 };
 
-browser.initOpeners = function() {
-    if (this.opener.TinyMCE && (typeof(tinyMCEPopup) == 'undefined'))
+browser.initOpeners = function () {
+    if (this.opener.TinyMCE && (typeof (tinyMCEPopup) == 'undefined'))
         this.opener.TinyMCE = null;
 
     if (this.opener.TinyMCE)
@@ -81,9 +67,9 @@ browser.initOpeners = function() {
         if ((window.opener && window.opener.KCFinder && window.opener.KCFinder.callBack) ||
             (window.parent && window.parent.KCFinder && window.parent.KCFinder.callBack)
         )
-            this.opener.callBack = window.opener
-                ? window.opener.KCFinder.callBack
-                : window.parent.KCFinder.callBack;
+            this.opener.callBack = window.opener ?
+            window.opener.KCFinder.callBack :
+            window.parent.KCFinder.callBack;
 
         if ((
                 window.opener &&
@@ -93,15 +79,14 @@ browser.initOpeners = function() {
                 window.parent &&
                 window.parent.KCFinder &&
                 window.parent.KCFinder.callBackMultiple
-            )
-        )
-            this.opener.callBackMultiple = window.opener
-                ? window.opener.KCFinder.callBackMultiple
-                : window.parent.KCFinder.callBackMultiple;
+            ))
+            this.opener.callBackMultiple = window.opener ?
+            window.opener.KCFinder.callBackMultiple :
+            window.parent.KCFinder.callBackMultiple;
     }
 };
 
-browser.initContent = function() {
+browser.initContent = function () {
     $('div#folders').html(this.label("Loading folders..."));
     $('div#files').html(this.label("Loading files..."));
     $.ajax({
@@ -109,7 +94,7 @@ browser.initContent = function() {
         dataType: 'json',
         url: browser.baseGetData('init'),
         async: false,
-        success: function(data) {
+        success: function (data) {
             if (browser.check4errors(data))
                 return;
             browser.dirWritable = data.dirWritable;
@@ -119,29 +104,35 @@ browser.initContent = function() {
             browser.files = data.files ? data.files : [];
             browser.orderFiles();
         },
-        error: function() {
+        error: function () {
             $('div#folders').html(browser.label("Unknown error."));
             $('div#files').html(browser.label("Unknown error."));
         }
     });
 };
 
-browser.initResizer = function() {
+browser.initResizer = function () {
     var cursor = ($.browser.opera) ? 'move' : 'col-resize';
     $('#resizer').css('cursor', cursor);
-    $('#resizer').drag('start', function() {
-        $(this).css({opacity:'0.4', filter:'alpha(opacity:40)'});
+    $('#resizer').drag('start', function () {
+        $(this).css({
+            opacity: '0.4',
+            filter: 'alpha(opacity:40)'
+        });
         $('#all').css('cursor', cursor);
     });
-    $('#resizer').drag(function(e) {
+    $('#resizer').drag(function (e) {
         var left = e.pageX - parseInt(_.nopx($(this).css('width')) / 2);
         left = (left >= 0) ? left : 0;
-        left = (left + _.nopx($(this).css('width')) < $(window).width())
-            ? left : $(window).width() - _.nopx($(this).css('width'));
-		$(this).css('left', left);
-	});
-	var end = function() {
-        $(this).css({opacity:'0', filter:'alpha(opacity:0)'});
+        left = (left + _.nopx($(this).css('width')) < $(window).width()) ?
+            left : $(window).width() - _.nopx($(this).css('width'));
+        $(this).css('left', left);
+    });
+    var end = function () {
+        $(this).css({
+            opacity: '0',
+            filter: 'alpha(opacity:0)'
+        });
         $('#all').css('cursor', '');
         var left = _.nopx($(this).css('left')) + _.nopx($(this).css('width'));
         var right = $(window).width() - left;
@@ -156,7 +147,7 @@ browser.initResizer = function() {
     $('#resizer').mouseup(end);
 };
 
-browser.resize = function() {
+browser.resize = function () {
     _('left').style.width = '25%';
     _('right').style.width = '75%';
     _('toolbar').style.height = $('#toolbar a').outerHeight() + "px";
@@ -180,7 +171,7 @@ browser.resize = function() {
     _('resizer').style.width = _.outerRightSpace('#folders', 'm') + _.outerLeftSpace('#files', 'm') + 'px';
 };
 
-browser.fixFilesHeight = function() {
+browser.fixFilesHeight = function () {
     _('files').style.height =
         $('#left').outerHeight() - $('#toolbar').outerHeight() - _.outerVSpace('#files') -
         (($('#settings').css('display') != "none") ? $('#settings').outerHeight() : 0) + 'px';

@@ -8,7 +8,7 @@ class round_model extends \TMS_MODEL {
 	 * @param string $appId
 	 *
 	 */
-	public function &byId($roundId, $options = []) {
+	public function byId($roundId, $options = []) {
 		$fields = isset($options['fields']) ? $options['fields'] : '*';
 
 		$q = [

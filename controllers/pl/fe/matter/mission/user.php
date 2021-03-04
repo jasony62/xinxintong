@@ -138,7 +138,7 @@ class user extends \pl\fe\matter\base {
         foreach ($matters as $oMatter) {
             $oEnlApp = (object) ['id' => $oMatter->matter_id];
             foreach ($misUsers as $oMisUser) {
-                $oEnlUser = $modelEnlUsr->byId($oEnlApp, $oMisUser->userid, ['fields' => 'score']);
+                $oEnlUser = $modelEnlUsr->byIdInApp($oEnlApp, $oMisUser->userid, ['fields' => 'score']);
                 if ($oEnlUser) {
                     $modelMisUsr->update('xxt_mission_user', ['score' => (object) ['op' => '+=', 'pat' => $oEnlUser->score]], ['id' => $oMisUser->id]);
                 }

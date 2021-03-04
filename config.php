@@ -1,4 +1,5 @@
 <?php
+
 /**
  * for long time execution.
  */
@@ -12,16 +13,21 @@ date_default_timezone_set('Asia/Shanghai');
  */
 ini_set('default_charset', 'utf-8');
 /**
- * database resource.
- */
-error_reporting(E_ERROR); // 控制系统的报错信息，否则数据库连接失败会报warning
-/**
  * 加载本地化设置
  */
 file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
+/**
+* 错误输出级别
+*/
+!defined('APP_REEOR_REPORTING_LEVEL') && define('APP_REEOR_REPORTING_LEVEL', 'ALL');
+
 /*********************************************
  * 常量定义不允许被覆盖，需要检查常量是否已经被定义
  *********************************************/
+/**
+ * ICP备案
+ */
+!defined('APP_ICP_BEIAN') && define('APP_ICP_BEIAN', '');
 /**
  * 定义应用的主机名
  */
@@ -39,7 +45,7 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
  */
 !defined('APP_LOGO') && define('APP_LOGO', '/static/img/logo.png');
 /**
- * 定义应用登录注册也的bannner图
+ * 定义应用登录注册页的bannner图
  */
 !defined('APP_ACCESS_BANNER') && define('APP_ACCESS_BANNER', '/static/img/access.png');
 /**
@@ -50,6 +56,10 @@ file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FIL
  * 是否缺省返回autoid
  */
 define('DEFAULT_DB_AUTOID', true);
+/**
+ * 异步执行后台任务
+ */
+!defined('ASYNC_DAEMON_TASKS') && define('ASYNC_DAEMON_TASKS', true);
 /**
  * cookie
  */
@@ -79,7 +89,7 @@ define('TMS_APP_TEMPLATE_DEFAULT', dirname(__FILE__) . '/_template');
 !defined('TMS_UPLOAD_FILE_MAXSIZE') && define('TMS_UPLOAD_FILE_MAXSIZE', 0);
 /**
  * 限制上传文件类型, 空为不限制  多个用 “,” 号隔开
- * 如：'doc,xls' 
+ * 如：'doc,xls'
  */
 !defined('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE') && define('TMS_UPLOAD_FILE_CONTENTTYPE_WHITE', '');
 /**
@@ -154,3 +164,7 @@ define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
  * 设置默认数学计算精度
  */
 !defined('APP_TMS_BCSCALE') && define('APP_TMS_BCSCALE', 2);
+/**
+ * mysql int类型的最大值
+ */
+define('MYSQL_INT_MAX', 2147483647);

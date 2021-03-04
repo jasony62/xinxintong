@@ -73,12 +73,12 @@ class data extends \pl\fe\matter\base {
         /**
          * 更新数据分题目排名
          */
-        $modelRec->setScoreRank($oApp, $rid);
+        $modelRec->setSchemaScoreRank($oApp, $rid);
         /**
          * 更新用户数据分排名
          */
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $modelEnlUsr->setScoreRank($oApp, $rid);
+        $modelEnlUsr->setUserScoreRank($oApp, $rid);
 
         return new \ResponseData(count($oResult->records));
     }

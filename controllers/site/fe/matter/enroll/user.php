@@ -1,24 +1,27 @@
 <?php
+
 namespace site\fe\matter\enroll;
 
 include_once dirname(__FILE__) . '/base.php';
 /**
  * 记录活动用户
  */
-class user extends base {
+class user extends base
+{
     /**
      *
      */
-    public function get_action($app, $rid = '') {
+    public function get_action($app, $rid = '')
+    {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if ($oApp === false) {
             return new \ObjectNotFoundError();
         }
 
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oEnlRndUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+        $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
         if ($oEnlRndUser) {
-            $oEnlAppUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+            $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['rid' => 'ALL', 'fields' => 'custom']);
             $oEnlRndUser->custom = $oEnlAppUser->custom;
         }
 
@@ -27,7 +30,8 @@ class user extends base {
     /**
      *
      */
-    public function get2_action($app, $rid = '') {
+    public function get2_action($app, $rid = '')
+    {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if (false === $oApp || $oApp->state !== '1') {
             return new \ObjectNotFoundError();
@@ -39,9 +43,9 @@ class user extends base {
          */
         if (!empty($rid) || isset($oApp->appRound->rid)) {
             $modelEnlUsr = $this->model('matter\enroll\user');
-            $oEnlRndUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
+            $oEnlRndUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => empty($rid) ? $oApp->appRound->rid : $rid]);
             if ($oEnlRndUser) {
-                $oEnlAppUser = $modelEnlUsr->byId($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
+                $oEnlAppUser = $modelEnlUsr->byIdInApp($oApp, $oUser->uid, ['rid' => 'ALL', 'fields' => 'custom']);
                 $oEnlRndUser->custom = $oEnlAppUser->custom;
             }
             $oUser->enrollUser = $oEnlRndUser;
@@ -54,7 +58,6 @@ class user extends base {
             $modelGrpRec = $this->model('matter\group\record');
             $modelGrpTeam = $this->model('matter\group\team');
             /* 用户所属分组信息 */
-            $oGrpApp = (object) ['id' => $assocGroupAppId];
             if (!empty($oUser->group_id)) {
                 $GrpRoundTitle = $modelGrpTeam->byId($oUser->group_id, ['fields' => 'title']);
                 $oUser->group_title = $GrpRoundTitle->title;
@@ -88,14 +91,15 @@ class user extends base {
     /**
      * 更新用户设置
      */
-    public function updateCustom_action($app) {
+    public function updateCustom_action($app)
+    {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if ($oApp === false) {
             return new \ObjectNotFoundError();
         }
 
         $modelEnlUsr = $this->model('matter\enroll\user');
-        $oEnlUser = $modelEnlUsr->byId($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
+        $oEnlUser = $modelEnlUsr->byIdInApp($oApp, $this->who->uid, ['fields' => 'aid,userid,custom']);
         if (false === $oEnlUser) {
             $oEnlUser = $modelEnlUsr->add($oApp, $this->who);
             $oEnlUser->custom = new \stdClass;
@@ -104,65 +108,65 @@ class user extends base {
         $oPosted = $this->getPostJson(false);
         foreach ($oPosted as $prop => $val) {
             switch ($prop) {
-            case 'cowork':
-            case 'event':
-            case 'favor':
-            case 'input':
-            case 'kanban':
-            case 'list':
-            case 'marks':
-            case 'rank':
-            case 'repos':
-            case 'score':
-            case 'share':
-            case 'stat':
-            case 'topic':
-            case 'view':
-            case 'votes':
-                $oPurifiedVal = new \stdClass;
-                if (is_object($val)) {
-                    foreach ($val as $prop2 => $val2) {
-                        switch ($prop2) {
-                        case 'nav':
-                            if (is_object($val2)) {
-                                $oPurifiedVal->nav = new \stdClass;
-                                foreach ($val2 as $prop3 => $val3) {
-                                    switch ($prop3) {
-                                    case 'stopTip':
-                                        $oPurifiedVal->nav->stopTip = is_bool($val3) ? $val3 : false;
-                                        break;
+                case 'cowork':
+                case 'event':
+                case 'favor':
+                case 'input':
+                case 'kanban':
+                case 'list':
+                case 'marks':
+                case 'rank':
+                case 'repos':
+                case 'score':
+                case 'share':
+                case 'stat':
+                case 'topic':
+                case 'view':
+                case 'votes':
+                    $oPurifiedVal = new \stdClass;
+                    if (is_object($val)) {
+                        foreach ($val as $prop2 => $val2) {
+                            switch ($prop2) {
+                                case 'nav':
+                                    if (is_object($val2)) {
+                                        $oPurifiedVal->nav = new \stdClass;
+                                        foreach ($val2 as $prop3 => $val3) {
+                                            switch ($prop3) {
+                                                case 'stopTip':
+                                                    $oPurifiedVal->nav->stopTip = is_bool($val3) ? $val3 : false;
+                                                    break;
+                                            }
+                                        }
                                     }
-                                }
-                            }
-                            break;
-                        case 'act':
-                            if (is_object($val2)) {
-                                $oPurifiedVal->act = new \stdClass;
-                                foreach ($val2 as $prop3 => $val3) {
-                                    switch ($prop3) {
-                                    case 'stopTip':
-                                        $oPurifiedVal->act->stopTip = is_bool($val3) ? $val3 : false;
-                                        break;
+                                    break;
+                                case 'act':
+                                    if (is_object($val2)) {
+                                        $oPurifiedVal->act = new \stdClass;
+                                        foreach ($val2 as $prop3 => $val3) {
+                                            switch ($prop3) {
+                                                case 'stopTip':
+                                                    $oPurifiedVal->act->stopTip = is_bool($val3) ? $val3 : false;
+                                                    break;
+                                            }
+                                        }
                                     }
-                                }
+                                    break;
                             }
-                            break;
                         }
                     }
-                }
-                break;
-            case 'profile':
-                $oPurifiedVal = new \stdClass;
-                if (is_object($val)) {
-                    foreach ($val as $prop2 => $val2) {
-                        switch ($prop2) {
-                        case 'public':
-                            $oPurifiedVal->public = ($val2 === true ? true : false);
-                            break;
+                    break;
+                case 'profile':
+                    $oPurifiedVal = new \stdClass;
+                    if (is_object($val)) {
+                        foreach ($val as $prop2 => $val2) {
+                            switch ($prop2) {
+                                case 'public':
+                                    $oPurifiedVal->public = ($val2 === true ? true : false);
+                                    break;
+                            }
                         }
                     }
-                }
-                break;
+                    break;
             }
             $oEnlUser->custom->{$prop} = $oPurifiedVal;
         }
@@ -178,7 +182,8 @@ class user extends base {
     /**
      * 返回当前用户任务完成的情况
      */
-    public function task_action($app) {
+    public function task_action($app)
+    {
         $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
         if ($oApp === false) {
             return new \ObjectNotFoundError();
@@ -189,7 +194,7 @@ class user extends base {
         if ($oActiveRound = $this->model('matter\enroll\round')->getActive($oApp)) {
             $options['rid'] = $oActiveRound->rid;
         }
-        $oEnrollee = $this->model('matter\enroll\user')->byId($oApp, $oUser->uid, $options);
+        $oEnrollee = $this->model('matter\enroll\user')->byIdInApp($oApp, $oUser->uid, $options);
 
         return new \ResponseData($oEnrollee);
     }
@@ -199,7 +204,8 @@ class user extends base {
      * 2、支持按照轮次过滤
      * 2、如果指定了轮次，支持看看缺席情况
      */
-    public function kanban_action($app, $rid = '', $gid = '', $page = 1, $size = 999) {
+    public function kanban_action($app, $rid = '', $gid = '', $page = 1, $size = 999)
+    {
         $modelEnl = $this->model('matter\enroll');
         $oApp = $modelEnl->byId($app, ['cascaded' => 'N', 'fields' => 'siteid,id,state,mission_id,entry_rule,action_rule,data_schemas']);
         if (false === $oApp || $oApp->state !== '1') {

@@ -3,7 +3,7 @@
 require('../../../../../../../asset/js/xxt.ui.schema.js');
 
 var ngMod = angular.module('cowork.repos.ui.enroll', ['schema.ui.xxt']);
-ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
+ngMod.directive('tmsReposCowork', [function () {
     return {
         restrict: 'A',
         template: require('./repos-cowork-schema.html'),
@@ -12,8 +12,8 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
             rec: '=record',
             schemaCounter: '='
         },
-        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
-            $scope.open = function(file) {
+        controller: ['$scope', '$sce', '$location', 'tmsLocation', 'http2', 'noticebox', 'tmsSchema', function ($scope, $sce, $location, LS, http2, noticebox, tmsSchema) {
+            $scope.open = function (file) {
                 var url, appID, data;
                 appID = $location.search().app;
                 data = {
@@ -26,10 +26,14 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
                 url += '&file=' + JSON.stringify(data);
                 window.open(url);
             }
-            $scope.$watch('rec', function(oRecord) {
-                if (!oRecord) { return; }
-                $scope.$watch('schemas', function(schemas) {
-                    if (!schemas) { return; }
+            $scope.$watch('rec', function (oRecord) {
+                if (!oRecord) {
+                    return;
+                }
+                $scope.$watch('schemas', function (schemas) {
+                    if (!schemas) {
+                        return;
+                    }
                     var oSchema, schemaData;
                     for (var schemaId in $scope.schemas) {
                         oSchema = $scope.schemas[schemaId];
@@ -43,7 +47,7 @@ ngMod.directive('tmsReposCowork', ['$templateCache', function($templateCache) {
                                     break;
                                 case 'file':
                                 case 'voice':
-                                    schemaData.forEach(function(oFile) {
+                                    schemaData.forEach(function (oFile) {
                                         if (oFile.url && !angular.isObject(oFile.url)) {
                                             oFile.oUrl = oFile.url;
                                             oFile.url = $sce.trustAsResourceUrl(oFile.url);

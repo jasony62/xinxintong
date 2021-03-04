@@ -19,78 +19,96 @@ class repos extends base {
         $dirSchemas = []; // 作为分类的题目
         $oSchemasById = new \stdClass;
         foreach ($oApp->dataSchemas as $oSchema) {
-            if (isset($oSchema->asdir) && $oSchema->asdir === 'Y') {
-                $oSchemasById->{$oSchema->id} = $oSchema;
-                switch ($oSchema->type) {
-                case 'single':
-                    if (empty($oSchema->optGroups)) {
-                        /* 根分类 */
-                        foreach ($oSchema->ops as $oOp) {
-                            $oRootDir = new \stdClass;
-                            $oRootDir->schema_id = $oSchema->id;
-                            $oRootDir->schema_type = 'single';
-                            $oRootDir->op = $oOp;
-                            $dirSchemas[] = $oRootDir;
-                        }
-                    } else {
-                        foreach ($oSchema->optGroups as $oOptGroup) {
-                            if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && isset($oSchemasById->{$oOptGroup->assocOp->schemaId})) {
-                                $oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
-                                foreach ($oParentSchema->ops as $oAssocOp) {
-                                    if ($oAssocOp->v === $oOptGroup->assocOp->v) {
-                                        if (!isset($oAssocOp->childrenDir)) {
-                                            $oAssocOp->childrenDir = [];
-                                        }
-                                        foreach ($oSchema->ops as $oOp) {
-                                            if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
-                                                $oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
-                                            }
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case 'shorttext':
-                    $modelData = $this->model('matter\enroll\data');
-                    if (empty($oSchema->historyAssoc)) {
-                        $oOptions = new \stdClass;
-                        $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
-                        $oOptions->page = 1;
-                        $oOptions->size = 99;
-                        $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
-                        foreach ($oResult->records as $oRecData) {
-                            $oRootDir = new \stdClass;
-                            $oRootDir->schema_id = $oSchema->id;
-                            $oRootDir->schema_type = 'shorttext';
-                            $oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
-                            $dirSchemas[] = $oRootDir;
-                        }
-                    } else {
-                        foreach ($dirSchemas as $oParentDirSchema) {
-                            if (in_array($oParentDirSchema->schema_id, $oSchema->historyAssoc)) {
-                                $aChildrenDir = [];
-                                $oOptions = new \stdClass;
-                                $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
-                                $oOptions->page = 1;
-                                $oOptions->size = 99;
-                                $oOptions->assocData = (object) [$oParentDirSchema->schema_id => $oParentDirSchema->op->v];
-                                $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
-                                foreach ($oResult->records as $oRecData) {
-                                    $oChildOption = new \stdClass;
-                                    $oChildOption = (object) ['schema_id' => $oSchema->id, 'op' => (object) ['v' => $oRecData->value, 'l' => $oRecData->value]];
-                                    $aChildrenDir[] = $oChildOption;
-                                }
-                                $oParentDirSchema->op->childrenDir = $aChildrenDir;
-                            }
-                        }
-
-                    }
-                    break;
-                }
+            if (!isset($oSchema->asdir) || $oSchema->asdir !== 'Y') {
+                continue;
             }
+
+            $oSchemasById->{$oSchema->id} = $oSchema;
+            switch ($oSchema->type) {
+            case 'single':
+            case 'multiple':
+                if (empty($oSchema->optGroups)) {
+                    $oSchemaDir = new \stdClass;
+                    $oSchemaDir->schema_id = $oSchema->id;
+                    $oSchemaDir->schema_type = $oSchema->type;
+                    $oSchemaDir->op = (object) ['l' => $oSchema->title, 'childrenDir' => []];
+                    /* 根分类 */
+                    foreach ($oSchema->ops as $oOp) {
+                        $oRootDir = new \stdClass;
+                        $oRootDir->schema_id = $oSchema->id;
+                        $oRootDir->schema_type = $oSchema->type;
+                        $oRootDir->op = $oOp;
+                        $oSchemaDir->op->childrenDir[] = $oRootDir;
+                    }
+                    $dirSchemas[] = $oSchemaDir;
+                } else {
+                    foreach ($oSchema->optGroups as $oOptGroup) {
+                        if (isset($oOptGroup->assocOp) && isset($oOptGroup->assocOp->v) && isset($oSchemasById->{$oOptGroup->assocOp->schemaId})) {
+                            $oParentSchema = $oSchemasById->{$oOptGroup->assocOp->schemaId};
+                            foreach ($oParentSchema->ops as $oAssocOp) {
+                                if ($oAssocOp->v === $oOptGroup->assocOp->v) {
+                                    if (!isset($oAssocOp->childrenDir)) {
+                                        $oAssocOp->childrenDir = [];
+                                    }
+                                    foreach ($oSchema->ops as $oOp) {
+                                        if (isset($oOp->g) && $oOp->g === $oOptGroup->i) {
+                                            $oAssocOp->childrenDir[] = (object) ['schema_id' => $oSchema->id, 'op' => $oOp];
+                                        }
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'shorttext':
+                $modelData = $this->model('matter\enroll\data');
+                if (empty($oSchema->historyAssoc)) {
+                    $oSchemaDir = new \stdClass;
+                    $oSchemaDir->schema_id = $oSchema->id;
+                    $oSchemaDir->schema_type = 'shorttext';
+                    $oSchemaDir->op = (object) ['l' => $oSchema->title, 'childrenDir' => []];
+
+                    $oOptions = new \stdClass;
+                    $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+                    $oOptions->page = 1;
+                    $oOptions->size = 99;
+                    $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+                    foreach ($oResult->records as $oRecData) {
+                        $oRootDir = new \stdClass;
+                        $oRootDir->schema_id = $oSchema->id;
+                        $oRootDir->schema_type = 'shorttext';
+                        $oRootDir->op = (object) ['v' => $oRecData->value, 'l' => $oRecData->value];
+                        $oSchemaDir->op->childrenDir[] = $oRootDir;
+                    }
+                    $dirSchemas[] = $oSchemaDir;
+                } else {
+                    foreach ($dirSchemas as $oParentDirSchema) {
+                        if (in_array($oParentDirSchema->schema_id, $oSchema->historyAssoc)) {
+                            $aChildrenDir = [];
+                            $oOptions = new \stdClass;
+                            $oOptions->rid = empty($oApp->appRound) ? '' : $oApp->appRound->rid;
+                            $oOptions->page = 1;
+                            $oOptions->size = 99;
+                            $oOptions->assocData = (object) [$oParentDirSchema->schema_id => $oParentDirSchema->op->v];
+                            $oResult = $modelData->bySchema($oApp, $oSchema, $oOptions);
+                            foreach ($oResult->records as $oRecData) {
+                                $oChildOption = new \stdClass;
+                                $oChildOption = (object) ['schema_id' => $oSchema->id, 'op' => (object) ['v' => $oRecData->value, 'l' => $oRecData->value]];
+                                $aChildrenDir[] = $oChildOption;
+                            }
+                            $oParentDirSchema->op->childrenDir = $aChildrenDir;
+                        }
+                    }
+
+                }
+                break;
+            }
+        }
+
+        if (count($dirSchemas) === 1) {
+            $dirSchemas = $dirSchemas[0]->op->childrenDir;
         }
 
         return new \ResponseData($dirSchemas);
@@ -163,7 +181,7 @@ class repos extends base {
      * @param string $onlyMine 只返回当前用户自己的
      *
      */
-    public function dataBySchema_action($app, $schema, $rid = '', $onlyMine = 'N', $page = 1, $size = 10) {
+    public function dataBySchema_action($app, $schema, $rid = '', $onlyMine = 'N', $keyword = '', $page = 1, $size = 10) {
         $schemaIds = explode(',', $schema);
         if (empty($schemaIds)) {
             return new \ParameterError('没有指定有效参数');
@@ -194,6 +212,9 @@ class repos extends base {
         if (count((array) $oRecData)) {
             $oOptions->assocData = $oRecData;
         }
+        if (!empty($keyword) && is_string($keyword)) {
+            $oOptions->keyword = $keyword;
+        }
 
         foreach ($aSchemas as $oSchema) {
             $oResult->{$oSchema->id} = $modelEnlDat->bySchema($oApp, $oSchema, $oOptions);
@@ -212,7 +233,7 @@ class repos extends base {
         /* 是否设置了编辑组 */
         $oEditorGrp = $this->getEditorGroup($oApp);
 
-        foreach ($rawDatas as &$rawData) {
+        foreach ($rawDatas as $rawData) {
             /* 获取记录的投票信息 */
             if (!empty($oApp->voteConfig)) {
                 if (empty($voteRules)) {
@@ -222,53 +243,21 @@ class repos extends base {
                 }
             }
             $aCoworkState = [];
-            $recordDirs = [];
             if (isset($rawData->data)) {
                 $processedData = new \stdClass;
                 foreach ($oApp->dynaDataSchemas as $oSchema) {
+                    if (!$this->isVisibleInRepos($rawData, $oSchema)) {
+                        continue;
+                    }
                     $schemaId = $oSchema->id;
-                    // 分类目录
-                    if ($this->getDeepValue($oSchema, 'asdir') === 'Y' && !empty($oSchema->ops) && !empty($rawData->data->{$schemaId})) {
-                        foreach ($oSchema->ops as $op) {
-                            if ($op->v === $rawData->data->{$schemaId}) {
-                                $recordDirs[] = $op->l;
-                            }
-                        }
-                    }
-                    /* 清除非共享数据 */
-                    if (!isset($oSchema->shareable) || $oSchema->shareable !== 'Y') {
-                        continue;
-                    }
-                    // 过滤空数据
-                    $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-                    if (null === $rawDataVal) {
-                        continue;
-                    }
-                    // 选择题题目可见性规则
-                    if (!empty($oSchema->visibility->rules)) {
-                        $checkSchemaVisibility = true;
-                        foreach ($oSchema->visibility->rules as $oRule) {
-                            if (strpos($schemaId, 'member.extattr') === 0) {
-                                $memberSchemaId = str_replace('member.extattr.', '', $schemaId);
-                                if (!isset($rawData->data->member->extattr->{$memberSchemaId}) || ($rawData->data->member->extattr->{$memberSchemaId} !== $oRule->op && empty($rawData->data->member->extattr->{$memberSchemaId}))) {
-                                    $checkSchemaVisibility = false;
-                                }
-                            } else if (!isset($rawData->data->{$oRule->schema}) || ($rawData->data->{$oRule->schema} !== $oRule->op && empty($rawData->data->{$oRule->schema}->{$oRule->op}))) {
-                                $checkSchemaVisibility = false;
-                            }
-                        }
-                        if ($checkSchemaVisibility === false) {
-                            continue;
-                        }
-                    }
-
-                    /* 协作填写题 */
+                    /* 多人问答题 */
                     if ($this->getDeepValue($oSchema, 'cowork') === 'Y') {
-                        if ($processType === 'recordByTopic') {
+                        if (in_array($processType, ['recordByTopic'])) {
                             $items = $modelData->getCowork($rawData->enroll_key, $schemaId, ['excludeRoot' => true, 'agreed' => ['Y', 'A'], 'fields' => 'id,agreed,like_num,nickname,value']);
                             $aCoworkState[$schemaId] = (object) ['length' => count($items)];
                             $processedData->{$schemaId} = $items;
                         } else if ($processType === 'coworkDataList') {
+                            // 答案视图
                             $item = new \stdClass;
                             $item->id = $rawData->data_id;
                             $item->value = $this->replaceHTMLTags($rawData->value);
@@ -279,51 +268,15 @@ class repos extends base {
                             $countItems = $modelData->getCowork($rawData->enroll_key, $schemaId, $aOptions);
                             $aCoworkState[$schemaId] = (object) ['length' => count($countItems)];
                         }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multitext') {
-                        $newData = [];
-                        foreach ($rawDataVal as &$val) {
-                            $val2 = new \stdClass;
-                            $val2->id = $val->id;
-                            $val2->value = $this->replaceHTMLTags($val->value);
-                            $newData[] = $val2;
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'single') {
-                        foreach ($oSchema->ops as $val) {
-                            if ($val->v === $rawDataVal) {
-                                $this->setDeepValue($processedData, $schemaId, $val->l);
-                            }
-                        }
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'score') {
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
-                        }
-                        $newData = [];
-                        foreach ($rawDataVal as $key => $val) {
-                            if (isset($ops->{$key})) {
-                                $data2 = new \stdClass;
-                                $data2->title = $ops->{$key};
-                                $data2->score = $val;
-                                $newData[] = $data2;
-                            }
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
-                    } else if ($this->getDeepValue($oSchema, 'type') === 'multiple') {
-                        $rawDataVal2 = explode(',', $rawDataVal);
-                        $ops = new \stdClass;
-                        foreach ($oSchema->ops as $val) {
-                            $ops->{$val->v} = $val->l;
-                        }
-                        $newData = [];
-                        foreach ($rawDataVal2 as $val) {
-                            if (isset($ops->{$val})) {
-                                $newData[] = $ops->{$val};
-                            }
-                        }
-                        $this->setDeepValue($processedData, $schemaId, $newData);
                     } else {
-                        $this->setDeepValue($processedData, $schemaId, $rawDataVal);
+                        // 分类目录
+                        $this->setRecordDir($rawData, $oSchema);
+                        // id转换成文字
+                        $newData = $this->translate($rawData, $oSchema);
+                        if (isset($newData)) {
+                            // 通讯录的题目（member.name）会变成'member:{}'的形式
+                            $this->setDeepValue($processedData, $schemaId, $newData);
+                        }
                     }
                 }
                 $rawData->data = $processedData;
@@ -336,10 +289,6 @@ class repos extends base {
                     }
                     $rawData->coworkDataTotal = $sum;
                 }
-                if (!empty($recordDirs)) {
-                    $rawData->recordDir = $recordDirs;
-                }
-
                 /* 获取记录的投票信息 */
                 if (!empty($aVoteRules)) {
                     $oVoteResult = new \stdClass;

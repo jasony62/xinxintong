@@ -1,4 +1,10 @@
-MP_verify_fGqgKPW0m8x87ztA.txt
-.vscode/
+.DS_Store
 node_modules/
 cus/
+kcfinder/upload
+vendor/
+*.log
+#ue/
+docker/mariadb/data
+docker-compose.override.yml
+

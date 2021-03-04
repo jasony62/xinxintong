@@ -12,13 +12,13 @@ class send extends \pl\fe\base {
      * 需要开通高级接口
      */
     public function custom_action($openid) {
-        $mpa = $this->model('mp\mpaccount')->byId($this->siteid);
+        $wxConfig = $this->model('sns\wx')->bySite($this->siteid);
         /**
          * 检查是否开通了群发接口
          */
-        if ($mpa->mpsrc === 'wx') {
-            $setting = $this->model('mp\mpaccount')->getFeature($this->siteid, $mpa->mpsrc . '_custom_push');
-            if ($setting->{$mpa->mpsrc . '_custom_push'} === 'N') {
+        if ($wxConfig->mpsrc === 'wx') {
+            $setting = $this->model('sns\wx')->getFeature($this->siteid, $wxConfig->mpsrc . '_custom_push');
+            if ($setting->{$wxConfig->mpsrc . '_custom_push'} === 'N') {
                 return new \ResponseError('未开通群发高级接口，请检查！');
             }
         }
@@ -143,9 +143,9 @@ class send extends \pl\fe\base {
      * 微信企业号
      */
     public function preview_action($matterId, $matterType, $openids) {
-        $mpaccount = $this->getMpaccount();
+        $wxConfigccount = $this->getMpaccount();
 
-        if ($mpaccount->mpsrc === 'wx') {
+        if ($wxConfigccount->mpsrc === 'wx') {
             $model = $this->model('matter\\' . $matterType);
             if ($matterType === 'text') {
                 $message = $model->forCustomPush($this->siteid, $matterId);
@@ -156,7 +156,7 @@ class send extends \pl\fe\base {
                 $message = $model->forWxGroupPush($this->siteid, $matterId);
             }
             $rst = $this->send2WxuserByPreview($this->siteid, $message, $openids);
-        } else if ($mpaccount->mpsrc === 'qy') {
+        } else if ($wxConfigccount->mpsrc === 'qy') {
         }
         if (empty($message)) {
             return new \ResponseError('指定的素材无法向用户群发！');
@@ -245,8 +245,8 @@ class send extends \pl\fe\base {
      * 测试上传媒体文件接口
      */
     public function uploadPic_action($url) {
-        $mpa = $this->getMpaccount();
-        $mpproxy = $this->model('mpproxy/' . $mpa->mpsrc, $mpa->siteid);
+        $wxConfig = $this->getMpaccount();
+        $mpproxy = $this->model('mpproxy/' . $wxConfig->mpsrc, $wxConfig->siteid);
 
         $media = $mpproxy->mediaUpload($url);
         if ($media[0] === false) {

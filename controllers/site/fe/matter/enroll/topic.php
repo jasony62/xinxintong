@@ -88,7 +88,7 @@ class topic extends base {
         $oNewTopic->title = empty($oPosted->title) ? $oNewTopic->nickname . '的专题（' . date('y年n月d日', $current) . '）' : $oPosted->title;
         $oNewTopic->summary = empty($oPosted->summary) ? $oNewTopic->title : $oPosted->summary;
         $oNewTopic->rec_num = 0;
-        isset($oPosted->is_public) &&  $oNewTopic->is_public = $oPosted->is_public;
+        isset($oPosted->is_public) && $oNewTopic->is_public = $oPosted->is_public;
         $oNewTopic->id = $modelEnl->insert('xxt_enroll_topic', $oNewTopic, true);
 
         // 处理用户数据
@@ -431,7 +431,7 @@ class topic extends base {
             $oProtoNewRel->assign_at = time();
             foreach ($aNewTopicIds as $topicId) {
                 $oProtoNewRel->topic_id = $topicId;
-                $oTopic = $modelTop->byId($topicId, 'id,state,rec_num');
+                $oTopic = $modelTop->byId($topicId, ['fields' => 'id,state,rec_num']);
                 if (false === $oTopic || $oTopic->state !== '1') {
                     continue;
                 }

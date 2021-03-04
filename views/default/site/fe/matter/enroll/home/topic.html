@@ -11,6 +11,7 @@
                 </div>
                 <div class="col-md-5 col-xs-5">
                     <div id='filterQuick' ng-cloak>
+                        <div><a ng-click="showAppInfo()"><span class='glyphicon glyphicon-info-sign'></span></a></div>
                         <div ng-repeat="singleFilter in singleFilters">
                             <div tms-dropdown basic-data="singleFilter" criteria="criteria" shift-menu="shiftMenu(criteria)"></div>
                         </div>

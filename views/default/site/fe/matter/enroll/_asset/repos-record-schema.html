@@ -1,69 +1,102 @@
 <div ng-if="rec">
-    <div class='dir' ng-if="rec.recordDir.length"><span ng-repeat="dir in rec.recordDir track by $index">{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span></div>
-    <div ng-repeat="schema in schemas" class='schema' ng-if="rec.data[schema.id]" ng-switch on="schema.type">
-        <div class='text-muted' ng-class="{true:'data-title-one', false:'data-title-zero'}[schemaCounter>1]"><span>{{::schema.title}}</span></div>
-        <div ng-switch-when="file">
-            <div ng-repeat="file in rec.data[schema.id]" ng-switch on="file.type">
-                <video ng-switch-when="video" controls="controls" preload="none">
-                    <source src="{{file.url}}" type="{{file.type}}" />
-                </video>
-                <audio ng-switch-when="audio" controls="controls" preload="none">
-                    <source src="{{file.url}}" type="{{file.type}}" />
-                </audio>
-                <audio ng-switch-when="audio/x-m4a" controls="controls" preload="none">
-                    <source src="{{file.url}}" type="{{file.type}}" />
-                </audio>
-                <audio ng-switch-when="audio/mp3" controls="controls" preload="none">
-                    <source src="{{file.url}}" type="{{file.type}}" />
-                </audio>
-                <img ng-switch-when="image" ng-src='{{file.url}}' style="width:40%" />
-                <a ng-switch-default href ng-click="open(file)">{{file.name}}</a>
-            </div>
-        </div>
-        <div ng-switch-when="voice">
-            <div ng-repeat="voice in rec.data[schema.id]">
-                <audio controls="controls" preload="none">
-                    <source src="{{voice.url}}" type="{{voice.type}}" />
-                </audio>
-            </div>
-        </div>
-        <div ng-switch-when="image">
-            <ul class='list-unstyled' ng-if="rec.data[schema.id]!=='_loading'">
-                <li ng-repeat="img in rec.data[schema.id].split(',')"><img ng-src="{{img}}" /></li>
-            </ul>
-            <span ng-if="rec.data[schema.id]==='_loading'">等待加载图片...</span>
-        </div>
-        <div ng-switch-when="score">
-            <div ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item.title"></span>:<span ng-bind="item.score"></span>;
-            </div>
-        </div>
-        <div ng-switch-when="multitext">
-            <span ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item.value"></span><span ng-hide="$index==rec.data[schema.id].length-1">;</span>
-            </span>
-        </div>
-        <div ng-switch-when="single"><span ng-bind="rec.data[schema.id]"></span></div>
-        <div ng-switch-when="multiple">
-            <span ng-repeat="item in rec.data[schema.id]">
-                <span ng-bind="item"></span><span ng-hide="$index==rec.data[schema.id].length-1">,</span>
-            </span>
-        </div>
-        <div ng-switch-when="longtext">
-            <span ng-bind-html="rec.data[schema.id]"></span>
-        </div>
-        <div ng-switch-when="url">
-            <span ng-bind-html="rec.data[schema.id]._text"></span>
-        </div>
-        <div ng-switch-default>
-            <span ng-bind-html="rec.data[schema.id]"></span>
-        </div>
-        <div ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]" class='supplement' ng-bind-html="rec.supplement[schema.id]"></div>
-        <div ng-if="rec.voteResult[schema.id]" class='small'>
-            <span ng-if="rec.voteResult[schema.id].state!=='BS'">得票：<span ng-bind="rec.voteResult[schema.id].vote_num"></span></span>
-        </div>
-        <div ng-if="schema.showHistoryAtRepos==='Y'">
-            <button class='btn btn-sm btn-default' ng-click="showHistory($event,schema,rec)">查看历史数据</button>
-        </div>
+  <div class="dir" ng-if="rec.recordDir.length">
+    <span ng-repeat="dir in rec.recordDir track by $index"
+      >{{dir}}<span ng-if="$index!==rec.recordDir.length-1"> / </span></span
+    >
+  </div>
+  <div
+    ng-repeat="schema in schemas"
+    class="schema"
+    ng-if="rec.data[schema.id]"
+    ng-switch
+    on="schema.type"
+  >
+    <div
+      class="text-muted"
+      ng-class="{true:'data-title-one', false:'data-title-zero'}[schemaCounter>1]"
+    >
+      <span>{{::schema.title}}</span>
     </div>
+    <div ng-switch-when="file">
+      <div ng-repeat="file in rec.data[schema.id]" ng-switch on="file.type">
+        <video ng-switch-when="video" controls="controls" preload="none">
+          <source src="{{file.url}}" type="{{file.type}}" />
+        </video>
+        <audio ng-switch-when="audio" controls="controls" preload="none">
+          <source src="{{file.url}}" type="{{file.type}}" />
+        </audio>
+        <audio ng-switch-when="audio/x-m4a" controls="controls" preload="none">
+          <source src="{{file.url}}" type="{{file.type}}" />
+        </audio>
+        <audio ng-switch-when="audio/mp3" controls="controls" preload="none">
+          <source src="{{file.url}}" type="{{file.type}}" />
+        </audio>
+        <img ng-switch-when="image" ng-src="{{file.url}}" style="width:40%" />
+        <a ng-switch-default href ng-click="open(file)">{{file.name}}</a>
+      </div>
+    </div>
+    <div ng-switch-when="voice" class="media">
+      <div ng-repeat="voice in rec.data[schema.id]">
+        <audio controls="controls" preload="none">
+          <source src="{{voice.url}}" type="{{voice.type}}" />
+        </audio>
+      </div>
+    </div>
+    <div ng-switch-when="image" class="media">
+      <ul class="list-unstyled" ng-if="rec.data[schema.id]!=='_loading'">
+        <li ng-repeat="img in rec.data[schema.id].split(',')">
+          <img ng-src="{{img}}" />
+        </li>
+      </ul>
+      <span ng-if="rec.data[schema.id]==='_loading'">等待加载图片...</span>
+    </div>
+    <div ng-switch-when="score">
+      <div ng-repeat="item in rec.data[schema.id]">
+        <span ng-bind="item.title"></span>:<span ng-bind="item.score"></span>;
+      </div>
+    </div>
+    <div ng-switch-when="multitext">
+      <span ng-repeat="item in rec.data[schema.id]">
+        <span ng-bind="item.value"></span>
+        <span ng-hide="$index==rec.data[schema.id].length-1">;</span>
+      </span>
+    </div>
+    <div ng-switch-when="single">
+      <span ng-bind="rec.data[schema.id]"></span>
+    </div>
+    <div ng-switch-when="multiple">
+      <span ng-repeat="item in rec.data[schema.id]">
+        <span ng-bind="item"></span>
+        <span ng-hide="$index==rec.data[schema.id].length-1">,</span>
+      </span>
+    </div>
+    <div ng-switch-when="longtext">
+      <span ng-bind-html="rec.data[schema.id]"></span>
+    </div>
+    <div ng-switch-when="url">
+      <span ng-bind-html="rec.data[schema.id]._text"></span>
+    </div>
+    <div ng-switch-default>
+      <span ng-bind-html="rec.data[schema.id]"></span>
+    </div>
+    <div
+      ng-if="schema.supplement==='Y'&&rec.supplement[schema.id]"
+      class="supplement"
+      ng-bind-html="rec.supplement[schema.id]"
+    ></div>
+    <div ng-if="rec.voteResult[schema.id]" class="small">
+      <span ng-if="rec.voteResult[schema.id].state!=='BS'"
+        >得票：
+        <span ng-bind="rec.voteResult[schema.id].vote_num"></span>
+      </span>
+    </div>
+    <div ng-if="schema.showHistoryAtRepos==='Y'">
+      <button
+        class="btn btn-sm btn-default"
+        ng-click="showHistory($event,schema,rec)"
+      >
+        查看历史数据
+      </button>
+    </div>
+  </div>
 </div>

@@ -624,11 +624,10 @@ ngMod.factory('picviewer', ['$q', function ($q) {
                     isload: false,
                     elem: img
                 };
-                if (i == _this.index) {
-                    img.src = v;
-                    img.onload = function () {
-                        _this.imgLoadCache[hash].isload = true;
-                    }
+                img.src = v;
+                img.onload = function () {
+                    _this.imgLoadCache[hash].eleImage = img;
+                    _this.imgLoadCache[hash].isload = true;
                 }
             }
             _this.imgStatusCache[i] = {
@@ -660,18 +659,23 @@ ngMod.factory('picviewer', ['$q', function ($q) {
             _this.setActionStatus();
             if (_this.winw > 992) {
                 _this.urls.forEach(function (v, i) {
-                    var that = _this,
-                        elImg, currentScale, toX, toY, overrideWidth, overrideHeight;
-                    elImg = that.selectorEleAll[i];
-                    currentScale = Math.min(that.winw / elImg.naturalWidth, that.winh / elImg.naturalHeight);
+                    var that = _this, currentScale, toX, toY, overrideWidth, overrideHeight, elImgW, elImgH;
+                    var hash = _this.imgStatusCache[i].hash;
+                    var currentImg = _this.imgLoadCache[hash].eleImage;
+
+                    if (currentImg) {
+                        elImgW = currentImg.width;
+                        elImgH = currentImg.height;
+                    }
+                    currentScale = Math.min(that.winw / elImgW, that.winh / elImgH);
                     toX = toY = 0;
 
                     function imgHeight() {
-                        return elImg.naturalHeight * currentScale;
+                        return elImgH * currentScale;
                     }
 
                     function imgWidth() {
-                        return elImg.naturalWidth * currentScale;
+                        return elImgW * currentScale;
                     }
 
                     toX > 0 && (toX = 0);

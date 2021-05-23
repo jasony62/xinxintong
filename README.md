@@ -22,6 +22,20 @@
 
 在`kcfinder`目录下，新建`upload`目录，保存上传文件。需要执行`chmod -R 777 upload`命令解决权限问题。
 
+## 环境变量
+
+需要在`docker-compose.override.yml`中指定。
+
+| 环境变量            | 说明         |
+| ------------------- | ------------ |
+| NGINX_HTTP_PROTOCOL | 应用地址协议 |
+| NGINX_HTTP_HOST     | 应用主机名   |
+| NGINX_HTTP_PORT     | 端口         |
+
+在重定向时需要使用，例如：邀请连接。
+
+查看`docker/nginx/nginx.conf.template`了解上述环境变量的用户。
+
 # License
 
 [MIT](http://opensource.org/licenses/MIT)

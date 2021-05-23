@@ -605,7 +605,7 @@ class data_model extends entity_model
               // 用分号区分条件组，条件组之间是或的关系，只要有一组满足就给分
               $answerKwGrps = preg_split('/[;]+/', $oSchema->answer);
               foreach ($answerKwGrps as $answerKwGrp) {
-                // 用空格和逗号区分条件，条件间是或的关系
+                // 用空格和逗号区分条件，条件间是和的关系，都满足才给分
                 $answerKws = preg_split('/[\s,]+/', $answerKwGrp);
                 $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
                   if (empty($kw)) return false;

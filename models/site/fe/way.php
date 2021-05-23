@@ -97,6 +97,7 @@ class way_model extends \TMS_MODEL
       $oSiteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
       if ($oCookieUser) {
         if ($oSiteUser->uid !== $oCookieUser->uid) {
+          // 应该提示用户重新登录
           throw new \SiteUserException('数据错误，注册主访客账号与当前访客账号不一致', $oSiteUser->uid, $oCookieUser->uid);
         }
       }

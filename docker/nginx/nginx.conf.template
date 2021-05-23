@@ -104,8 +104,8 @@ http {
 		location ~ /\.ht {
 			deny all;
 		}
-    rewrite ^/q/(.*)$ http://$host/rest/q?code=$1;
-	  rewrite ^/i/(.*)$ http://$host/rest/i?code=$1;
+    rewrite ^/q/(.*)$ $NGINX_HTTP_PROTOCOL://$NGINX_HTTP_HOST:$NGINX_HTTP_PORT/rest/q?code=$1 redirect;
+	  rewrite ^/i/(.*)$ $NGINX_HTTP_PROTOCOL://$NGINX_HTTP_HOST:$NGINX_HTTP_PORT/rest/i?inviteCode=$1 redirect;
 	  rewrite ^/rest/(.*)$ /app.php break;
 	}
 ########################## vhost #############################

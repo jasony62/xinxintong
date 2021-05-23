@@ -22,12 +22,15 @@ services:
     image: xxt/nginx
     restart: always
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       - .:/usr/share/nginx/html
     links:
       - php-fpm
     # ports:
     #   - 8080:80
+    # environment:
+    #   - NGINX_HTTP_PROTOCOL=http
+    #   - NGINX_HTTP_HOST=localhost
+    #   - NGINX_HTTP_PORT=8080
 
   adminer:
     image: adminer

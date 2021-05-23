@@ -87,7 +87,6 @@ class i extends \site\base
     $matterUrl = $modelMat->getEntryUrl($oMatter->siteid, $oMatter->id);
     $matterUrl .= strpos($matterUrl, '?') === false ? '?' : '&';
     $matterUrl .= 'inviteToken=' . $oAccessToken->token;
-
     $this->redirect($matterUrl);
   }
   /**

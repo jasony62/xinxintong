@@ -4,7 +4,6 @@ define(['frame'], function (ngApp) {
     'http2',
     'mediagallery',
     'noticebox',
-    '$uibModal',
     'srvTag',
     'srvSite',
     'tkEntryRule',
@@ -13,7 +12,6 @@ define(['frame'], function (ngApp) {
       http2,
       mediagallery,
       noticebox,
-      $uibModal,
       srvTag,
       srvSite,
       tkEntryRule
@@ -21,10 +19,9 @@ define(['frame'], function (ngApp) {
       var modifiedData = {}
       $scope.modified = false
       $scope.urlsrcs = {
-        '0': '外部链接',
-        '1': '多图文',
-        '2': '频道',
-        '3': '内置回复',
+        0: '外部链接',
+        2: '频道',
+        3: '内置回复',
       }
       $scope.linkparams = {
         '{{openid}}': '用户标识(openid)',

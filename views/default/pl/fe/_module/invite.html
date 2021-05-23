@@ -25,7 +25,7 @@
               <textarea class='form-control' ng-model="invite.message"></textarea>
               <button class='btn btn-default' ng-click="update('message')">保存邀请留言</button>
             </div>
-            <div class='checkbox'>
+            <div class='checkbox hidden'>
               <label>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="invite.can_relay" ng-change="update('can_relay')">支持间接邀请</label>
             </div>

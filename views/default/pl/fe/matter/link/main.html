@@ -61,18 +61,6 @@
           </div>
         </div>
       </div>
-      <div class='form-group'>
-        <label>指定关联应用</label>
-        <div class="pl-input-group" ng-repeat="app in editing.config.nav.app">
-          <div class='form-control pl-line' ng-bind="app.title"></div>
-          <button class="btn btn-default" ng-click="removeNavApp($index)">
-            <span class='glyphicon glyphicon-remove'></span>
-          </button>
-        </div>
-      </div>
-      <div class='form-group'>
-        <button class='btn btn-success' ng-click="assignNavApp()">指定关联应用</button>
-      </div>
     </div>
   </div>
   <div class='panel panel-default' id="main-access">
@@ -158,12 +146,25 @@
       </div>
       <div class='checkbox'>
         <label>
-          <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.embedded' ng-change="update('embedded')">采用嵌入方式打开链接内容</label>
+          <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.embedded' ng-change="update('embedded')">采用嵌入方式打开链接内容（可显示关联应用和附件）</label>
       </div>
     </div>
   </div>
   <div class="panel panel-default" ng-show="editing.embedded==='Y'">
     <div class="panel-body">
+      <div class='form-group'>
+        <label>指定关联应用</label>
+        <div class="pl-input-group" ng-repeat="app in editing.config.nav.app">
+          <div class='form-control pl-line' ng-bind="app.title"></div>
+          <button class="btn btn-default" ng-click="removeNavApp($index)">
+            <span class='glyphicon glyphicon-remove'></span>
+          </button>
+        </div>
+      </div>
+      <div class='form-group'>
+        <button class='btn btn-success' ng-click="assignNavApp()">指定关联应用</button>
+      </div>
+      <hr>
       <div class='form-group'>
         <label>附件</label>
         <div>

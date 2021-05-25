@@ -25,16 +25,19 @@ class record extends record_base
       foreach ($oApp->dataSchemas as $schema) {
         $dataSchemas->{$schema->id} = $schema;
       }
-      foreach ($oRecord->data as $k => $data) {
-        if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
-          $verboseVals = json_decode($oRecord->verbose->{$k}->value);
-          $items = [];
-          foreach ($verboseVals as $verboseVal) {
-            $res = $this->model('matter\enroll\data')->byId($verboseVal->id);
-            $items[] = $res;
+      if (is_array($oRecord->data)) {
+        foreach ($oRecord->data as $k => $data) {
+          if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
+            $verboseVals = json_decode($oRecord->verbose->{$k}->value);
+            $items = [];
+            foreach ($verboseVals as $verboseVal) {
+              $res = $this->model('matter\enroll\data')->byId($verboseVal->id);
+              $items[] = $res;
+            }
+            $oRecord->verbose->{$k}->items = $items;
           }
-          $oRecord->verbose->{$k}->items = $items;
         }
+      } else if (!empty($oRecord->data)) {
       }
     }
 

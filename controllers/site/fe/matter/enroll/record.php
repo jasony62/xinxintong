@@ -448,6 +448,17 @@ class record extends base
         return $checkEntryRule;
       }
     }
+    /**
+     * 检查提交人是否在白名单中
+     */
+    $wlGroupId = $this->getDeepValue($oApp->entryRule, 'wl.submit.group');
+    if (!empty($wlGroupId)) {
+      if (empty($oUser->group_id)) {
+        return [false, '不在可修改数据用户白名单中，请与活动管理员联系'];
+      } else if ($oUser->group_id != $wlGroupId) {
+        return [false, '所在分组【' . $oUser->group_title . '】不在可修改数据用户分组白名单中，请与活动管理员联系'];
+      }
+    }
 
     $modelRec = $this->model('matter\enroll\record');
     if (empty($ek)) {
@@ -462,7 +473,7 @@ class record extends base
       }
     } else {
       /**
-       * 检查提交人
+       * 检查提交人是否记录创建人
        */
       $oRecord = $modelRec->byId($ek, ['fields' => 'userid']);
       if ($this->getDeepValue($oApp->scenarioConfig, 'can_cowork') !== 'Y') {

@@ -107,9 +107,10 @@ class user_model extends \TMS_MODEL
     /* 获得用户所属分组 */
     if (isset($oApp->entryRule->group->id)) {
       $modelGrpRec = $this->model('matter\group\record');
-      $oGrpMemb = $modelGrpRec->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'team_id,is_leader,role_teams', 'onlyOne' => true]);
+      $oGrpMemb = $modelGrpRec->byUser($oApp->entryRule->group, $oUser->uid, ['fields' => 'team_id,team_title,is_leader,role_teams', 'onlyOne' => true]);
       if ($oGrpMemb) {
         $oUser->group_id = $oGrpMemb->team_id;
+        $oUser->group_title = $oGrpMemb->team_title;
         $oUser->is_leader = $oGrpMemb->is_leader;
         $oUser->role_teams = $oGrpMemb->role_teams;
       }

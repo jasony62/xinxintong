@@ -176,6 +176,15 @@
         </table>
       </div>
       <hr />
+      <div class="form-group" ng-if="app.groupApp">
+        <label>仅指定分组用户可以修改数据</label>
+        <select class='form-control' ng-model="rule.wl.submit.group" ng-change="updateRule()">
+          <option value=''>不指定</option>
+          <option ng-repeat="group in app.groupApp.teams" value="{{group.team_id}}">{{group.title}}</option>
+        </select>
+        <div class='help-block'>用户不能修改自己的数据仅能查看，只允许指定分组活动用户修改数据的情况。</div>
+      </div>
+      <hr />
       <div class="form-group">
         <label>可忽略参与规则进入的页面</label>
         <table class="table table-bordered">

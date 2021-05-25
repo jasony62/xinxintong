@@ -336,6 +336,7 @@ ngApp.controller('ctrlView', [
           }
         })
       }
+      // 检查轮次时间
       if (oRecord.round) {
         if (oRecord.round.start_at > 0) {
           if (oRecord.round.start_at * 1000 > new Date() * 1) {
@@ -360,6 +361,21 @@ ngApp.controller('ctrlView', [
               a.disabled = true
             })
           }
+        }
+      }
+      // 检查白名单
+      if (
+        _oApp.entryRule &&
+        _oApp.entryRule.wl &&
+        _oApp.entryRule.wl.submit &&
+        _oApp.entryRule.wl.submit.group
+      ) {
+        if ($scope.user.group_id != _oApp.entryRule.wl.submit.group) {
+          _oPage.actSchemas.forEach((a) => {
+            if (a.name === 'editRecord' || a.name === 'removeRecord') {
+              a.disabled = true
+            }
+          })
         }
       }
 

@@ -25,7 +25,7 @@ class record extends record_base
       foreach ($oApp->dataSchemas as $schema) {
         $dataSchemas->{$schema->id} = $schema;
       }
-      if (is_array($oRecord->data)) {
+      if (is_object($oRecord->data)) {
         foreach ($oRecord->data as $k => $data) {
           if (isset($dataSchemas->{$k}) && $dataSchemas->{$k}->type === 'multitext') {
             $verboseVals = json_decode($oRecord->verbose->{$k}->value);

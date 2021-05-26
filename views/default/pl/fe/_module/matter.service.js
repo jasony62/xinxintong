@@ -1128,10 +1128,11 @@ angular
                         if (members.length) {
                           if (_oMschema.extAttrs.length) {
                             members.forEach((oMember) => {
-                              oMember._extattr = tmsSchema.member.getExtattrsUIValue(
-                                _oMschema.extAttrs,
-                                oMember
-                              )
+                              oMember._extattr =
+                                tmsSchema.member.getExtattrsUIValue(
+                                  _oMschema.extAttrs,
+                                  oMember
+                                )
                             })
                           }
                         }
@@ -1187,8 +1188,7 @@ angular
     '$q',
     'http2',
     '$uibModal',
-    'noticebox',
-    function ($q, http2, $uibModal, noticebox) {
+    function ($q, http2, $uibModal) {
       this.pick = function (oSite, oConfig) {
         var defer = $q.defer()
         http2
@@ -1225,7 +1225,7 @@ angular
                     }
                     _oRows.reset()
                     $scope2.doSearch = _fnSearch = function (pageAt) {
-                      var url, data
+                      var url
                       pageAt && (_oPage.at = pageAt)
                       url =
                         '/rest/pl/fe/site/user/account/list?site=' + oSite.id
@@ -2120,9 +2120,10 @@ angular
         this.excludeRules = aExcludeRules || []
         this.matter = oMatter
         this.sns = oSns
-        this.rule = _oRule = $scope.rule = this.noSave
-          ? oMatter.entryRule
-          : angular.copy(oMatter.entryRule)
+        this.rule =
+          _oRule =
+          $scope.rule =
+            this.noSave ? oMatter.entryRule : angular.copy(oMatter.entryRule)
         _self = this
         if (!this.noSave) {
           this.originalRule = $scope.originalRule = oMatter.entryRule

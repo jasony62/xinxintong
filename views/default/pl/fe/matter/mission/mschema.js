@@ -3,7 +3,6 @@ define(['frame'], function (ngApp) {
   ngApp.provider.controller('ctrlMschema', [
     '$scope',
     '$location',
-    '$uibModal',
     'http2',
     'tmsSchema',
     'srvSite',
@@ -15,7 +14,6 @@ define(['frame'], function (ngApp) {
     function (
       $scope,
       $location,
-      $uibModal,
       http2,
       tmsSchema,
       srvSite,

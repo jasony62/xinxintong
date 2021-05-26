@@ -89,6 +89,7 @@ ngApp.controller('ctrlView', [
   '$timeout',
   'tmsSchema',
   'enlRound',
+  '$uibModal',
   function (
     $scope,
     $parse,
@@ -99,7 +100,8 @@ ngApp.controller('ctrlView', [
     picviewer,
     $timeout,
     tmsSchema,
-    enlRound
+    enlRound,
+    $uibModal
   ) {
     function fnHidePageActions() {
       var domActs
@@ -386,7 +388,9 @@ ngApp.controller('ctrlView', [
         }
       })
       /* 设置页面分享信息 */
-      $scope.setSnsShare(oRecord)
+      $scope.setSnsShare(oRecord, null, null, (sharelink) => {
+        $scope.sharelink = sharelink
+      })
       /* 同轮次的其他记录 */
       if (parseInt(_oApp.count_limit) !== 1) {
         http2
@@ -517,6 +521,29 @@ ngApp.controller('ctrlView', [
     $scope.shiftRound = function (oRound) {
       fnGetRecordByRound(oRound).then(fnSetPageByRecord)
     }
+    $scope.shareQrcode = function () {
+      if ($scope.sharelink) {
+        $uibModal.open({
+          templateUrl: 'shareQrcode.html',
+          controller: [
+            '$scope',
+            '$uibModalInstance',
+            function ($scope2, $mi) {
+              $scope2.qrcode =
+                '/rest/site/fe/matter/enroll/qrcode?site=' +
+                $scope.app.siteid +
+                '&url=' +
+                encodeURIComponent($scope.sharelink)
+
+              $scope2.cancel = function () {
+                $mi.dismiss()
+              }
+            },
+          ],
+          backdrop: 'static',
+        })
+      }
+    }
     $scope.doAction = function (event, oAction) {
       switch (oAction.name) {
         case 'addRecord':
@@ -533,6 +560,9 @@ ngApp.controller('ctrlView', [
           break
         case 'closeWindow':
           $scope.closeWindow()
+          break
+        case 'shareQrcode':
+          $scope.shareQrcode()
       }
     }
     $scope.$on('xxt.app.enroll.ready', function (event, params) {

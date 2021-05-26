@@ -285,7 +285,7 @@ ngApp.controller('ctrlMain', [
       }
     }
     /* 设置公众号分享信息 */
-    $scope.setSnsShare = function (oRecord, oParams, oData) {
+    $scope.setSnsShare = function (oRecord, oParams, oData, fnBackSharelink) {
       function fnReadySnsShare() {
         if (window.__wxjs_environment === 'miniprogram') {
           return
@@ -332,52 +332,57 @@ ngApp.controller('ctrlMain', [
         ) {
           summary = oRecord.data[oPage.share_summary]
         }
+
         /* 分享次数计数器 */
-        window.shareCounter = 0
-        tmsSnsShare.config({
-          siteId: oApp.siteid,
-          logger: function (shareto) {
-            var url
-            url = '/rest/site/fe/matter/logShare'
-            url += '?shareid=' + shareid
-            url += '&site=' + oApp.siteid
-            url += '&id=' + oApp.id
-            url += '&type=enroll'
-            if (oData && oData.title) {
-              url += '&title=' + oData.title
-            } else {
-              url += '&title=' + oApp.title
-            }
-            if (oData) {
-              url += '&target_type=' + oData.target_type
-              url += '&target_id=' + oData.target_id
-            }
-            url += '&shareby=' + shareby
-            url += '&shareto=' + shareto
-            http2.get(url)
-            window.shareCounter++
-            window.onshare && window.onshare(window.shareCounter)
-          },
-          jsApiList: [
-            'hideOptionMenu',
-            'onMenuShareTimeline',
-            'onMenuShareAppMessage',
-            'chooseImage',
-            'uploadImage',
-            'getLocation',
-            'startRecord',
-            'stopRecord',
-            'onVoiceRecordEnd',
-            'playVoice',
-            'pauseVoice',
-            'stopVoice',
-            'onVoicePlayEnd',
-            'uploadVoice',
-            'downloadVoice',
-            'translateVoice',
-          ],
-        })
-        tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic)
+        if (/MicroMessenger/i.test(navigator.userAgent)) {
+          window.shareCounter = 0
+          tmsSnsShare.config({
+            siteId: oApp.siteid,
+            logger: function (shareto) {
+              var url
+              url = '/rest/site/fe/matter/logShare'
+              url += '?shareid=' + shareid
+              url += '&site=' + oApp.siteid
+              url += '&id=' + oApp.id
+              url += '&type=enroll'
+              if (oData && oData.title) {
+                url += '&title=' + oData.title
+              } else {
+                url += '&title=' + oApp.title
+              }
+              if (oData) {
+                url += '&target_type=' + oData.target_type
+                url += '&target_id=' + oData.target_id
+              }
+              url += '&shareby=' + shareby
+              url += '&shareto=' + shareto
+              http2.get(url)
+              window.shareCounter++
+              window.onshare && window.onshare(window.shareCounter)
+            },
+            jsApiList: [
+              'hideOptionMenu',
+              'onMenuShareTimeline',
+              'onMenuShareAppMessage',
+              'chooseImage',
+              'uploadImage',
+              'getLocation',
+              'startRecord',
+              'stopRecord',
+              'onVoiceRecordEnd',
+              'playVoice',
+              'pauseVoice',
+              'stopVoice',
+              'onVoicePlayEnd',
+              'uploadVoice',
+              'downloadVoice',
+              'translateVoice',
+            ],
+          })
+          tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic)
+          // 返回生成的页面共享链接
+        }
+        if (fnBackSharelink) fnBackSharelink(sharelink)
       }
       if (/MicroMessenger/i.test(navigator.userAgent)) {
         if (!window.WeixinJSBridge || !WeixinJSBridge.invoke) {
@@ -389,6 +394,8 @@ ngApp.controller('ctrlMain', [
         } else {
           fnReadySnsShare()
         }
+      } else if (fnBackSharelink) {
+        fnReadySnsShare()
       }
     }
     /* 设置页面操作 */

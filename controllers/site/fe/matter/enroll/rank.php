@@ -175,6 +175,7 @@ class rank extends base
     if (!empty($oApp->entryRule->group->id)) {
       $q[0] .= ',r.group_id,g.team_title';
       $q[1] .= ",xxt_group_record g";
+      $q[2]['g.state'] = 1; // 可以状态的记录
       $q[2]['g.aid'] = $oApp->entryRule->group->id;
       $q[2]['userid'] = (object) ['op' => 'and', 'pat' => ['g.userid=r.userid']];
       $q[2]['g.is_leader'] = (object) ['op' => 'not in', 'pat' => ['O']];

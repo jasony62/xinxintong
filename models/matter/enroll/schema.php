@@ -374,8 +374,12 @@ class schema_model extends \TMS_MODEL
    *
    * 用分号（;）分割每1条子规则；
    * 子规则可以用?分割条件和计算方法；
-
-   * 内置的公式：min,max
+   * 指定条件包括：<，>，=；
+   * 
+   * 示例：
+   * >15?(x-15)*2;<16?0
+   * 
+   * 内置的公式：min,max,data
    *
    */
   public function scoreByWeight($oSchema, $x, &$oContext = null)
@@ -389,7 +393,6 @@ class schema_model extends \TMS_MODEL
       return [true, $weight * $x];
     }
     $aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
-
     if (is_string($weight)) {
       if (!isset($aOptimizedFormulas[$oSchema->id])) {
         /* 解析权重公式 */
@@ -397,7 +400,7 @@ class schema_model extends \TMS_MODEL
         $cases = explode(';', $weight);
         foreach ($cases as $cn => $case) {
           list($condition, $equation) = (strpos($case, '?') ? explode('?', $case) : ['', $case]);
-          if (empty($equation)) {
+          if (is_null($equation) || strlen($equation) === 0) {
             return [false];
           }
           /* 适用条件 */
@@ -444,6 +447,7 @@ class schema_model extends \TMS_MODEL
               return [false];
             }
           }
+
           // 全部计算规则
           $stackCases[] = [$stackCondition, $equation];
         }

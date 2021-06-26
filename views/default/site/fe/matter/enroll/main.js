@@ -80,6 +80,7 @@ ngApp.controller('ctrlMain', [
   'tmsLocation',
   'tmsDynaPage',
   'tmsSnsShare',
+  '$location',
   function (
     $scope,
     $q,
@@ -89,7 +90,8 @@ ngApp.controller('ctrlMain', [
     $timeout,
     LS,
     tmsDynaPage,
-    tmsSnsShare
+    tmsSnsShare,
+    $location
   ) {
     function refreshEntryRuleResult() {
       var url, defer
@@ -656,69 +658,66 @@ ngApp.controller('ctrlMain', [
     if (window.screen && window.screen.width < 992) {
       $scope.isSmallLayout = true
     }
-    http2
-      .get(LS.j('get', 'site', 'app', 'rid', 'page', 'ek', 'newRecord'))
-      .then(function success(rsp) {
-        var params = rsp.data,
-          oSite = params.site,
-          oApp = params.app,
-          oEntryRuleResult = params.entryRuleResult,
-          oMission = params.mission,
-          schemasById = {}
+    var url
+    if ($location.$$path.indexOf('/summary/') > 0) {
+      url = LS.j('get', 'site', 'app', 'rid', 'ek', 'newRecord')
+      url += '&page=IGNORE'
+    } else {
+      url = LS.j('get', 'site', 'app', 'page', 'rid', 'ek', 'newRecord')
+    }
+    http2.get(url).then(function success(rsp) {
+      var params = rsp.data,
+        oSite = params.site,
+        oApp = params.app,
+        oEntryRuleResult = params.entryRuleResult,
+        oMission = params.mission,
+        schemasById = {}
 
-        oApp.dynaDataSchemas.forEach(function (schema) {
-          schemasById[schema.id] = schema
-        })
-        oApp._schemasById = schemasById
-        $scope.params = params
-        $scope.site = oSite
-        $scope.mission = oMission
-        $scope.app = oApp
-        $scope.entryRuleResult = oEntryRuleResult
-        if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
-          tmsDynaPage.loadCode(ngApp, oSite.header_page)
-        }
-        if (
-          oApp.use_mission_header === 'Y' &&
-          oMission &&
-          oMission.header_page
-        ) {
-          tmsDynaPage.loadCode(ngApp, oMission.header_page)
-        }
-        if (
-          oApp.use_mission_footer === 'Y' &&
-          oMission &&
-          oMission.footer_page
-        ) {
-          tmsDynaPage.loadCode(ngApp, oMission.footer_page)
-        }
-        if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
-          tmsDynaPage.loadCode(ngApp, oSite.footer_page)
-        }
-        if (params.page) {
-          tmsDynaPage.loadCode(ngApp, params.page).then(function () {
-            $scope.page = params.page
-          })
-        }
-        if (tasksOfOnReady.length) {
-          angular.forEach(tasksOfOnReady, execTask)
-        }
-        /* 是否打开收集分析数据 */
-        if (
-          !oApp.scenarioConfig.close_log_analysis ||
-          oApp.scenarioConfig.close_log_analysis !== 'Y'
-        )
-          $scope.openLogAnalysis = true
-        /* 用户信息 */
-        $scope.user = params['user']
-        $timeout(() => {
-          $scope.$broadcast('xxt.app.enroll.ready', params)
-        })
-        var eleLoading
-        if ((eleLoading = document.querySelector('.loading'))) {
-          eleLoading.parentNode.removeChild(eleLoading)
-        }
+      oApp.dynaDataSchemas.forEach(function (schema) {
+        schemasById[schema.id] = schema
       })
+      oApp._schemasById = schemasById
+      $scope.params = params
+      $scope.site = oSite
+      $scope.mission = oMission
+      $scope.app = oApp
+      $scope.entryRuleResult = oEntryRuleResult
+      if (oApp.use_site_header === 'Y' && oSite && oSite.header_page) {
+        tmsDynaPage.loadCode(ngApp, oSite.header_page)
+      }
+      if (oApp.use_mission_header === 'Y' && oMission && oMission.header_page) {
+        tmsDynaPage.loadCode(ngApp, oMission.header_page)
+      }
+      if (oApp.use_mission_footer === 'Y' && oMission && oMission.footer_page) {
+        tmsDynaPage.loadCode(ngApp, oMission.footer_page)
+      }
+      if (oApp.use_site_footer === 'Y' && oSite && oSite.footer_page) {
+        tmsDynaPage.loadCode(ngApp, oSite.footer_page)
+      }
+      if (params.page) {
+        tmsDynaPage.loadCode(ngApp, params.page).then(function () {
+          $scope.page = params.page
+        })
+      }
+      if (tasksOfOnReady.length) {
+        angular.forEach(tasksOfOnReady, execTask)
+      }
+      /* 是否打开收集分析数据 */
+      if (
+        !oApp.scenarioConfig.close_log_analysis ||
+        oApp.scenarioConfig.close_log_analysis !== 'Y'
+      )
+        $scope.openLogAnalysis = true
+      /* 用户信息 */
+      $scope.user = params['user']
+      $timeout(() => {
+        $scope.$broadcast('xxt.app.enroll.ready', params)
+      })
+      var eleLoading
+      if ((eleLoading = document.querySelector('.loading'))) {
+        eleLoading.parentNode.removeChild(eleLoading)
+      }
+    })
   },
 ])
 module.exports = ngApp

@@ -140,7 +140,6 @@ ngApp.controller('ctrlSummaryRank', [
                 $scope.users.push(user)
               })
             }
-            console.log('dddd', oAppState.dimension, $scope.users)
             break
           case 'group':
             if (data.groups) {

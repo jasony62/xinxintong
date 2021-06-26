@@ -81,8 +81,10 @@ function show_error($message)
   } else {
     $logfile = fopen($logfilename, 'wb');
   }
-  fwrite($logfile, date('Ymd H:i') . ' - ' . $msg . PHP_EOL);
-  fclose($logfile);
+  if (false !== $logfile) {
+    fwrite($logfile, date('Ymd H:i') . ' - ' . $msg . PHP_EOL);
+    fclose($logfile);
+  }
 
   /* 错误信息报错的到数据库 */
   if ($message instanceof SiteUserException) {

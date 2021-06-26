@@ -228,11 +228,10 @@ class record extends record_base
     }
 
     $modelEnlUsr = $this->model('matter\enroll\user');
-    $oOwner = $modelEnlUsr->byInInApp($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
+    $oOwner = $modelEnlUsr->byIdInApp($oApp, $owner, ['fields' => 'userid,group_id,nickname']);
     if (false === $oOwner) {
       return new \ObjectNotFoundError();
     }
-
     $oMocker = new \stdClass;
     $oMocker->uid = $oOwner->userid;
     $oMocker->nickname = $oOwner->nickname;

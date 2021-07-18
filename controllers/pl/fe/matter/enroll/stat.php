@@ -197,6 +197,7 @@ class stat extends main_base
     $schemasById = [];
     foreach ($oApp->dataSchemas as $oSchema) {
       if (!in_array($oSchema->id, $aExcludeSchemaIds) && $oSchema->type !== 'html') {
+        if (empty($oSchema->title)) $oSchema->title = '题目名称为空，请检查';
         $schemas[] = $oSchema;
         $schemasById[$oSchema->id] = $oSchema;
       }

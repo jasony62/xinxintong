@@ -1,62 +1,62 @@
 <div class="modal-header">
-    <button class="close" type="button" ng-click="cancel()">×</button>
-    <span class="modal-title h5">发送信息</span>
-    <select class='form-control' ng-if="options.matterTypes&&options.matterTypes.length" style='display:inline-block;width:120px' ng-model='msgMatter.matterType' ng-options='t.title for t in options.matterTypes'>
-        <option></option>
-    </select>
-    <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
+  <button class="close" type="button" ng-click="cancel()">×</button>
+  <span class="modal-title h5">发送信息</span>
+  <select class='form-control' ng-if="options.matterTypes&&options.matterTypes.length" style='display:inline-block;width:120px' ng-model='msgMatter.matterType' ng-options='t.title for t in options.matterTypes'>
+    <option></option>
+  </select>
+  <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
 </div>
 <div class="modal-body" style='overflow:auto'>
-    <div class="row">
-        <!-- matters -->
-        <div class="col-md-6">
-            <ul class="list-group">
-                <li class="list-group-item" ng-repeat="m in matters">
-                    <div class="radio" style="margin:0">
-                        <label><input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
-                    </div>
-                </li>
-            </ul>
-        </div>
-        <!-- end matters -->
-        <!-- template message-->
-        <div class="col-md-6" ng-if="msgMatter.matterType.value!=='tmplmsg'">
-            <div class='form-group' ng-repeat='p in tmplmsgConfig.tmplmsg.params'>
-                <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
-                <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
-            </div>
-            <div class='form-group'>
-                <label><span>详情</span><span>（URL）</span></label>
-                <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
-            </div>
-        </div>
-        <!-- end template message-->
-        <!-- template message-->
-        <div class="col-md-6" ng-if="msgMatter.matterType.value==='tmplmsg'&&pickedTmplmsg">
-            <div class='form-group' ng-repeat='p in pickedTmplmsg.params'>
-                <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
-                <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
-            </div>
-            <div class='form-group'>
-                <label><span>详情</span><span>（URL）</span></label>
-                <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
-            </div>
-            <div class='form-group'>
-                <label>选择素材指定详情URL</label>
-                <select class='form-control' ng-if="urlMatterTypes.length" ng-model='urlMatter.matterType' ng-options='t.title for t in urlMatterTypes' ng-change="changeUrlMatterType()">
-                    <option></option>
-                </select>
-                <div class="list-group">
-                    <a href='javascript:void(0)' class="list-group-item" ng-class="{'active':urlMatter.selected===m}" ng-repeat="m in matters2" ng-click="doCheck2(m)">
-                        <span>{{m.title}}</span>
-                    </a>
-                </div>
-                <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="7" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch2()"></ul>
-            </div>
-        </div>
-        <!-- end template message-->
+  <div class="row">
+    <!-- matters -->
+    <div class="col-md-6">
+      <ul class="list-group">
+        <li class="list-group-item" ng-repeat="m in matters">
+          <div class="radio" style="margin:0">
+            <label><input type="radio" ng-checked="aChecked.indexOf(m)!==-1" ng-click="doCheck(m)">{{m.title}}</label>
+          </div>
+        </li>
+      </ul>
     </div>
+    <!-- end matters -->
+    <!-- template message-->
+    <div class="col-md-6" ng-if="msgMatter.matterType.value!=='tmplmsg'">
+      <div class='form-group' ng-repeat='p in tmplmsgConfig.tmplmsg.params'>
+        <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
+        <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
+      </div>
+      <div class='form-group'>
+        <label><span>详情</span><span>（URL）</span></label>
+        <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
+      </div>
+    </div>
+    <!-- end template message-->
+    <!-- template message-->
+    <div class="col-md-6" ng-if="msgMatter.matterType.value==='tmplmsg'&&pickedTmplmsg">
+      <div class='form-group' ng-repeat='p in pickedTmplmsg.params'>
+        <label><span>{{p.plabel}}</span><span>（{{p.pname}}）</span></label>
+        <input class='form-control' placeholder='{{p.pname}}' ng-model="message[p.pname]">
+      </div>
+      <div class='form-group'>
+        <label><span>详情</span><span>（URL）</span></label>
+        <textarea class='form-control' placeholder='URL' ng-model="message.url" rows=3></textarea>
+      </div>
+      <div class='form-group'>
+        <label>选择素材指定详情URL</label>
+        <select class='form-control' ng-if="urlMatterTypes.length" ng-model='urlMatter.matterType' ng-options='t.title for t in urlMatterTypes' ng-change="changeUrlMatterType()">
+          <option></option>
+        </select>
+        <div class="list-group">
+          <a href='javascript:void(0)' class="list-group-item" ng-class="{'active':urlMatter.selected===m}" ng-repeat="m in matters2" ng-click="doCheck2(m)">
+            <span>{{m.title}}</span>
+          </a>
+        </div>
+        <ul uib-pagination style="margin:0;vertical-align:bottom;cursor:pointer" ng-show="page2.total>page2.size" boundary-links="true" total-items="page2.total" max-size="7" items-per-page="page2.size" rotate="false" ng-model="page2.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch2()"></ul>
+      </div>
+    </div>
+    <!-- end template message-->
+  </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-success" ng-click="ok()">发送</button>
+  <button class="btn btn-success" ng-click="ok()">发送</button>
 </div>

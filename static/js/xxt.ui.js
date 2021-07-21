@@ -564,7 +564,7 @@ angular
                     $mi.dismiss()
                   }
                   $scope.$watch('msgMatter.matterType', function (nv) {
-                    if (nv.value !== 'tmplmsg' && !$scope.tmplmsgConfig) {
+                    if (nv && nv.value !== 'tmplmsg' && !$scope.tmplmsgConfig) {
                       var html =
                         '<div><span>请先指定"推送素材"的模板消息，<a href="/rest/pl/fe/site/setting/notice?site=' +
                         siteId +

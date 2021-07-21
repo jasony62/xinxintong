@@ -279,43 +279,45 @@ angular
         link: function (scope, elem, attrs) {
           $(elem).on('mouseenter', function (event) {
             if (!$(elem).attr('loaded')) {
-              http2.get('/rest/mp/user/fans/get?fid=' + scope.xxtFid, function (
-                rsp
-              ) {
-                var member,
-                  tags = [],
-                  depts = [],
-                  detail = ''
-                if (rsp.data.members) {
-                  member = rsp.data.members[0]
-                  if (member.depts && member.depts.length) {
-                    for (var i in member.depts) depts.push(member.depts[i].name)
-                    depts = depts.join(',')
-                  }
-                  if (member.tags && member.tags.length) {
-                    for (var i in member.tags) tags.push(member.tags[i].name)
-                    tags = tags.join(',')
-                  }
-                  if (depts.length) detail += depts
-                  if (detail.length) detail += ','
-                  if (tags.length) detail += tags
-                  if (detail.length) {
-                    $popover = $(elem)
-                    $popover
-                      .attr('loaded', true)
-                      .popover({
-                        html: true,
-                        title:
-                          '<span>' +
-                          rsp.data.nickname +
-                          '</span><button class="close" onclick="$popover.popover(\'hide\')"><span>&times;</span></button>',
-                        content: detail,
-                        trigger: 'hover',
-                      })
-                      .popover('show')
+              http2.get(
+                '/rest/mp/user/fans/get?fid=' + scope.xxtFid,
+                function (rsp) {
+                  var member,
+                    tags = [],
+                    depts = [],
+                    detail = ''
+                  if (rsp.data.members) {
+                    member = rsp.data.members[0]
+                    if (member.depts && member.depts.length) {
+                      for (var i in member.depts)
+                        depts.push(member.depts[i].name)
+                      depts = depts.join(',')
+                    }
+                    if (member.tags && member.tags.length) {
+                      for (var i in member.tags) tags.push(member.tags[i].name)
+                      tags = tags.join(',')
+                    }
+                    if (depts.length) detail += depts
+                    if (detail.length) detail += ','
+                    if (tags.length) detail += tags
+                    if (detail.length) {
+                      $popover = $(elem)
+                      $popover
+                        .attr('loaded', true)
+                        .popover({
+                          html: true,
+                          title:
+                            '<span>' +
+                            rsp.data.nickname +
+                            '</span><button class="close" onclick="$popover.popover(\'hide\')"><span>&times;</span></button>',
+                          content: detail,
+                          trigger: 'hover',
+                        })
+                        .popover('show')
+                    }
                   }
                 }
-              })
+              )
             }
           })
         },
@@ -369,12 +371,14 @@ angular
                 function (http2, $scope, $mi, $q) {
                   function getLastNotice(sender) {
                     var deferred = $q.defer()
-                    http2.get(
-                      '/rest/pl/fe/matter/tmplmsg/notice/last?sender=' + sender,
-                      function (rsp) {
+                    http2
+                      .get(
+                        '/rest/pl/fe/matter/tmplmsg/notice/last?sender=' +
+                          sender
+                      )
+                      .then(function (rsp) {
                         deferred.resolve(rsp.data)
-                      }
-                    )
+                      })
                     return deferred.promise
                   }
                   var url =
@@ -399,7 +403,7 @@ angular
 
                   $scope.urlMatterTypes = urlMatterTypes
                   //站点设置的素材通知模版
-                  http2.get(url, function (rsp) {
+                  http2.get(url).then(function (rsp) {
                     $scope.tmplmsgConfig = rsp.data.tmplmsgConfig
                   })
                   $scope.page = {}
@@ -411,18 +415,18 @@ angular
                       $scope.pickedTmplmsg = matter
                     } else {
                       ;(function () {
-                        angular.forEach($scope.tmplmsgConfig.mapping, function (
-                          mapping,
-                          prop
-                        ) {
-                          if (mapping.src === 'text') {
-                            $scope.message[prop] = mapping.id
-                          } else {
-                            if (matter[mapping.id] !== undefined) {
-                              $scope.message[prop] = matter[mapping.id]
+                        angular.forEach(
+                          $scope.tmplmsgConfig.mapping,
+                          function (mapping, prop) {
+                            if (mapping.src === 'text') {
+                              $scope.message[prop] = mapping.id
+                            } else {
+                              if (matter[mapping.id] !== undefined) {
+                                $scope.message[prop] = matter[mapping.id]
+                              }
                             }
                           }
-                        })
+                        )
                       })()
                       $scope.message.url = matter.url
                     }

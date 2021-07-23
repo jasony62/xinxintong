@@ -37,8 +37,11 @@ class notice extends \site\fe\base
     $q = [
       self::SITE_FE_FIELDS,
       'xxt_log_tmplmsg_detail',
-      ["siteid" => $this->siteId, "userid" => $user->uid],
+      ["userid" => $user->uid],
     ];
+    if ($this->siteId !== 'platform') {
+      $q[2]['siteid'] = $this->siteId;
+    }
     $q2 = ['o' => 'id desc'];
     !empty($page) && !empty($size) && $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
@@ -93,8 +96,11 @@ class notice extends \site\fe\base
     $q = [
       self::SITE_FE_FIELDS,
       'xxt_log_tmplmsg_detail',
-      ['siteid' => $site, 'userid' => $user->uid, 'close_at' => 0],
+      ['userid' => $user->uid, 'close_at' => 0],
     ];
+    if ($this->siteId !== 'platform') {
+      $q[2]['siteid'] = $site;
+    }
     $q2 = ['o' => 'id desc'];
     !empty($page) && !empty($size) && $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
@@ -171,8 +177,11 @@ class notice extends \site\fe\base
     $q = [
       'count(*)',
       'xxt_log_tmplmsg_detail',
-      ['siteid' => $site, 'userid' => $user->uid, 'close_at' => 0],
+      ['userid' => $user->uid, 'close_at' => 0],
     ];
+    if ($this->siteId !== 'platform') {
+      $q[2]['siteid'] = $site;
+    }
 
     $count = $model->query_val_ss($q);
 

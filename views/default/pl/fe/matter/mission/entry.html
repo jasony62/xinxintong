@@ -52,38 +52,6 @@
     </div>
   </div>
 </div>
-<script type="text/ng-template" id="assignUserApp.html">
-  <div class="modal-header">
-    <button class="close" type="button" ng-click="cancel()">×</button>
-    <h5 class="modal-title">指定项目用户名单</h5>
-  </div>
-  <div class="modal-body">
-    <form class="form-horizontal">
-      <div class='form-group'>
-        <label class="col-md-3 control-label">活动类型</label>
-        <div class="col-md-9">
-          <label class='radio-inline'>
-            <input type='radio' value='group' ng-model="data.appType">分组活动</label>
-          <label class='radio-inline'>
-            <input type='radio' value='enroll' ng-model="data.appType">记录活动</label>
-          <label class='radio-inline'>
-            <input type='radio' value='signin' ng-model="data.appType">签到活动</label>
-          <label class='radio-inline'>
-            <input type='radio' value='mschema' ng-model="data.appType">通讯录</label>
-        </div>
-      </div>
-      <div class='form-group'>
-        <label class="col-md-3 control-label">目标活动</label>
-        <div class="col-md-9">
-          <select class="form-control" ng-model="data.appId" ng-options="app.id as app.title for app in apps" size=10></select>
-        </div>
-      </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok()">确定</button>
-  </div>
-</script>
 <script type="text/ng-template" id="pageSetting.html">
   <div class="modal-header">
     <button class="close" ng-click="dismiss()">×</button>

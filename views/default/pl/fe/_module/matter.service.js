@@ -1407,9 +1407,7 @@ angular
   .controller('ctrlStat', [
     '$scope',
     'http2',
-    '$uibModal',
-    '$compile',
-    function ($scope, http2, $uibModal, $compile) {
+    function ($scope, http2) {
       var page, criteria, time1, time2, app
       time1 = (function () {
         var t
@@ -1477,7 +1475,7 @@ angular
           page.total = rsp.data.total
         })
       }
-      $scope.export = function (user) {
+      $scope.export = function () {
         var url
         url =
           '/rest/pl/fe/matter/' +

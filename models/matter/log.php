@@ -7,7 +7,7 @@ class log_model extends \TMS_MODEL
   /**
    * 记录访问素材日志
    */
-  public function addMatterRead($siteId, &$oUser, $oMatter, $client, $shareby, $search, $referer, $options = [])
+  public function addMatterRead($siteId, &$oUser, $oMatter, $oClient, $shareby, $search, $referer, $options = [])
   {
     $current = time();
     $d = array();
@@ -19,22 +19,22 @@ class log_model extends \TMS_MODEL
     $d['matter_type'] = $oMatter->type;
     $d['matter_title'] = $this->escape($oMatter->title);
     $d['matter_shareby'] = $shareby;
-    $d['user_agent'] = $client->agent;
-    $d['client_ip'] = $client->ip;
+    $d['user_agent'] = $oClient->agent;
+    $d['client_ip'] = $oClient->ip;
     $d['search'] = $search;
     $d['referer'] = $referer;
 
     $logid = $this->insert('xxt_log_matter_read', $d, true);
 
     // 日志汇总
-    $operation = new \stdClass;
-    $operation->name = 'read';
-    $operation->at = $current;
+    $oOp = new \stdClass;
+    $oOp->name = 'read';
+    $oOp->at = $current;
     if (isset($options['rid'])) {
-      $operation->data = new \stdClass;
-      $operation->data->rid = $options['rid'];
+      $oOp->data = new \stdClass;
+      $oOp->data->rid = $options['rid'];
     }
-    $this->addUserMatterOp($siteId, $oUser, $oMatter, $operation, $client, $referer);
+    $this->addUserMatterOp($siteId, $oUser, $oMatter, $oOp, $oClient, $referer);
     $this->writeUserAction($siteId, $oUser, $current, 'R', $logid);
     $this->writeMatterAction($siteId, $oMatter, $current, 'R', $logid);
 
@@ -1059,12 +1059,12 @@ class log_model extends \TMS_MODEL
   /**
    * 操作素材行为列表
    */
-  public function listMatterAction($site = '', $matterType, $matterId, $options = [])
+  public function listMatterAction($site = '', $matterType, $matterId, $aOptions = [])
   {
-    $fields = !empty($options['fields']) ? $options['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
+    $fields = !empty($aOptions['fields']) ? $aOptions['fields'] : 'id,action_at,act_read,act_share_timeline,act_share_friend,original_logid';
 
-    if (!empty($options['byEvent'])) {
-      $result = $this->listMatterActionByEvent($site, $matterType, $matterId, $options['byEvent'], $options);
+    if (!empty($aOptions['byEvent'])) {
+      $result = $this->listMatterActionByEvent($site, $matterType, $matterId, $aOptions['byEvent'], $aOptions);
       return $result;
     }
 
@@ -1074,17 +1074,17 @@ class log_model extends \TMS_MODEL
       "matter_id = '{$matterId}' and matter_type = '{$matterType}'",
     ];
 
-    if (!empty($options['startAt'])) {
-      $q[2] .= " and action_at > {$options['startAt']}";
+    if (!empty($aOptions['startAt'])) {
+      $q[2] .= " and action_at > {$aOptions['startAt']}";
     }
-    if (!empty($options['endAt'])) {
-      $q[2] .= " and action_at < {$options['endAt']}";
+    if (!empty($aOptions['endAt'])) {
+      $q[2] .= " and action_at < {$aOptions['endAt']}";
     }
 
     $p = ['o' => 'action_at desc'];
-    if (!empty($options['paging'])) {
-      $page = $options['paging']['page'];
-      $size = $options['paging']['size'];
+    if (!empty($aOptions['paging'])) {
+      $page = $aOptions['paging']['page'];
+      $size = $aOptions['paging']['size'];
       $p['r'] = [
         'o' => (($page - 1) * $size),
         'l' => $size,
@@ -1103,11 +1103,12 @@ class log_model extends \TMS_MODEL
         $log->event = '未知';
       }
 
-      $table = 'xxt_log_matter_read';
+      /** 查询记录详细信息 */
       if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
         $table = 'xxt_log_matter_share';
+      } else {
+        $table = 'xxt_log_matter_read';
       }
-      // 查询记录详细信息
       $q2 = [
         'userid,nickname,matter_shareby',
         $table,
@@ -1117,7 +1118,8 @@ class log_model extends \TMS_MODEL
       $log->userid = $logInfo->userid;
       $log->nickname = $logInfo->nickname;
       $log->matter_shareby = $logInfo->matter_shareby;
-      // 查询来源用户
+
+      /** 查询来源用户 */
       if (strpos($logInfo->matter_shareby, '_') !== false) {
         $shareby = explode('_', $logInfo->matter_shareby);
         $originUserid = $shareby[0];

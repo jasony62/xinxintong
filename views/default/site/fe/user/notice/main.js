@@ -24,7 +24,7 @@ define(['require', 'angular'], function (require, angular) {
                     log._noticeStatus[0] =
                       log._noticeStatus[0] === 'success' ? '成功' : '失败'
                   } else {
-                    log._noticeStatus = []
+                    log._noticeStatus = ['']
                   }
                 })
                 deferred.resolve(rsp.data)

@@ -15,7 +15,7 @@
 
 <body class='matter_article'>
   <div class='ng-cloak' ng-cloak>
-    <nav class='navbar hm-navbar-default'>
+    <nav class='navbar hm-navbar-default' ng-if="showHome||showReturn">
       <div class='container-fluid'>
         <div class="navbar-header">
           <a ng-if="showHome===true" class='navbar-brand' href='/rest/home' target='_self'>

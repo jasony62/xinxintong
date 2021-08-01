@@ -1058,6 +1058,8 @@ class log_model extends \TMS_MODEL
   }
   /**
    * 操作素材行为列表
+   * 
+   * 如果素材属于项目，那么使用项目参与人的昵称作为用户昵称
    */
   public function listMatterAction($site = '', $matterType, $matterId, $aOptions = [])
   {
@@ -1092,19 +1094,30 @@ class log_model extends \TMS_MODEL
     }
 
     $logs = $this->query_objs_ss($q, $p);
-    foreach ($logs as $log) {
-      if ($log->act_share_timeline > 0) {
-        $log->event = 'shareT';
-      } else if ($log->act_share_friend > 0) {
-        $log->event = 'shareF';
-      } else if ($log->act_read > 0) {
-        $log->event = 'read';
-      } else {
-        $log->event = '未知';
-      }
+    /** 没有数据直接返回 */
+    if (empty($logs)) {
+      $oResult = new \stdClass;
+      $oResult->logs = $logs;
+      $oResult->total = 0;
+      return $oResult;
+    }
 
-      /** 查询记录详细信息 */
-      if ($log->act_share_timeline > 0 || $log->act_share_friend > 0) {
+    $aHandlers = [];
+    /** 设置事件类型 */
+    $aHandlers[] = function ($oLog) {
+      if ($oLog->act_share_timeline > 0) {
+        $oLog->event = 'shareT';
+      } else if ($oLog->act_share_friend > 0) {
+        $oLog->event = 'shareF';
+      } else if ($oLog->act_read > 0) {
+        $oLog->event = 'read';
+      } else {
+        $oLog->event = '未知';
+      }
+    };
+    /** 查询记录详细信息 */
+    $aHandlers[] = function ($oLog) {
+      if ($oLog->act_share_timeline > 0 || $oLog->act_share_friend > 0) {
         $table = 'xxt_log_matter_share';
       } else {
         $table = 'xxt_log_matter_read';
@@ -1112,16 +1125,16 @@ class log_model extends \TMS_MODEL
       $q2 = [
         'userid,nickname,matter_shareby',
         $table,
-        ['id' => $log->original_logid],
+        ['id' => $oLog->original_logid],
       ];
-      $logInfo = $this->query_obj_ss($q2);
-      $log->userid = $logInfo->userid;
-      $log->nickname = $logInfo->nickname;
-      $log->matter_shareby = $logInfo->matter_shareby;
+      $oLogInfo = $this->query_obj_ss($q2);
+      $oLog->userid = $oLogInfo->userid;
+      $oLog->nickname = $oLogInfo->nickname;
+      $oLog->matter_shareby = $oLogInfo->matter_shareby;
 
       /** 查询来源用户 */
-      if (strpos($logInfo->matter_shareby, '_') !== false) {
-        $shareby = explode('_', $logInfo->matter_shareby);
+      if (strpos($oLogInfo->matter_shareby, '_') !== false) {
+        $shareby = explode('_', $oLogInfo->matter_shareby);
         $originUserid = $shareby[0];
         $q3 = [
           'nickname',
@@ -1130,24 +1143,53 @@ class log_model extends \TMS_MODEL
         ];
         $originUser = $this->query_obj_ss($q3);
         if ($originUser) {
-          $log->origin_userid = $originUserid;
-          $log->origin_nickname = $originUser->nickname;
+          $oLog->origin_userid = $originUserid;
+          $oLog->origin_nickname = $originUser->nickname;
         } else {
-          $log->origin_userid = '';
-          $log->origin_nickname = '未获取';
+          $oLog->origin_userid = '';
+          $oLog->origin_nickname = '未获取';
         }
       } else {
-        $log->origin_userid = '';
-        $log->origin_nickname = '';
+        $oLog->origin_userid = '';
+        $oLog->origin_nickname = '';
+      }
+    };
+
+    if ($matterType === 'article') {
+      $oArticle = $this->model('matter\article')->byId($matterId, ['fields' => 'mission_id']);
+      $fnHander = function ($oLog) use ($oArticle) {
+        $q = [
+          'nickname',
+          'xxt_mission_user',
+          ['mission_id' => $oArticle->mission_id, 'userid' => $oLog->userid, 'state' => 1],
+        ];
+        $oMissionUser = $this->query_obj_ss($q);
+        if ($oMissionUser) {
+          $oLog->nickname = $oMissionUser->nickname;
+        }
+        if (!empty($oLog->origin_userid)) {
+          $q[2]['userid'] = $oLog->origin_userid;
+          $oMissionUser = $this->query_obj_ss($q);
+          if ($oMissionUser) {
+            $oLog->origin_nickname = $oMissionUser->nickname;
+          }
+        }
+      };
+      $aHandlers[] = $fnHander;
+    }
+
+    foreach ($logs as $log) {
+      foreach ($aHandlers as $fnHander) {
+        $fnHander($log);
       }
     }
 
-    $result = new \stdClass;
-    $result->logs = $logs;
+    $oResult = new \stdClass;
+    $oResult->logs = $logs;
     $q[0] = 'count(*)';
-    $result->total = $this->query_val_ss($q);
+    $oResult->total = $this->query_val_ss($q);
 
-    return $result;
+    return $oResult;
   }
   /**
    * 素材页面行为日志

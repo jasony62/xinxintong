@@ -151,4 +151,36 @@ class user extends \pl\fe\matter\base
 
     return new \ResponseData('ok');
   }
+  /**
+   * 更新项目参与人昵称
+   */
+  public function renewName_action($mission)
+  {
+    if (false === ($oUser = $this->accountUser())) {
+      return new \ResponseTimeout();
+    }
+    /* 检查权限 */
+    $modelAcl = $this->model('matter\mission\acl');
+    if (false === ($modelAcl->byCoworker($mission, $oUser->id))) {
+      return new \ResponseError('没有项目访问权限');
+    }
+    /**项目 */
+    $modelMis = $this->model('matter\mission');
+    $oMission = $modelMis->byId($mission, ['fields' => 'id,siteid,user_app_id,user_app_type']);
+    if (false === $oMission) {
+      return new \ObjectNotFoundError();
+    }
+    /**项目参与人 */
+    $modelMisUsr = $this->model('matter\mission\user');
+    $misUsers = $modelMisUsr->enrolleeByMission($oMission, ['fields' => 'id,userid']);
+    if (empty($misUsers)) {
+      return new \ObjectNotFoundError('项目中没有用户，不需要进行更新');
+    }
+    /**更新参与人信息 */
+    foreach ($misUsers as $oMisUser) {
+      $modelMisUsr->renewNickname($oMission, $oMisUser);
+    }
+
+    return new \ResponseData('ok');
+  }
 }

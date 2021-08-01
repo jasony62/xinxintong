@@ -43,7 +43,6 @@ class member_model extends \TMS_MODEL
     if (isset($aOptions['schemas'])) {
       $q[2] .= " and schema_id in (" . (is_array($aOptions['schemas']) ? implode(',', $aOptions['schemas']) : $aOptions['schemas']) . ")";
     }
-
     $members = $this->query_objs_ss($q);
     foreach ($members as $oMember) {
       if (property_exists($oMember, 'extattr')) {

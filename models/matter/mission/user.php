@@ -29,6 +29,26 @@ class user_model extends \TMS_MODEL
     return $oUser;
   }
   /**
+   * 根据指定的项目用户来源，更新用户在项目中的昵称
+   */
+  public function renewNickname($oMission, $oMisUser)
+  {
+    if (empty($oMission->user_app_id) || empty($oMission->user_app_type)) {
+      return [false, '没有指定项目用户来源'];
+    }
+    if ($oMission->user_app_type === 'mschema') {
+      $modelMemb = $this->model('site\user\member');
+      $members = $modelMemb->byUser($oMisUser->userid, ['schemas' => $oMission->user_app_id, 'fields' => 'name']);
+      if (count($members) === 1) {
+        $member = $members[0];
+        $this->update('xxt_mission_user', ['nickname' => $member->name], ['id' => $oMisUser->id]);
+        return [true];
+      }
+    }
+
+    return [false, '没有找到匹配的数据'];
+  }
+  /**
    * 添加一个项目用户
    */
   public function add($oMission, $oUser, $data = [])
@@ -309,7 +329,7 @@ class user_model extends \TMS_MODEL
     if (false === $oMisUsr) {
       return false;
     }
-    $modelMisUsr->update(
+    $this->update(
       'xxt_mission_user',
       ['user_total_coin' => (int) $oMisUsr->user_total_coin + $deltaCoin],
       ['id' => $oMisUsr->id]
@@ -326,7 +346,7 @@ class user_model extends \TMS_MODEL
     if (false === $oMisUsr) {
       return false;
     }
-    $modelMisUsr->update(
+    $this->update(
       'xxt_mission_user',
       ['user_total_coin' => (int) $oMisUsr->user_total_coin - $deductCoin],
       ['id' => $oMisUsr->id]
@@ -339,7 +359,7 @@ class user_model extends \TMS_MODEL
    */
   public function resetCoin($oMission, $userid)
   {
-    $oMisUser = $this->byUerid($oMission, $userid, ['fields' => 'id,user_total_coin']);
+    $oMisUser = $this->byIdInApp($oMission, $userid, ['fields' => 'id,user_total_coin']);
     if (false === $oMisUser) {
       return false;
     }

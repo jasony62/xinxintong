@@ -446,7 +446,7 @@ class record_model extends \matter\enroll\record_base
       } else {
         $data = json_decode($record->data);
         if ($data === null) {
-          $record->data = 'json error(' . json_last_error() . '):' . $r->data;
+          $record->data = 'json error(' . json_last_error() . '):' . $record->data;
         } else {
           $record->data = $data;
         }

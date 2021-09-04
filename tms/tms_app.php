@@ -6,6 +6,7 @@ require_once dirname(__FILE__) . '/tms_controller.php';
 require_once dirname(__FILE__) . '/db.php';
 require_once dirname(__FILE__) . '/template.php';
 require_once dirname(__FILE__) . '/client.php';
+
 /**
  * 除理request
  */
@@ -23,6 +24,13 @@ class TMS_APP
   private static $index_action = 'index';
   private static $default_action = 'default';
   private static $model_prefix = '_model';
+  /**
+   * 
+   */
+  private static function logger()
+  {
+    return Logger::getRootLogger();
+  }
   /**
    * 实例化model
    *

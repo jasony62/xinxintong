@@ -14,6 +14,17 @@ class data_model extends entity_model
    */
   const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,group_id,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
   /**
+   * 
+   */
+  private $logger;
+  /**
+   * 
+   */
+  public function __construct()
+  {
+    $this->logger = \Logger::getLogger("default");
+  }
+  /**
    * 按题目记录数据
    * 不产生日志、行为分等记录
    *
@@ -525,8 +536,21 @@ class data_model extends entity_model
       return false;
     };
 
+    /* 参考答案数量要求，返回数量要求和参考答案 */
+    $fnParseAnswer = function ($answer) {
+      $requiredNum = 1;
+      $matches = []; // 指定的答案匹配数量条件
+      if (1 === preg_match('/\[(.*)\]$/', $answer, $matches)) {
+        $requiredNum = $matches[0][1] === '%' ? '%' : (intval($matches[0][1]));
+        if ($requiredNum === 0) $requiredNum = 1;
+        $answer = preg_replace('/\[(.*)\]$/', '', $answer);
+      }
+
+      return [$answer, $requiredNum];
+    };
+
     /* 测验 */
-    $fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum) {
+    $fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum, $fnParseAnswer) {
       if (empty($oSchema->answer)) {
         return false;
       }
@@ -601,19 +625,31 @@ class data_model extends entity_model
               // 如果提交的内容和答案完全一样
               $quizScore = $oSchema->score;
             } else {
-              $quizScore = 0;
+              // 获得参考答案中答对数量的要求
+              list($schemaAnswer, $requiredNum) = $fnParseAnswer($oSchema->answer);
+              $this->logger->debug($schemaAnswer . '-' . $requiredNum);
               // 用分号区分条件组，条件组之间是或的关系，只要有一组满足就给分
-              $answerKwGrps = preg_split('/[;]+/', $oSchema->answer);
-              foreach ($answerKwGrps as $answerKwGrp) {
-                // 用空格和逗号区分条件，条件间是和的关系，都满足才给分
-                $answerKws = preg_split('/[\s,]+/', $answerKwGrp);
-                $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
-                  if (empty($kw)) return false;
-                  return strpos($userAnswer, $kw) === false;
-                });
-                if (count($notmatched) === 0) {
+              $matchedNum = 0;
+              $answerKwGrps = preg_split('/[;]+/', $schemaAnswer);
+              if (count($answerKwGrps) > 0) {
+                foreach ($answerKwGrps as $answerKwGrp) {
+                  // 用空格和逗号区分条件，条件间是和的关系，都满足才给分
+                  $answerKws = preg_split('/[\s,]+/', $answerKwGrp);
+                  // 指定所有参考答案关键字在答案中是否都包括
+                  $notmatched = array_filter($answerKws, function ($kw) use ($userAnswer) {
+                    if (empty($kw)) return false;
+                    return strpos($userAnswer, $kw) === false;
+                  });
+                  if (count($notmatched) === 0) {
+                    $matchedNum++;
+                  }
+                }
+                $quizScore = 0;
+                if ($requiredNum === '%') {
+                  $quizScore = round($matchedNum / count($answerKwGrps) * $oSchema->score, 2);
+                } elseif ($matchedNum >= $requiredNum) {
+                  // 达到正确数量
                   $quizScore = $oSchema->score;
-                  break;
                 }
               }
             }
@@ -1395,7 +1431,7 @@ class data_model extends entity_model
     if (!empty($oApp->entryRule->group->id)) {
       $groupAppId = $oApp->entryRule->group->id;
       $modelGrpUser = $this->model('matter\group\record');
-      $aFnHandlers[] = function ($aRecData) use ($groupAppId, $modelGrpUser) {
+      $aFnHandlers[] = function ($aRecData) use ($groupAppId, $modelGrpUser, $oGroupsByUser) {
         if (!empty($aRecData->userid)) {
           if (!isset($oGroupsByUser[$aRecData->userid])) {
             $oGrpUser = $modelGrpUser->byUser((object) ['id' => $groupAppId], $aRecData->userid, ['fields' => 'team_id,team_title', 'onlyOne' => true]);
@@ -1525,7 +1561,7 @@ class data_model extends entity_model
   {
     $oRecord = $this->model('matter\enroll\record')->byId($oRecData->enroll_key, ['fields' => 'id,data']);
     if (false === $oRecord) {
-      return fasle;
+      return false;
     }
 
     $current = time();

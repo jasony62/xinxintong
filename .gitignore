@@ -1,6 +1,7 @@
 .DS_Store
 node_modules/
 cus/
+log/
 kcfinder/upload
 vendor/
 *.log

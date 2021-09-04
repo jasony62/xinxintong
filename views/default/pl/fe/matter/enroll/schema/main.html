@@ -147,7 +147,7 @@
     <div class="form-group" ng-if="['longtext','voice'].indexOf(activeSchema.type)!==-1">
       <label>设置参考答案或要求</label>
       <textarea class='form-control' cols="10" rows="3" ng-model='activeSchema.answer' ng-change="updSchema(activeSchema)"></textarea>
-      <div class='help-block'>用空格或半角逗号分隔“和”条件；用半角分号分隔"或"条件。</div>
+      <div class='help-block'>用空格或半角逗号分隔“和”条件；用半角分号分隔"或"条件；在结尾用方括号"[数量或%]"指定或条件满足的数量，"%"按照关键词包含的数量百分比给分。</div>
     </div>
     <!--单选设置答案-->
     <ul class="form-group list-unstyled" ng-if="activeSchema.type==='single'">

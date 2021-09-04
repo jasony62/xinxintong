@@ -1,4 +1,6 @@
 <?php
+include('lib/log4php/Logger.php');
+Logger::configure('config/log4php-config.xml');
 
 include_once dirname(__FILE__) . '/config.php';
 
@@ -68,23 +70,6 @@ function show_error($message)
   }
 
   $msg = $modelLog->escape($msg);
-
-  /* 记录24小时内的报错信息 */
-  $logfilename = 'logs/error.log';
-  if (file_exists($logfilename)) {
-    $mtime = filemtime($logfilename);
-    if ($mtime < time() - 86400) {
-      $logfile = fopen($logfilename, 'wb');
-    } else {
-      $logfile = fopen($logfilename, 'ab');
-    }
-  } else {
-    $logfile = fopen($logfilename, 'wb');
-  }
-  if (false !== $logfile) {
-    fwrite($logfile, date('Ymd H:i') . ' - ' . $msg . PHP_EOL);
-    fclose($logfile);
-  }
 
   /* 错误信息报错的到数据库 */
   if ($message instanceof SiteUserException) {

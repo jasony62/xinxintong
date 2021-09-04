@@ -103,6 +103,24 @@
           </td>
         </tr>
       </table>
+      <div class='form-group'>
+        <label>项目资料水印图</label>
+        <div style="width:182px;border:1px solid #CCC">
+          <div style="height:100px;text-align:center;padding-top:32px" ng-if="!mission.pageConfig.watermark">
+            <button class='btn btn-default' ng-click='setWatermark();'>
+              <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+          </div>
+          <div style='position:relative' ng-if="mission.pageConfig.watermark" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+            <img name='pic' ng-src='{{mission.pageConfig.watermark}}' width='180px' />
+            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setWatermark();'>
+              <span class='glyphicon glyphicon-picture'></span>
+            </button>
+            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removeWatermark();'>
+              <span class='glyphicon glyphicon-trash'></span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <hr>

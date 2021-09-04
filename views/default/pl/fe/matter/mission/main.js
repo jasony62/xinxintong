@@ -36,6 +36,20 @@ define(['frame'], function (ngApp) {
         $scope.mission.pic = ''
         $scope.update('pic')
       }
+      $scope.setWatermark = function () {
+        var options = {
+          callback: function (url) {
+            if (!$scope.mission.pageConfig) $scope.mission.pageConfig = {}
+            $scope.mission.pageConfig.watermark = url + '?_=' + new Date() * 1
+            $scope.update('pageConfig')
+          },
+        }
+        mediagallery.open($scope.mission.siteid, options)
+      }
+      $scope.removeWatermark = function () {
+        $scope.mission.pageConfig.watermark = ''
+        $scope.update('pageConfig')
+      }
       $scope.$on('xxt.tms-datepicker.change', function (event, data) {
         var prop
         if (data.state.indexOf('mission.') === 0) {
@@ -74,17 +88,17 @@ define(['frame'], function (ngApp) {
                   tinymceEditor.remove()
                   $mi.dismiss()
                 }
-                $scope2.$on('tinymce.multipleimage.open', function (
-                  event,
-                  callback
-                ) {
-                  var options = {
-                    callback: callback,
-                    multiple: true,
-                    setshowname: true,
+                $scope2.$on(
+                  'tinymce.multipleimage.open',
+                  function (event, callback) {
+                    var options = {
+                      callback: callback,
+                      multiple: true,
+                      setshowname: true,
+                    }
+                    mediagallery.open($scope.mission.siteid, options)
                   }
-                  mediagallery.open($scope.mission.siteid, options)
-                })
+                )
                 $scope2.$on('tinymce.instance.init', function (event, editor) {
                   var page
 

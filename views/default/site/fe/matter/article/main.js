@@ -155,7 +155,7 @@ ngApp.controller('ctrlMain', [
     $scope.width = width
 
     function finish() {
-      var eleLoading
+      let eleLoading
       if ((eleLoading = document.querySelector('.loading'))) {
         eleLoading.parentNode.removeChild(eleLoading)
       }
@@ -331,13 +331,17 @@ ngApp.controller('ctrlMain', [
                 referer: document.referrer,
               })
             }
+            // 设置页面背景图
+            if (mission && mission.pageConfig && mission.pageConfig.watermark) {
+              let eleArticle = document.querySelector('.article')
+              if (eleArticle)
+                eleArticle.style.backgroundImage = `url(${mission.pageConfig.watermark})`
+            }
+            // 完成设置
             $scope.dataReady = 'Y'
             http2
               .get(
-                '/rest/site/fe/matter/article/assocRecords?id=' +
-                  id +
-                  '&site=' +
-                  siteId
+                `/rest/site/fe/matter/article/assocRecords?id=${id}&site=${siteId}`
               )
               .then(function (rsp) {
                 $scope.enrollAssocs = rsp.data

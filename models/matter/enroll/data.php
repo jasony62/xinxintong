@@ -627,7 +627,6 @@ class data_model extends entity_model
             } else {
               // 获得参考答案中答对数量的要求
               list($schemaAnswer, $requiredNum) = $fnParseAnswer($oSchema->answer);
-              $this->logger->debug($schemaAnswer . '-' . $requiredNum);
               // 用分号区分条件组，条件组之间是或的关系，只要有一组满足就给分
               $matchedNum = 0;
               $answerKwGrps = preg_split('/[;]+/', $schemaAnswer);

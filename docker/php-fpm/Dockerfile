@@ -20,3 +20,11 @@ RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.ph
     php composer-setup.php && \
     mv composer.phar /usr/local/bin/composer && \
     composer config -g repo.packagist composer https://packagist.phpcomposer.com
+
+WORKDIR /usr/share/nginx/html
+
+ADD ./start_php-fpm.sh /usr/local/bin/start_php-fpm.sh
+
+RUN chmod +x /usr/local/bin/start_php-fpm.sh
+
+CMD ["start_php-fpm.sh"]

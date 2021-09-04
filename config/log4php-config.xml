@@ -1,8 +1,10 @@
 <configuration xmlns="http://logging.apache.org/log4php/">
-  <appender name="default" class="LoggerAppenderFile">
+  <appender name="default" class="LoggerAppenderRollingFile">
     <layout class="LoggerLayoutSimple" />
-    <param name="file" value="log/default.log" />
+    <param name="file" value="/usr/share/nginx/html/log/default.log" />
     <param name="append" value="true" />
+    <param name="maxFileSize" value="1MB" />
+    <param name="maxBackupIndex" value="5" />
   </appender>
   <root>
     <appender_ref ref="default" />

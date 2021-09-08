@@ -26,6 +26,9 @@ define(['frame'], function (ngApp) {
       $scope.linkparams = {
         '{{openid}}': '用户标识(openid)',
         '{{site}}': '公众号标识',
+        '{{member.name}}': '通信录用户名称',
+        '{{member.mobile}}': '通信录用户手机',
+        '{{member.email}}': '通信录用户邮箱',
       }
       var getInitData = function () {
         http2

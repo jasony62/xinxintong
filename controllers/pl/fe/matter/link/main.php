@@ -232,7 +232,7 @@ class main extends \pl\fe\matter\main_base
   /**
    * 删除链接
    */
-  public function remove_action($site, $id)
+  public function remove_action($id)
   {
     if (false === ($oUser = $this->accountUser())) {
       return new \ResponseTimeout();
@@ -252,12 +252,12 @@ class main extends \pl\fe\matter\main_base
    *
    * @param $linkid link's id
    */
-  public function paramAdd_action($site, $linkid)
+  public function paramAdd_action($linkid)
   {
-    if (false === ($oUser = $this->accountUser())) {
+    if (false === $this->accountUser()) {
       return new \ResponseTimeout();
     }
-    $p['link_id'] = $linkid;
+    $p = ['link_id' => $linkid, 'pname' => '', 'pvalue' => ''];
 
     $id = $this->model()->insert('xxt_link_param', $p);
 

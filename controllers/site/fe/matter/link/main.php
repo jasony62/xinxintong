@@ -9,6 +9,18 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
 class main extends \site\fe\matter\base
 {
   /**
+   * 
+   */
+  private $logger;
+  /**
+   * 
+   */
+  public function __construct()
+  {
+    parent::__construct();
+    $this->logger = \Logger::getLogger("default");
+  }
+  /**
    *
    */
   private function _checkInviteToken($userid, $oMatter)
@@ -97,12 +109,12 @@ class main extends \site\fe\matter\base
         if ($oLink->method == 'GET') {
           if (!empty($oLink->params)) {
             $url .= (strpos($url, '?') === false) ? '?' : '&';
-            $url .= $this->_spliceParams($oLink->siteid, $oLink->params);
+            $url .= $this->_spliceParams($oLink, $oLink->params);
           }
           $this->redirect($url);
         } elseif ($oLink->method == 'POST') {
           if (!empty($oLink->params)) {
-            $posted = $this->_spliceParams($oLink->siteid, $oLink->params);
+            $posted = $this->_spliceParams($oLink, $oLink->params);
           }
           $ch = curl_init(); //初始化curl
           curl_setopt($ch, CURLOPT_URL, $url); //设置链接
@@ -172,7 +184,7 @@ class main extends \site\fe\matter\base
 
     if (!empty($oLink->params)) {
       $url .= (strpos($url, '?') === false) ? '?' : '&';
-      $url .= $this->_spliceParams($oLink->siteid, $oLink->params);
+      $url .= $this->_spliceParams($oLink, $oLink->params);
     }
     $oLink->fullUrl = $url;
 
@@ -289,23 +301,52 @@ class main extends \site\fe\matter\base
     return '';
   }
   /**
+   * 获得当前用户通信
+   */
+  private function _getMemberProp($oLink, $prop)
+  {
+    /* 当前访问用户的基本信息 */
+    $oUser = $this->who;
+
+    if ($this->getDeepValue($oLink, 'entryRule.scope.member') !== 'Y') return;
+    if (null === ($rule = $this->getDeepValue($oLink, 'entryRule.member'))) return;
+    $mschemas = array_keys((array)$rule);
+    if (count($mschemas) == 0) return;
+    $mschemaId = $mschemas[0];
+
+    if (null === ($oMember = $this->getDeepValue($oUser, "members.{$mschemaId}"))) return;
+
+    $value = $this->getDeepValue($oMember, $prop, '');
+
+    return $value;
+  }
+  /**
    * 拼接URL中的参数
    */
-  private function _spliceParams($siteId, &$params)
+  private function _spliceParams($oLink, &$params)
   {
-    $pairs = array();
+    $pairs = [];
     foreach ($params as $p) {
       switch ($p->pvalue) {
         case '{{site}}':
-          $v = $siteId;
+          $v = $oLink->siteid;
           break;
         case '{{openid}}':
           $v = $this->_getSnsOpenid();
           break;
+        case '{{member.name}}':
+          $v = $this->_getMemberProp($oLink, 'name');
+          break;
+        case '{{member.mobile}}':
+          $v = $this->_getMemberProp($oLink, 'mobile');
+          break;
+        case '{{member.email}}':
+          $v = $this->_getMemberProp($oLink, 'email');
+          break;
         default:
           $v = $p->pvalue;
       }
-      $pairs[] = "$p->pname=$v";
+      $pairs[] = "$p->pname=" . (isset($v) ? $v : '');
     }
     $spliced = implode('&', $pairs);
 

@@ -177,11 +177,13 @@
   </div>
   <div class='panel panel-default'>
     <div class='panel-body'>
-      <div class='form-group'>
-        <div class='checkbox'>
-          <label>
-            <input type='checkbox' ng-true-value="'Y'" ng-model="editing.config.hide.home" ng-change="update('config')">是否隐藏进入平台主页</label>
-        </div>
+      <div class='checkbox'>
+        <label>
+          <input type='checkbox' ng-true-value="'Y'" ng-model="editing.config.hide.home" ng-change="update('config')">是否隐藏进入平台主页</label>
+      </div>
+      <div class='checkbox'>
+        <label>
+          <input type='checkbox' ng-true-value="'Y'" ng-model="editing.config.hide.siteCard" ng-change="update('config')">是否隐藏团队卡片</label>
       </div>
     </div>
   </div>

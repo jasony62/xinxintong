@@ -269,6 +269,14 @@ ngApp.controller('ctrlMain', [
             ) {
               $scope.showHome = false
             }
+            // 设置是否显示主页链接
+            if (
+              oArticle.config &&
+              oArticle.config.hide &&
+              oArticle.config.hide.siteCard === 'Y'
+            ) {
+              $scope.showSiteCard = false
+            }
             $scope.site = site
             $scope.mission = mission
             $scope.article = oArticle
@@ -382,6 +390,7 @@ ngApp.controller('ctrlMain', [
     }
     $scope.showReturn = /site\/fe/.test(document.referrer) // 是否显示返回链接
     $scope.showHome = !$scope.showReturn // 是否显示返回主页链接
+    $scope.showSiteCard = true // 是否显示团队卡片
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'))
     $scope.siteCardToggled = function (open) {
       var elDropdownMenu

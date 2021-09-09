@@ -229,10 +229,13 @@ define(['frame'], function (ngApp) {
       }
       $scope.removeParam = function (removed) {
         http2
-          .get('/rest/pl/fe/matter/link/removeParam?id=' + removed.id)
-          .then(function (rsp) {
-            var i = $scope.editing.params.indexOf(removed)
-            $scope.editing.params.splice(i, 1)
+          .get(
+            `/rest/pl/fe/matter/link/removeParam?site=${$scope.siteId}&id=${removed.id}`
+          )
+          .then(() => {
+            let params = $scope.editing.params
+            let i = params.indexOf(removed)
+            params.splice(i, 1)
           })
       }
       $scope.changePValueMode = function (p) {

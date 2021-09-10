@@ -321,6 +321,33 @@ class main extends \site\fe\matter\base
     return $value;
   }
   /**
+   * 计算指定的参数值
+   * 
+   * 支持urlencode函数
+   */
+  private function _eval($oLink, $pvalue)
+  {
+    $matches = [];
+    if (1 === preg_match('/urlencode\((.*)\)/', $pvalue, $matches)) {
+      $str = $matches[1];
+      if (1 === preg_match('/\${member.name}/', $str)) {
+        $name = $this->_getMemberProp($oLink, 'name');
+        $str = preg_replace('/\${member\.name}/', $name, $str);
+      }
+      if (1 === preg_match('/\${member.mobile}/', $str)) {
+        $mobile = $this->_getMemberProp($oLink, 'mobile');
+        $str = preg_replace('/\${member\.mobile}/', $mobile, $str);
+      }
+      if (1 === preg_match('/\${member.email}/', $str)) {
+        $email = $this->_getMemberProp($oLink, 'email');
+        $str = preg_replace('/\${member\.mobile}/', $email, $str);
+      }
+      return urlencode($str);
+    }
+
+    return $pvalue;
+  }
+  /**
    * 拼接URL中的参数
    */
   private function _spliceParams($oLink, &$params)
@@ -344,7 +371,7 @@ class main extends \site\fe\matter\base
           $v = $this->_getMemberProp($oLink, 'email');
           break;
         default:
-          $v = $p->pvalue;
+          $v = $this->_eval($oLink, $p->pvalue);
       }
       $pairs[] = "$p->pname=" . (isset($v) ? $v : '');
     }

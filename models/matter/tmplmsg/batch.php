@@ -84,7 +84,7 @@ class batch_model extends \TMS_MODEL
         empty($aOptions['remark']) && $aOptions2['remark'] = implode("\n", $txtTmplMsg);
         list($success, $oMsgTask) = $this->_createMsgTask($siteId, $tmpl, $coverData, $url, $aOptions2);
         if ($success !== true) return [false, $oMsgTask];
-        
+
         $aOptions['tms_msg_wx_task_code'] = $oMsgTask->code;
 
         /* 在消息服务中创建发送消息 */
@@ -148,7 +148,7 @@ class batch_model extends \TMS_MODEL
           $this->_sendTxtByOpenid($siteId, $oUser->wx_openid, 'wx', $wxTxtTmplMsg, $log);
         }
       }
-      /* 易信用户，将模板消息转换文本消息 */
+      /* 将模板消息转换文本消息 */
       if (!empty($oUser->qy_openid)) {
         $log['openid'] = $oUser->qy_openid;
         $qyTxtTmplMsg = $txtTmplMsg;

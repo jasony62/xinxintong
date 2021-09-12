@@ -86,7 +86,7 @@ class TMS_APP
    * 2、由controller处理请求
    * 3、返回controller处理的结果
    */
-  public static function run($config)
+  public static function run()
   {
     /* 如果不是登录状态，尝试自动登录 */
     $uid = TMS_CLIENT::get_client_uid();

@@ -18,7 +18,7 @@ class main extends \site\fe\matter\base
   public function __construct()
   {
     parent::__construct();
-    $this->logger = \Logger::getLogger("default");
+    $this->logger = \Logger::getLogger(__CLASS__);
   }
   /**
    *

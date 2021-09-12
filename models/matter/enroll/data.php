@@ -22,7 +22,7 @@ class data_model extends entity_model
    */
   public function __construct()
   {
-    $this->logger = \Logger::getLogger("default");
+    $this->logger = \Logger::getLogger(__CLASS__);
   }
   /**
    * 按题目记录数据

@@ -1,5 +1,8 @@
 <configuration xmlns="http://logging.apache.org/log4php/">
-  <appender name="default" class="LoggerAppenderRollingFile">
+  <appender name="console" class="LoggerAppenderConsole">
+    <layout class="LoggerLayoutSimple" />
+  </appender>
+  <appender name="files" class="LoggerAppenderRollingFile">
     <layout class="LoggerLayoutSimple" />
     <param name="file" value="/usr/share/nginx/html/log/default.log" />
     <param name="append" value="true" />
@@ -7,6 +10,7 @@
     <param name="maxBackupIndex" value="5" />
   </appender>
   <root>
-    <appender_ref ref="default" />
+    <appender_ref ref="console" />
+    <appender_ref ref="files" />
   </root>
 </configuration>

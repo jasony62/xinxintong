@@ -119,7 +119,11 @@ class notice extends \site\fe\base
         }
         if (!empty($batch->send_from)) {
           list($type, $id) = explode(':', $batch->send_from);
-          $model = $this->model('matter\\' . $type);
+          if ($type === 'schema') {
+            $model = $this->model('matter\memberschema');
+          } else {
+            $model = $this->model('matter\\' . $type);
+          }
           $batch->send_from = $model->byId($id, ['fields' => 'id,title,summary,pic', 'cascaded' => 'F']);
         }
       }

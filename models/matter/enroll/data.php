@@ -224,6 +224,7 @@ class data_model extends entity_model
           $aSchemaData['multitext_seq'] = 0;
         }
         isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
+        if (empty($aSchemaData['score'])) $aSchemaData['score'] = 0; // 避免空字符串的情况
         $this->insert('xxt_enroll_record_data', $aSchemaData, false);
       } else if (count($oLastSchemaValues) == 1) {
         $aSchemaData = [];

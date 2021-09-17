@@ -9,6 +9,17 @@ include_once dirname(__FILE__) . '/base.php';
 class rank extends base
 {
   /**
+   * 
+   */
+  private $logger;
+  /**
+   * 
+   */
+  public function __construct()
+  {
+    $this->logger = \Logger::getLogger(__CLASS__);
+  }
+  /**
    * 根据活动进入规则，获得用户分组信息
    */
   private function _getUserGroups($oApp, $startAt = 0, $endAt = 0)
@@ -149,6 +160,10 @@ class rank extends base
 
     $q[0] = 'count(*)';
     $oResult->total = (int) $modelUsr->query_val_ss($q);
+
+    if ($oResult->total === 0) {
+      $this->logger->debug('userByBehavior=0 ', json_encode($q));
+    }
 
     return $oResult;
   }

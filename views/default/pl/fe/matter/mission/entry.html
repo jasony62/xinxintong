@@ -73,6 +73,15 @@
         <div class="help-block">如果用频道对项目资料进行了分类，可以将频道作为筛选条件使用</div>
       </div>
     </div>
+    <div class='form-group'>
+      <label>默认页</label>
+      <div>
+        <label class='checkbox-inline'>
+          <input type='checkbox' ng-model="pageConfig.doc.asdefault">默认显示项目资料列表，否则显示活动列表
+        </label>
+        <div class="help-block">项目主页默认显示项目活动列表，可通过此选项改为显示资源列表</div>
+      </div>
+    </div>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default" ng-click="save()">保存</button>

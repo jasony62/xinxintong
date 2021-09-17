@@ -162,7 +162,7 @@ class rank extends base
     $oResult->total = (int) $modelUsr->query_val_ss($q);
 
     if ($oResult->total === 0) {
-      $this->logger->debug('userByBehavior=0 ', json_encode($q));
+      $this->logger->debug('userByBehavior=0 ' . json_encode($q));
     }
 
     return $oResult;

@@ -13,7 +13,7 @@ class main extends \site\fe\matter\base
    */
   public function index_action($mission, $page = 'main', $version = NULL)
   {
-    $oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'siteid,id,title,entry_rule']);
+    $oMission = $this->model('matter\mission')->byId($mission, ['fields' => 'siteid,id,title,entry_rule,page_config']);
     if (false === $oMission) {
       return new \ObjectNotFoundError();
     }
@@ -26,7 +26,11 @@ class main extends \site\fe\matter\base
     $this->checkEntryRule($oMission, true);
 
     //if ($version === 'new')
-    $this->redirect("/ue/site/fe/mission?site={$oMission->siteid}&mission={$oMission->id}");
+    if ($this->getDeepValue($oMission, 'pageConfig.doc.asdefault', false)) {
+      $this->redirect("/ue/site/fe/mission/doc?site={$oMission->siteid}&mission={$oMission->id}");
+    } else {
+      $this->redirect("/ue/site/fe/mission?site={$oMission->siteid}&mission={$oMission->id}");
+    }
     // else {
     //   switch ($page) {
     //     case 'board':

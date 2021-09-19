@@ -29,26 +29,29 @@ session_start();
 function show_error($message)
 {
   require_once 'tms/tms_app.php';
+  $logger = Logger::getRootLogger();
+  $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
   $modelLog = TMS_APP::M('log');
   if ($message instanceof UrlNotMatchException || $message instanceof SiteUserException) {
     $msg = $message->getMessage();
   } else if ($message instanceof Exception) {
-    $excep = $message->getMessage();
-    $trace = $message->getTrace();
-    foreach ($trace as $t) {
-      $excep .= '<br>';
-      foreach ($t as $k => $v) {
-        if (!in_array($k, ['file', 'line'])) {
-          continue;
-        }
-        $excep .= $modelLog->toJson($v) . ' ';
-      }
-    }
-    if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
-      $msg = $excep;
-    } else {
-      $msg = '应用程序内部错误';
-    }
+    $logger->error($method, $message);
+    // $excep = $message->getMessage();
+    // $trace = $message->getTrace();
+    // foreach ($trace as $t) {
+    //   $excep .= '<br>';
+    //   foreach ($t as $k => $v) {
+    //     if (!in_array($k, ['file', 'line'])) {
+    //       continue;
+    //     }
+    //     $excep .= $modelLog->toJson($v) . ' ';
+    //   }
+    // }
+    // if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
+    //   $msg = $excep;
+    // } else {
+    $msg = '应用程序内部错误';
+    // }
   } else if (is_string($message)) {
     $msg = $message;
   } else {
@@ -64,7 +67,6 @@ function show_error($message)
   echo $msg;
 
   /* 记录日志 */
-  $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
   if (isset($excep)) {
     $msg = str_replace('<br>', "\n", $excep);
   }

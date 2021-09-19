@@ -3,8 +3,10 @@
     <layout class="LoggerLayoutSimple" />
   </appender>
   <appender name="files" class="LoggerAppenderRollingFile">
-    <layout class="LoggerLayoutSimple" />
-    <param name="file" value="/usr/share/nginx/html/log/default.log" />
+    <layout class="LoggerLayoutPattern">
+      <param name="conversionPattern" value="%d{m/d/y H:i:s,u} [%t] %p %c %x - %m %newline%ex" />
+    </layout>
+    <param name="file" value="/usr/share/nginx/html/log/root.log" />
     <param name="append" value="true" />
     <param name="maxFileSize" value="1MB" />
     <param name="maxBackupIndex" value="5" />

@@ -338,6 +338,18 @@ ngApp.controller('ctrlMain', [
                 search: location.search.replace('?', ''),
                 referer: document.referrer,
               })
+              /*通过新api记录访问日志*/
+              let { uid, nickname } = $scope.user
+              http2.post(
+                '/api/site/fe/matter/article/event/logAccess?site=' + siteId,
+                {
+                  user: { id: uid, name: nickname },
+                  article: { id: oArticle.id, title: oArticle.title },
+                  shareby: shareby,
+                  search: location.search.replace('?', ''),
+                  referer: document.referrer,
+                }
+              )
             }
             // 设置页面背景图
             if (mission && mission.pageConfig && mission.pageConfig.watermark) {

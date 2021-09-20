@@ -10,25 +10,23 @@ class Main extends Ctrl {
    *
    */
   async logAccess() {
-    let { articleId, uid, uname } = this.request.body
+    let { user, article } = this.request.body
 
     // 检查bucket是否存在
     const client = this.mongoClient
     const clUser = client.db('xxt').collection('article_user')
 
     let current = Date.now()
-    let rst = await clUser.update(
-      { id: articleId, uid },
+    let rst = await clUser.updateOne(
+      { 'article.id': article.id, 'user.id': user.id },
       {
-        $set: { uname, 'read.latest': Date(current) },
+        $set: { article, user, 'read.latest': Date(current) },
         $inc: { 'read.num': 1 },
       },
       { upsert: true }
     )
 
-    logger.debug(rst)
-
-    return new ResultData('ok')
+    return new ResultData(rst)
   }
 }
 module.exports = Main

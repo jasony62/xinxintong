@@ -54,5 +54,6 @@ services:
   api:
     build: ./api
     image: xxt/api:latest
+    restart: always
     # ports:
     # - 3000:3000

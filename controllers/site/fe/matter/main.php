@@ -182,7 +182,7 @@ class main extends \site\fe\matter\base
 
     switch ($type) {
       case 'article':
-        $model->update("update xxt_article set read_num=read_num+1 where id='$id'");
+        $this->model('matter\article\event')->logAccess($id, $user);
         break;
       case 'channel':
         $model->update("update xxt_channel set read_num=read_num+1 where id='$id'");

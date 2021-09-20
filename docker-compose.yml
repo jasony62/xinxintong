@@ -13,7 +13,7 @@ services:
   php-fpm:
     build: ./docker/php-fpm
     image: xxt/php-fpm
-    restart: always
+    # restart: always
     volumes:
       - .:/usr/share/nginx/html
 
@@ -37,3 +37,22 @@ services:
     restart: always
     # ports:
     #   - 9090:8080
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    # ports:
+    #   - '27017:27017'
+    # volumes:
+    #   - ./docker/mongodb/data:/data/db
+    # environment:
+    #   MONGO_INITDB_ROOT_USERNAME: root
+    #   MONGO_INITDB_ROOT_PASSWORD: example
+    logging:
+      driver: 'none'
+
+  api:
+    build: ./api
+    image: xxt/api:latest
+    # ports:
+    # - 3000:3000

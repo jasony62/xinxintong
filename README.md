@@ -40,3 +40,9 @@
 
 [MIT](http://opensource.org/licenses/MIT)
 Copyright (c) 2014-present, Yue Yang (jasony62)
+
+# 目录说明
+
+| 目录 | 说明            |
+| ---- | --------------- |
+| api  | nodejs 提供 api |

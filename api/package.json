@@ -1,0 +1,16 @@
+{
+  "name": "xxt-api",
+  "version": "1.0.0",
+  "description": "提供API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "jasony62",
+  "license": "MIT",
+  "dependencies": {
+    "log4js": "^6.3.0",
+    "mongodb": "^4.1.2",
+    "tms-koa": "^0.0.68"
+  }
+}

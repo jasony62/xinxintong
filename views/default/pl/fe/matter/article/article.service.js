@@ -231,3 +231,23 @@ angular
       },
     ]
   })
+  .provider('srvUser', function () {
+    this.$get = [
+      '$q',
+      'http2',
+      function ($q, http2) {
+        return {
+          watch: function (oArticle) {
+            let { siteid, id } = oArticle
+            let defer = $q.defer()
+            let url = `/rest/pl/fe/matter/article/user/watch?site=${siteid}&id=${id}`
+            http2.get(url).then(function (rsp) {
+              let { userapp, readers } = rsp.data
+              defer.resolve({ userapp, readers })
+            })
+            return defer.promise
+          },
+        }
+      },
+    ]
+  })

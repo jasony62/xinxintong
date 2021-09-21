@@ -14,6 +14,14 @@ class TMS_MODEL
    */
   private static $model_prefix = '_model';
   /**
+   * 
+   */
+  // abstract public function table();
+  /**
+   * 
+   */
+  // abstract public function id();
+  /**
    * 仅使用数据库读链接访问
    * 在数据库主从分离的部署环境下，有可能写操作同步有延迟，导致后续的读操作取不到数据，因为有些读操作必须强制使用写连接
    */

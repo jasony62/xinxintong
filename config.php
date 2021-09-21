@@ -17,8 +17,8 @@ ini_set('default_charset', 'utf-8');
  */
 file_exists(dirname(__FILE__) . '/cus/config.php') && include_once dirname(__FILE__) . '/cus/config.php';
 /**
-* 错误输出级别
-*/
+ * 错误输出级别
+ */
 !defined('APP_REEOR_REPORTING_LEVEL') && define('APP_REEOR_REPORTING_LEVEL', 'ALL');
 
 /*********************************************
@@ -168,3 +168,7 @@ define('TMS_UPLOAD_DIR', 'kcfinder/upload/');
  * mysql int类型的最大值
  */
 define('MYSQL_INT_MAX', 2147483647);
+/**
+ * 新API服务入口地址
+ */
+!defined('BACK_API_ADDRESS') && define('BACK_API_ADDRESS', 'http://backapi:3000/api');

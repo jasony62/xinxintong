@@ -22,6 +22,7 @@ class memberschema_model extends \TMS_MODEL
     if (count($schemas)) {
       foreach ($schemas as $oSchema) {
         $oSchema->type = 'memberschema';
+        /* 处理扩展属性 */
         $oAttrs = new \stdClass;
         foreach (['name', 'mobile', 'email'] as $prop) {
           if (isset($oSchema->{'attr_' . $prop})) {

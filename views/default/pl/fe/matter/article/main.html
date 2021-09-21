@@ -123,6 +123,10 @@
             </span>
             <a href ng-click="chooseMschema('entryRule')">添加</a>
           </span>
+          <div style='margin-left:20px'>
+            <label class='checkbox-inline'>
+              <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.optional.member" ng-change="changeUserScope('member', 'entryRule')">不强制要求用户在通讯录中</label>
+          </div>
         </div>
         <div class='checkbox' ng-if="snsCount===1">
           <label>
@@ -139,6 +143,10 @@
         <div class='checkbox'>
           <label>
             <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.scope.group" ng-change="changeUserScope('group', 'entryRule')">用户参与活动前需要在分组活动</label><span class='badge' ng-if="entryRule.scope.group==='Y'"><a href='/rest/pl/fe/matter/group?site={{editing.siteid}}&id={{editing.entryRule.group.id}}' target='_self'>{{editing.entryRule.group.title}} - {{editing.entryRule.group.team.title}}</a></span>中分组 <a ng-if="entryRule.scope.group==='Y'" href ng-click="chooseGroupApp('entryRule')">指定</a>
+          <div style='margin-left:20px'>
+            <label class='checkbox-inline'>
+              <input type='checkbox' ng-true-value="'Y'" ng-model="entryRule.optional.group" ng-change="changeUserScope('group', 'entryRule')">不强制要求用户在分组活动中</label>
+          </div>
         </div>
       </div>
     </div>

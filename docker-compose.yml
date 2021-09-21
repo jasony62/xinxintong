@@ -13,7 +13,7 @@ services:
   php-fpm:
     build: ./docker/php-fpm
     image: xxt/php-fpm
-    # restart: always
+    restart: always
     volumes:
       - .:/usr/share/nginx/html
 
@@ -25,6 +25,7 @@ services:
       - .:/usr/share/nginx/html
     links:
       - php-fpm
+      - backapi
     # ports:
     #   - 8080:80
     # environment:
@@ -51,7 +52,7 @@ services:
     logging:
       driver: 'none'
 
-  api:
+  backapi:
     build: ./api
     image: xxt/api:latest
     restart: always

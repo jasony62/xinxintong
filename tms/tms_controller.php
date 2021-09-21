@@ -271,20 +271,6 @@ class TMS_CONTROLLER
     return $view;
   }
   /**
-   *
-   */
-  private function view_dir($path, $start)
-  {
-    $test = $start;
-    foreach ($segments as $index => $segment) {
-      if (!is_dir($test . '/' . $segment)) {
-        break;
-      }
-      $test .= '/' . $segment;
-    }
-    return array(--$index, $test);
-  }
-  /**
    * 获得访问用户的ip地址
    */
   public function client_ip()

@@ -44,9 +44,12 @@
         </li>
         <li ng-class="{'opened':opened==='other'}">
           <a href='' ng-click="opened=opened==='other'?false:'other';switchTo('log')">其他 <span class="caret"></span></a>
-          <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'96px':'0'}">
+          <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='other'?'123px':'0'}">
+            <li ng-class="{'active':subView==='user'}">
+              <a href='' ng-click="switchTo('user')">参与人</a>
+            </li>
             <li ng-class="{'active':subView==='coin'}">
-              <a href='' ng-click="switchTo('coin')">行为分规则</a>
+              <a href='' ng-click="switchTo('coin')">行为分</a>
             </li>
             <li ng-class="{'active':subView==='log'}">
               <a href='' ng-click="switchTo('log')">运行日志</a>

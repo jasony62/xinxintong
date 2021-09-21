@@ -263,8 +263,8 @@ class record_model extends \matter\enroll\record_base
     }
 
     $fields = isset($oOptions->fields) ? $oOptions->fields : 'enroll_key,enroll_at,comment,tags,data,userid,nickname,is_leader,team_id,team_title,role_teams';
-
-    $aSchemasById = $this->model('matter\group\schema')->asAssoc($oApp->dataSchemas);
+    if (isset($oApp->dataSchemas))
+      $aSchemasById = $this->model('matter\group\schema')->asAssoc($oApp->dataSchemas);
 
     /* 数据过滤条件 */
     $w = "state=1 and aid='{$oApp->id}'";
@@ -302,7 +302,7 @@ class record_model extends \matter\enroll\record_base
     }
     // 按扩展字段进行筛选
     // 指定了记录数据过滤条件
-    if (isset($oOptions->data)) {
+    if (isset($aSchemasById) && isset($oOptions->data)) {
       $whereByData = '';
       foreach ($oOptions->data as $k => $v) {
         if (!empty($v) && isset($aSchemasById[$k])) {

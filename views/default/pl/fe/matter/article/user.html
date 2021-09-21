@@ -1,0 +1,33 @@
+<div class='col-md-12'>
+  <div class='form-group'>
+    <div class='form-inline'>
+      <div class='form-group'>
+        <button type='button' class='btn btn-default'><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+      </div>
+    </div>
+  </div>
+  <div class='form-group'>
+    <table class='table table-bordered table-striped'>
+      <thead>
+        <tr>
+          <th style='width:48px'>序号</th>
+          <th style='width:96px'>用户</th>
+          <th style='width:144px' ng-if="userapp.type==='group'">分组</th>
+          <th style='width:96px'>阅读次数</th>
+          <th style='width:144px'>最后阅读时间</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat='r in readers'>
+          <td>{{$index+1}}</td>
+          <td>{{r.name}}</td>
+          <td ng-if="userapp.type==='group'">{{r.team.title}}</td>
+          <td>{{r.read.num}}</td>
+          <td>{{r.read.latest|date:'yy-MM-dd HH:mm'}}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

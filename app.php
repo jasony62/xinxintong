@@ -36,22 +36,22 @@ function show_error($message)
     $msg = $message->getMessage();
   } else if ($message instanceof Exception) {
     $logger->error($method, $message);
-    // $excep = $message->getMessage();
-    // $trace = $message->getTrace();
-    // foreach ($trace as $t) {
-    //   $excep .= '<br>';
-    //   foreach ($t as $k => $v) {
-    //     if (!in_array($k, ['file', 'line'])) {
-    //       continue;
-    //     }
-    //     $excep .= $modelLog->toJson($v) . ' ';
-    //   }
-    // }
-    // if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
-    //   $msg = $excep;
-    // } else {
-    $msg = '应用程序内部错误';
-    // }
+    $excep = $message->getMessage();
+    $trace = $message->getTrace();
+    foreach ($trace as $t) {
+      $excep .= '<br>';
+      foreach ($t as $k => $v) {
+        if (!in_array($k, ['file', 'line'])) {
+          continue;
+        }
+        $excep .= $modelLog->toJson($v) . ' ';
+      }
+    }
+    if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
+      $msg = $excep;
+    } else {
+      $msg = '应用程序内部错误';
+    }
   } else if (is_string($message)) {
     $msg = $message;
   } else {

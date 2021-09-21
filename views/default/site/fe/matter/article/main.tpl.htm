@@ -31,8 +31,8 @@
     <header ng-if="article.use_mission_header==='Y'" dynamic-html="mission.header_page.html"></header>
     <div class="container">
       <div class='row'>
-        <div class="col-md-3 col-md-push-9 col-xs-12" ng-show="showSiteCard===true">
-          <div id='site-card' class='hm-tile'>
+        <div class="col-md-3 col-md-push-9 col-xs-12">
+          <div id='site-card' class='hm-tile' ng-show="showSiteCard===true">
             <div class="site-title">
               <img class="img-circle" ng-src="{{site.heading_pic}}">
               <a ng-href="{{'/rest/site/home?site='+site.id}}" target='_self' ng-bind="site.name"></a>

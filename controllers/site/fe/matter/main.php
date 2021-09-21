@@ -8,6 +8,13 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class main extends \site\fe\matter\base
 {
+  private $logger;
+
+  public function __construct()
+  {
+    parent::__construct();
+    $this->logger = \Logger::getLogger(__CLASS__);
+  }
 
   public function get_access_rule()
   {
@@ -28,6 +35,7 @@ class main extends \site\fe\matter\base
       /* 检查是否需要第三方社交帐号OAuth */
       $this->_requireSnsOAuth($site);
     }
+
     /* 返回页面 */
     switch ($type) {
       case 'article':
@@ -76,8 +84,9 @@ class main extends \site\fe\matter\base
           die('邀请验证令牌未通过验证或已过有效期');
         }
         /* 预览时跳过进入规则检查 */
-        if ($preview !== 'Y' && isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], '/rest/pl/fe') !== false)
+        if ($preview !== 'Y' || (isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], '/rest/pl/fe') !== false)) {
           $this->checkEntryRule($article, true);
+        }
 
         \TPL::assign('title', $article->title);
         if ($type === 'article') {

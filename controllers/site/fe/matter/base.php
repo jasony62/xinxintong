@@ -8,6 +8,13 @@ include_once dirname(dirname(__FILE__)) . '/base.php';
  */
 class base extends \site\fe\base
 {
+  private $logger;
+
+  public function __construct()
+  {
+    parent::__construct();
+    $this->logger = \Logger::getLogger(__CLASS__);
+  }
   /**
    * 打开页面时设置客户端的标识，用户在后续的操作中判断调用是否来源于之前的客户端
    */
@@ -112,7 +119,7 @@ class base extends \site\fe\base
     return false;
   }
   /**
-   * 检查通信录作为进入规则
+   * 检查通讯录作为进入规则
    */
   protected function checkMemberEntryRule($oMatter, $bRedirect)
   {

@@ -1,12 +1,15 @@
 <div class='col-md-12'>
-  <div class='form-group'>
+  <div class='form-group' ng-if="!userapp.type">
+    <div class='alert alert-warning'>没有在【进入规则】中指定参与人范围，无法统计数据。</div>
+  </div>
+  <div class='form-group' ng-if="userapp.type">
     <div class='form-inline'>
       <div class='form-group'>
-        <button type='button' class='btn btn-default'><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
+        <button type='button' class='btn btn-default' ng-click="list()"><i class='glyphicon glyphicon-refresh'></i> 刷新</button>
       </div>
     </div>
   </div>
-  <div class='form-group'>
+  <div class='form-group' ng-if="userapp.type">
     <table class='table table-bordered table-striped'>
       <thead>
         <tr>

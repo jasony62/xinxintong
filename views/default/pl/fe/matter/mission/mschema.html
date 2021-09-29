@@ -36,6 +36,17 @@
           <li><a href ng-click="createByAccount()">从团队访客中添加用户</a></li>
         </ul>
       </div>
+      <div class="form-group pull-right">
+        <div class="input-group">
+          <span class="input-group-addon">每页条数</span>
+          <input class="form-control" ng-model="page.size" style="width: 64px;" />
+          <div class="input-group-btn">
+            <button class="btn btn-default" ng-click="doSearch(1)">
+              <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
     <div tms-flex-height top="117" bottom="66" class="form-group" style="width: 100%;">
       <div id="members" tms-table-wrap ready="tmsTableWrapReady">

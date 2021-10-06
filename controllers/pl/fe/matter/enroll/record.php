@@ -9,6 +9,17 @@ require_once dirname(__FILE__) . '/record_base.php';
 class record extends record_base
 {
   /**
+   * 
+   */
+  private $logger;
+  /**
+   * 
+   */
+  public function __construct()
+  {
+    $this->logger = \Logger::getLogger(__CLASS__);
+  }
+  /**
    * 获得指定记录
    */
   public function get_action($ek)
@@ -965,6 +976,9 @@ class record extends record_base
 
         /* 获取enroll_user中用户现在的轮次,如果有行为分则不能移动 */
         $resOld = $modelUser->byIdInApp($oApp, $oBeforeRecord->userid, ['rid' => $userOldRid]);
+        if (!$resOld) {
+          return new \ResponseError('用户数据[' . $oBeforeRecord->userid . '][' . $userOldRid . ']不存在，，不能更换轮次！');
+        }
         if ($resOld->user_total_coin > 0) {
           return new \ResponseError('用户在当前轮次上以获得行为分，不能更换轮次！！');
         }

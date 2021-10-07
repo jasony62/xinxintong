@@ -90,10 +90,7 @@ angular
         matters: [],
         busy: false,
         page: 1,
-        orderby: 'time',
-        changeOrderby: function () {
-          this.reset()
-        },
+        keyword: '',
         reset: function () {
           this.matters = []
           this.busy = false
@@ -111,9 +108,9 @@ angular
           url = '/rest/site/fe/matter/channel/mattersGet'
           url += '?site=' + siteId
           url += '&id=' + channelId
-          url += '&orderby=' + this.orderby
           url += '&page=' + this.page
           url += '&size=10'
+          if (this.keyword) url += '&keyword=' + this.keyword
           $http.get(url).success(function (rsp) {
             if (rsp.data.matters.length) {
               var matters = rsp.data.matters

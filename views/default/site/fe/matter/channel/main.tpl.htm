@@ -55,12 +55,12 @@
           <div ng-repeat="app in channel.config.nav.app"><a class="matter" href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
         </div>
       </div>
-      <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12 '>
-        <div class='form-group' ng-if="channel.matter_type==='article'">
-          <select class='form-control input-lg' ng-model='Matter.orderby' ng-change='Matter.changeOrderby()'>
-            <option value='time'>最新</option>
-            <option value='score'>最热</option>
-          </select>
+      <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12'>
+        <div class='input-group' ng-if="channel.matter_type==='article'">
+          <input class='form-control' ng-model='Matter.keyword' placeholder='输入搜索关键字'>
+          <div class="input-group-btn">
+            <button class="btn btn-default" ng-click="Matter.reset()"><span class='glyphicon glyphicon-search'></span></button>
+          </div>
         </div>
         <div infinite-scroll="Matter.nextPage()" infinite-scroll-disabled="Matter.busy" infinite-scroll-distance="1">
           <div class='media-item' ng-repeat='m in Matter.matters' ng-click='open(m)'>

@@ -302,10 +302,15 @@ class channel_model extends article_base
    * 直接打开频道的情况下（不是返回信息卡片），忽略置顶和置底，返回频道中的所有条目
    *
    * @param int $channel_id 频道的id
+   * @param object $params 查询参数
+   * @param int $params->size 分页大小
+   * @param int $params->page 分页
+   * @param int $params->keyword 如果频道的素材类型是单图文，支持按关键字进行搜索
+   * @param object $channel 频道对象，减少查询次数
    *
    * @return 频道包含的所有条目
    */
-  public function &getMattersNoLimit($channel_id, $userid, $params, $channel = '')
+  public function getMattersNoLimit($channel_id, $params, $channel = null)
   {
     // 返回数据
     $data = new \stdClass;
@@ -320,13 +325,12 @@ class channel_model extends article_base
     if ($channel === false || $channel->state != 1) {
       return $data;
     }
-
     /**
      * in channel
      */
     if ($channel->matter_type === 'article') {
       $orderby = $channel->orderby;
-      $q1 = array();
+      $q1 = [];
       $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
       $q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
       $q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
@@ -343,7 +347,13 @@ class channel_model extends article_base
             break;
         }
       }
-      $q2 = array();
+      // 指定按关键字过滤
+      if (!empty($params->keyword)) {
+        $q1[2]  .= " and (m.title like '%$params->keyword%'";
+        $q1[2]  .= "or m.summary like '%$params->keyword%'";
+        $q1[2]  .= "or m.body like '%$params->keyword%')";
+      }
+      $q2 = [];
       $q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
 
       if (isset($params->page) && isset($params->size)) {

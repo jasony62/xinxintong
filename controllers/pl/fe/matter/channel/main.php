@@ -130,7 +130,7 @@ class main extends \pl\fe\matter\main_base
     if (!empty($weight)) {
       $params->weight = $weight;
     }
-    $matters = $modelChn->getMattersNoLimit($oChannel->id, $this->user->id, $params, $oChannel);
+    $matters = $modelChn->getMattersNoLimit($oChannel->id, $params, $oChannel);
 
     return new \ResponseData($matters);
   }
@@ -306,7 +306,7 @@ class main extends \pl\fe\matter\main_base
 
     $params = new \stdClass;
     $params->weight = $pos;
-    $matters = $modelChn->getMattersNoLimit($id, $oUser->id, $params);
+    $matters = $modelChn->getMattersNoLimit($id, $params);
 
     return new \ResponseData($matters);
   }
@@ -332,7 +332,7 @@ class main extends \pl\fe\matter\main_base
 
     $params = new \stdClass;
     $params->weight = $pos;
-    $matters = $modelChn->getMattersNoLimit($id, $oUser->id, $params);
+    $matters = $modelChn->getMattersNoLimit($id, $params);
 
     return new \ResponseData($matters);
   }
@@ -486,7 +486,7 @@ class main extends \pl\fe\matter\main_base
 
     $params = new \stdClass;
     $params->weight = $weight;
-    $matters = $modelChn->getMattersNoLimit($id, $this->user->id, $params);
+    $matters = $modelChn->getMattersNoLimit($id, $params);
 
     return new \ResponseData($matters);
   }

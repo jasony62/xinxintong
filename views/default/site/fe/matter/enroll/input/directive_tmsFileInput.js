@@ -9,7 +9,7 @@ module.exports = [
       if (!oResumable.files || oResumable.files.length === 0) {
         defer.resolve('empty')
       }
-      oResumable.on('progress', function () {
+      oResumable.on('progress', () => {
         var phase, p
         p = oResumable.progress()
         if (p) {
@@ -23,7 +23,7 @@ module.exports = [
           }
         }
       })
-      oResumable.on('complete', function () {
+      oResumable.on('complete', () => {
         var phase = $scope.$root.$$phase
         if (phase === '$digest' || phase === '$apply') {
           $scope.progressOfUploadFile = '完成'
@@ -34,6 +34,10 @@ module.exports = [
         }
         oResumable.cancel()
         defer.resolve('ok')
+      })
+      oResumable.on('error', (message, file) => {
+        oResumable.cancel()
+        defer.reject({ message, file })
       })
       oResumable.upload()
       return defer.promise

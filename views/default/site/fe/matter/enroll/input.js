@@ -461,13 +461,18 @@ ngApp.controller('ctrlInput', [
     }
 
     function doTask(seq, nextAction, type) {
-      var task = _tasksOfBeforeSubmit[seq]
-      task().then(function (rsp) {
-        seq++
-        seq < _tasksOfBeforeSubmit.length
-          ? doTask(seq, nextAction, type)
-          : doSubmit(nextAction, type)
-      })
+      let task = _tasksOfBeforeSubmit[seq]
+      task().then(
+        () => {
+          seq++
+          seq < _tasksOfBeforeSubmit.length
+            ? doTask(seq, nextAction, type)
+            : doSubmit(nextAction, type)
+        },
+        ({ message, file }) => {
+          noticebox.error(`文件【${file.fileName}】上传失败！原因${message}`)
+        }
+      )
     }
 
     function doSubmit(nextAction, type) {

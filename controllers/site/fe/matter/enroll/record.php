@@ -9,6 +9,18 @@ include_once dirname(__FILE__) . '/base.php';
 class record extends base
 {
   /**
+   * 
+   */
+  private $logger;
+  /**
+   * 
+   */
+  public function __construct()
+  {
+    parent::__construct();
+    $this->logger = \Logger::getLogger(__CLASS__);
+  }
+  /**
    * 在调用每个控制器的方法前调用
    */
   public function tmsBeforeEach($app = null, $task = null)
@@ -560,10 +572,13 @@ class record extends base
     $modelApp = $this->model('matter\enroll');
     $oApp = $modelApp->byId($app, ['cascaded' => 'N', 'fields' => 'id,siteid,state']);
     if (false === $oApp || $oApp->state !== '1') {
-      return new \ObjectNotFoundError();
+      header("HTTP/1.0 500 Internal Error");
+      die('指定的记录活动不存在');
     }
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST')
-      return new \ResponseError('请用POST上传文件，不支持其他方法');
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      header("HTTP/1.0 500 Internal Error");
+      die('请用POST上传文件，不支持其他方法');
+    }
 
     if (empty($submitkey))
       $submitkey = $this->who->uid;
@@ -576,10 +591,11 @@ class record extends base
     $oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
     $aResult = $oResumable->handleRequest($fileData);
     if (true === $aResult[0]) {
-      return new \ResponseData('ok');
+      header("HTTP/1.0 200 OK");
+      die('ok');
     } else {
-      header("HTTP/1.0 415 Unsupported Media Type");
-      return new \ResponseError($aResult[1]);
+      header("HTTP/1.0 500 Internal Error");
+      die($aResult[1]);
     }
   }
   /**

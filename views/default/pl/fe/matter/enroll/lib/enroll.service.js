@@ -993,23 +993,23 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
                   $scope2.cancel = function () {
                     $mi.dismiss()
                   }
-                  $scope2.$on('tag.xxt.combox.done', function (
-                    event,
-                    aSelected
-                  ) {
-                    var aNewTags = []
-                    for (var i in aSelected) {
-                      var existing = false
-                      for (var j in $scope2.data.tags) {
-                        if (aSelected[i] === $scope2.data.tags[j]) {
-                          existing = true
-                          break
+                  $scope2.$on(
+                    'tag.xxt.combox.done',
+                    function (event, aSelected) {
+                      var aNewTags = []
+                      for (var i in aSelected) {
+                        var existing = false
+                        for (var j in $scope2.data.tags) {
+                          if (aSelected[i] === $scope2.data.tags[j]) {
+                            existing = true
+                            break
+                          }
                         }
+                        !existing && aNewTags.push(aSelected[i])
                       }
-                      !existing && aNewTags.push(aSelected[i])
+                      $scope2.data.tags = $scope2.data.tags.concat(aNewTags)
                     }
-                    $scope2.data.tags = $scope2.data.tags.concat(aNewTags)
-                  })
+                  )
                   $scope2.$on('tag.xxt.combox.add', function (event, newTag) {
                     $scope2.data.tags.push(newTag)
                     $scope2.appTags.indexOf(newTag) === -1 &&
@@ -2472,6 +2472,7 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
         $scope.groups = oApp.groupApp.teams
       }
       dataSchemas.forEach(function (schema) {
+        // 图片，文件，打分，html和通讯录题不支持筛选
         if (
           false === /image|file|score|html/.test(schema.type) &&
           schema.id.indexOf('member') !== 0

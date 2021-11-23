@@ -51,8 +51,6 @@ class main extends \site\fe\matter\base
       return new \ObjectNotFoundError();
     }
 
-    $this->logger->debug(json_encode($oArticle->entryRule));
-
     /*如果指定了进入规则，判断当前用户是否符合*/
     $this->accordWithEntryRule($oArticle->entryRule, $oUser);
 

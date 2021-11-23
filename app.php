@@ -14,7 +14,13 @@ error_reporting(APP_REEOR_REPORTING_LEVEL === 'ERROR' ? E_ERROR : (APP_REEOR_REP
 
 if (isset($_COOKIE['PHPSESSID']) && !preg_match('/^[a-zA-Z0-9,-]{1,128}$/', $_COOKIE['PHPSESSID'])) die('SESSID错误');
 session_start();
-
+/**
+ * 
+ */
+function isTraceError()
+{
+  return defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y';
+}
 /***************************
  * error and exception handle
  ***************************/
@@ -33,8 +39,10 @@ function show_error($message)
   $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
   $modelLog = TMS_APP::M('log');
   if ($message instanceof UrlNotMatchException || $message instanceof SiteUserException) {
+    /* 已知异常信息 */
     $msg = $message->getMessage();
   } else if ($message instanceof Exception) {
+    /* 未知异常 */
     $logger->error($method, $message);
     $excep = $message->getMessage();
     $trace = $message->getTrace();
@@ -47,30 +55,26 @@ function show_error($message)
         $excep .= $modelLog->toJson($v) . ' ';
       }
     }
-    if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
-      $msg = $excep;
-    } else {
-      $msg = '应用程序内部错误';
-    }
+    $msg = isTraceError() ? $excep : '应用程序内部错误';
   } else if (is_string($message)) {
+    /* 文本错误信息 */
+    $logger->error($message);
     $msg = $message;
   } else {
-    if (defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y') {
-      $msg = json_encode($message);
-    } else {
-      $msg = '应用程序内部错误';
-    }
+    /* 其它类型的数据 */
+    $othermsg = json_encode($message);
+    $logger->error($othermsg);
+    $msg = isTraceError() ? $othermsg : '应用程序内部错误';
   }
-  /* 返回信息 */
+  /* 给前端返回信息 */
   header("HTTP/1.1 500 Internal Server Error");
   header('Content-Type: text/plain; charset=utf-8');
   echo $msg;
 
-  /* 记录日志 */
+  /* 数据库中记录日志 */
   if (isset($excep)) {
     $msg = str_replace('<br>', "\n", $excep);
   }
-
   $msg = $modelLog->escape($msg);
 
   /* 错误信息报错的到数据库 */

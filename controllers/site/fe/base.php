@@ -21,6 +21,8 @@ class base extends \site\base
    */
   public function __construct()
   {
+    parent::__construct();
+    /* 所有的访问必须指定siteid */
     $siteId = empty($_GET['site']) ? 'platform' : $_GET['site'];
     $siteId = $this->escape($siteId);
     $this->siteId = $siteId;

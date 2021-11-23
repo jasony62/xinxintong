@@ -2,7 +2,7 @@
   <appender name="console" class="LoggerAppenderConsole">
     <layout class="LoggerLayoutSimple" />
   </appender>
-  <appender name="files" class="LoggerAppenderRollingFile">
+  <appender name="default" class="LoggerAppenderRollingFile">
     <layout class="LoggerLayoutPattern">
       <param name="conversionPattern" value="%d{m/d/y H:i:s,u} [%t] %p %c %x - %m %newline%ex" />
     </layout>
@@ -11,8 +11,22 @@
     <param name="maxFileSize" value="1MB" />
     <param name="maxBackupIndex" value="5" />
   </appender>
+  <appender name="dev" class="LoggerAppenderRollingFile">
+    <layout class="LoggerLayoutPattern">
+      <param name="conversionPattern" value="%d{m/d/y H:i:s,u} [%t] %p %C %x - %m %newline%ex" />
+    </layout>
+    <param name="file" value="/usr/share/nginx/html/log/debug.log" />
+    <param name="append" value="true" />
+    <param name="maxFileSize" value="1MB" />
+    <param name="maxBackupIndex" value="5" />
+  </appender>
   <root>
+    <level value="info" />
     <appender_ref ref="console" />
-    <appender_ref ref="files" />
+    <appender_ref ref="default" />
   </root>
+  <logger name="dev">
+    <level value="trace" />
+    <appender_ref ref="dev" />
+  </logger>
 </configuration>

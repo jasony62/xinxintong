@@ -6,6 +6,20 @@
 class TMS_MODEL
 {
   /**
+   * 根日志，默认info级别
+   */
+  protected $logger;
+  /**
+   * 运维日志，默认trace级别
+   */
+  protected $devLogger;
+
+  public function __construct()
+  {
+    $this->logger = \Logger::getLogger(get_class($this));
+    $this->devLogger = \Logger::getLogger('dev');
+  }
+  /**
    *
    */
   private static $models = [];

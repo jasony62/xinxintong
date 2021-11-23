@@ -14,17 +14,6 @@ class data_model extends entity_model
    */
   const DEFAULT_FIELDS = 'id,state,value,tag,supplement,rid,enroll_key,schema_id,userid,group_id,nickname,submit_at,score,remark_num,last_remark_at,like_num,like_log,modify_log,agreed,agreed_log,multitext_seq,vote_num';
   /**
-   * 
-   */
-  private $logger;
-  /**
-   * 
-   */
-  public function __construct()
-  {
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-  /**
    * 按题目记录数据
    * 不产生日志、行为分等记录
    *
@@ -223,7 +212,7 @@ class data_model extends entity_model
           $aSchemaData['is_multitext_root'] = 'Y';
           $aSchemaData['multitext_seq'] = 0;
         }
-        isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = $oRecordScore->{$schemaId};
+        isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = (float)$oRecordScore->{$schemaId};
         if (empty($aSchemaData['score'])) $aSchemaData['score'] = 0; // 避免空字符串的情况
         $this->insert('xxt_enroll_record_data', $aSchemaData, false);
       } else if (count($oLastSchemaValues) == 1) {
@@ -250,7 +239,7 @@ class data_model extends entity_model
             'submit_at' => $oRecord->enroll_at,
             'value' => $this->escape($treatedValue),
             'modify_log' => $this->escape($this->toJson($valueModifyLogs)),
-            'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
+            'score' => isset($oRecordScore->{$schemaId}) ? (float)$oRecordScore->{$schemaId} : 0,
           ];
           if ($oLastSchemaValues[0]->userid === $oUser->uid) {
             $aSchemaData['nickname'] = $this->escape($oRecord->nickname);
@@ -258,7 +247,7 @@ class data_model extends entity_model
           }
         } else {
           $aSchemaData = [
-            'score' => isset($oRecordScore->{$schemaId}) ? $oRecordScore->{$schemaId} : 0,
+            'score' => isset($oRecordScore->{$schemaId}) ? (float)$oRecordScore->{$schemaId} : 0,
           ];
         }
 

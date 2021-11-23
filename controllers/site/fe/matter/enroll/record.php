@@ -9,18 +9,6 @@ include_once dirname(__FILE__) . '/base.php';
 class record extends base
 {
   /**
-   * 
-   */
-  private $logger;
-  /**
-   * 
-   */
-  public function __construct()
-  {
-    parent::__construct();
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-  /**
    * 在调用每个控制器的方法前调用
    */
   public function tmsBeforeEach($app = null, $task = null)

@@ -9,17 +9,6 @@ require_once dirname(__FILE__) . '/record_base.php';
 class record extends record_base
 {
   /**
-   * 
-   */
-  private $logger;
-  /**
-   * 
-   */
-  public function __construct()
-  {
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-  /**
    * 获得指定记录
    */
   public function get_action($ek)

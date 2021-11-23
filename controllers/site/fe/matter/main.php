@@ -8,14 +8,6 @@ require_once dirname(__FILE__) . '/base.php';
  */
 class main extends \site\fe\matter\base
 {
-  private $logger;
-
-  public function __construct()
-  {
-    parent::__construct();
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-
   public function get_access_rule()
   {
     $rule_action['rule_type'] = 'black';

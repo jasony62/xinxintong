@@ -9,17 +9,6 @@ require_once dirname(dirname(__FILE__)) . '/base.php';
 class user extends \pl\fe\matter\base
 {
   /**
-   * 
-   */
-  private $logger;
-  /**
-   * 
-   */
-  public function __construct()
-  {
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-  /**
    *
    */
   public function index_action($id)

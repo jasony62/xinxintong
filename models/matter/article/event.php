@@ -8,17 +8,6 @@ namespace matter\article;
 class event_model extends \TMS_MODEL
 {
   /**
-   * 
-   */
-  private $logger;
-  /**
-   * 
-   */
-  public function __construct()
-  {
-    $this->logger = \Logger::getLogger(__CLASS__);
-  }
-  /**
    * 访问单图文时
    */
   public function logAccess($articleId, $oUser)

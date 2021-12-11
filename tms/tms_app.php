@@ -25,13 +25,6 @@ class TMS_APP
   private static $default_action = 'default';
   private static $model_prefix = '_model';
   /**
-   * 
-   */
-  private static function logger()
-  {
-    return Logger::getRootLogger();
-  }
-  /**
    * 实例化model
    *
    * model_path可以用'\'，'/'和'.'进行分割。用'\'代表namespace，用'/'代表目录，用'.'代表文件问题

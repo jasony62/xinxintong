@@ -34,7 +34,7 @@ class schema_model extends \TMS_MODEL
    */
   public function purify($aAppSchemas)
   {
-    $validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'formula', 'limitChoice', 'range', 'required', 'readonly', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'showHistoryAtRepos', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp', 'rankScoreAbove'];
+    $validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'formula', 'limitChoice', 'range', 'required', 'readonly', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'showHistoryAtRepos', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'answerLength', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'mschema_id', 'asdir', 'scoreApp', 'rankScoreAbove'];
     $validPropsBySchema = [
       'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
     ];
@@ -100,6 +100,11 @@ class schema_model extends \TMS_MODEL
           }
           break;
         case 'shorttext':
+          /*答案长度必须是大于0的整数，如果不是就清除掉*/
+          if (isset($oSchema->answerLength)) {
+            $val = intval($oSchema->answerLength);
+            if ($val <= 0) unset($oSchema->answerLength);
+          }
           if (isset($oSchema->format)) {
             switch ($oSchema->format) {
               case 'number':

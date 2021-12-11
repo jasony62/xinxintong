@@ -143,6 +143,12 @@
       <label>设置参考答案</label>
       <input class='form-control' type='text' ng-model='activeSchema.answer' ng-change="updSchema(activeSchema)">
     </div>
+    <!--短文本设置计分条件-->
+    <div class="form-group" ng-if="activeSchema.type==='shorttext'">
+      <label>答案长度大于等于设置值时给分</label>
+      <input class='form-control' type='text' ng-model='activeSchema.answerLength' ng-change="updSchema(activeSchema)">
+      <div class='help-block'>大于0的整数。优先于【参考答案】设置。</div>
+    </div>
     <!--长文本设置参考答案或要求-->
     <div class="form-group" ng-if="['longtext','voice'].indexOf(activeSchema.type)!==-1">
       <label>设置参考答案或要求</label>

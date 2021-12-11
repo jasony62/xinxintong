@@ -456,7 +456,7 @@ class data_model extends entity_model
     $fnEvaluation = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oScoreContext) {
       $schemaScore = null; // 题目的数据分
       switch ($oSchema->type) {
-        case 'shorttext';
+        case 'shorttext':
           if (isset($oSchema->format) && in_array($oSchema->format, ['number', 'calculate'])) {
             if (isset($oSchema->weight)) {
               $aScoreResult = $this->model('matter\enroll\schema')->scoreByWeight($oSchema, $treatedValue, $oScoreContext);
@@ -541,7 +541,7 @@ class data_model extends entity_model
 
     /* 测验 */
     $fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum, $fnParseAnswer) {
-      if (empty($oSchema->answer)) {
+      if (empty($oSchema->answer) && empty($oSchema->answerLength)) {
         return false;
       }
       $quizScore = null;
@@ -609,8 +609,11 @@ class data_model extends entity_model
             }
 
             if (isset($lastUserAnswer) && $lastUserAnswer === $userAnswer) {
-              //有提交记录且没修改且已经评分
+              // 有提交记录且没修改且已经评分
               $quizScore = $oLastSchemaData->score;
+            } else if ($oSchema->type === 'shorttext' && isset($oSchema->answerLength) && intval($oSchema->answerLength)) {
+              // 单行文本题，指定了答案长度，答案内容长度大于等于指定长度
+              $quizScore = mb_strlen($userAnswer) >= $oSchema->answerLength ? $oSchema->score : 0;
             } elseif ($userAnswer === $oSchema->answer) {
               // 如果提交的内容和答案完全一样
               $quizScore = $oSchema->score;

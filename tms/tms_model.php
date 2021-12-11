@@ -6,9 +6,13 @@
 class TMS_MODEL
 {
   /**
-   *
+   * 根日志，默认info级别
    */
-  private static $models = [];
+  protected $logger;
+  /**
+   * 运维日志，默认trace级别
+   */
+  protected $devLogger;
   /**
    *
    */
@@ -81,9 +85,12 @@ class TMS_MODEL
       $r = new ReflectionClass($model_class);
       $model_obj = $r->newInstanceArgs(array_slice($args, 1));
     }
-    self::$models[$model_class] = $model_obj;
 
-    return self::$models[$model_class];
+    /* 设置日志 */
+    $model_obj->logger = \Logger::getLogger(get_class($model_obj));
+    $model_obj->devLogger = \Logger::getLogger('dev');
+
+    return $model_obj;
   }
   /**
    * 根据id，返回1条记录

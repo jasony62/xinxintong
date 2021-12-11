@@ -40,25 +40,25 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
                       tinymceEditor.remove()
                       $mi.dismiss()
                     }
-                    $scope2.$on('tinymce.multipleimage.open', function (
-                      event,
-                      callback
-                    ) {
-                      var options = {
-                        callback: callback,
-                        multiple: true,
-                        setshowname: true,
+                    $scope2.$on(
+                      'tinymce.multipleimage.open',
+                      function (event, callback) {
+                        var options = {
+                          callback: callback,
+                          multiple: true,
+                          setshowname: true,
+                        }
+                        mediagallery.open(_siteId, options)
                       }
-                      mediagallery.open(_siteId, options)
-                    })
-                    $scope2.$on('tinymce.instance.init', function (
-                      event,
-                      editor
-                    ) {
-                      var page
-                      tinymceEditor = editor
-                      editor.setContent(content)
-                    })
+                    )
+                    $scope2.$on(
+                      'tinymce.instance.init',
+                      function (event, editor) {
+                        var page
+                        tinymceEditor = editor
+                        editor.setContent(content)
+                      }
+                    )
                   },
                 ],
                 size: 'lg',
@@ -96,9 +96,9 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
             })
           },
           submitChange: function (changedPages) {
-            var deferred = $q.defer()
+            let deferred = $q.defer()
             srvApp.get().then(function (oApp) {
-              var updatedAppProps = ['dataSchemas'],
+              let updatedAppProps = ['dataSchemas'],
                 oSchema,
                 oNicknameSchema,
                 oAppNicknameSchema
@@ -1301,9 +1301,10 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
                             if (_oResult.type === 'act') {
                               _oResult.selected = oSchema.ds.name
                             } else if (FnValidSchemas[_oResult.type]) {
-                              $scope2.schemas = _oResult.fromApp.dataSchemas.filter(
-                                FnValidSchemas[_oResult.type]
-                              )
+                              $scope2.schemas =
+                                _oResult.fromApp.dataSchemas.filter(
+                                  FnValidSchemas[_oResult.type]
+                                )
                               $scope2.schemas.forEach(function (oSchema2) {
                                 if (
                                   oSchema.ds.schema.indexOf(oSchema2.id) !== -1

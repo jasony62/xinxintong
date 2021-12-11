@@ -148,7 +148,7 @@ class TMS_CONTROLLER
   public function model()
   {
     $args = func_get_args();
-    $model = call_user_func_array(array('TMS_APP', "model"), $args);
+    $model = call_user_func_array(array('TMS_MODEL', "model"), $args);
     if (isset($this->tmsTransaction)) {
       $model->tmsTransaction = $this->tmsTransaction;
     }

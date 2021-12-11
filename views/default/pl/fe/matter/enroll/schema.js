@@ -33,13 +33,13 @@ define(['frame'], function (ngApp) {
                   oApp.id,
                 testChunks: false,
               })
-              oResu.on('fileAdded', function (file, event) {
+              oResu.on('fileAdded', function () {
                 $scope.$apply(function () {
                   noticebox.progress('开始上传文件')
                 })
                 oResu.upload()
               })
-              oResu.on('progress', function (file, event) {
+              oResu.on('progress', function () {
                 $scope.$apply(function () {
                   noticebox.progress(
                     '正在上传文件：' + Math.floor(oResu.progress() * 100) + '%'
@@ -117,7 +117,7 @@ define(['frame'], function (ngApp) {
               }
               $scope2.$watch(
                 'options',
-                function (nv) {
+                function () {
                   $scope2.hasError = false
                   $scope2.intersectedValidNum = 0
                   if (!oOptions.rid) {

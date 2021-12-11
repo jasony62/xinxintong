@@ -576,7 +576,7 @@ class record extends base
      * 分块上传文件
      */
     $dest = '/enroll/' . $oApp->id . '/' . $submitkey . '_' . $fileData['resumableFilename'];
-    $oResumable = $this->model('fs/resumable', $oApp->siteid, $dest, '_user');
+    $oResumable = $this->model('fs/resumable', $oApp->siteid, $dest);
     $aResult = $oResumable->handleRequest($fileData);
     if (true === $aResult[0]) {
       header("HTTP/1.0 200 OK");

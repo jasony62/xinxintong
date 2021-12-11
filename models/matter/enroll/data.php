@@ -440,6 +440,8 @@ class data_model extends entity_model
    */
   public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore, &$aOptimizedFormulas = null)
   {
+    $this->devLogger->info('schema: ' . json_encode($aSchemasById));
+
     $oRecordScore = new \stdClass; // 记录的数据分数据
     $oRecordScore->sum = 0; // 记录总分
     $oQuizNum = new \stdClass;
@@ -541,9 +543,12 @@ class data_model extends entity_model
 
     /* 测验 */
     $fnQuestion = function (&$oSchema, $treatedValue, &$oRecordScore) use ($oRecord, $oAssignScore, $oQuizNum, $fnParseAnswer) {
-      if (empty($oSchema->answer) && empty($oSchema->answerLength)) {
+      if (empty($oSchema->score)) return false; // 没有指定分分数
+      // 除图片题外，其它的题目必须有答案，answer或answerLength
+      if ($oSchema->type !== 'image' && empty($oSchema->answer) && empty($oSchema->answerLength)) {
         return false;
       }
+
       $quizScore = null;
       $oQuizNum->schema++;
       switch ($oSchema->type) {
@@ -577,6 +582,16 @@ class data_model extends entity_model
           if (count($oSchema->answer) === $correct) {
             $oQuizNum->correctSchema++;
           }
+          break;
+        case 'image':
+          // 上传的数据是逗号分隔的列表，转化为数组
+          $num = count(explode(',', $treatedValue)); // 上传图片的数量
+          $quizScore = 0;
+          if (isset($oSchema->answerLength) && intval($oSchema->answerLength)) {
+            if ($num >= $oSchema->answerLength) // 上传图片数量大于等于要求的数量
+              $quizScore = $oSchema->score;
+          } elseif ($num > 0) // 如果没有指定数量限制，只要上传了就给分
+            $quizScore = $oSchema->score;
           break;
         default: // 主观题
           if ($oSchema->type === 'voice') {

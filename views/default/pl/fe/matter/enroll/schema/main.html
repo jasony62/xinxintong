@@ -121,7 +121,7 @@
     <span class="text-danger small" ng-if="activeSchema.type==='file'" style="word-wrap: break-word;">注：支持格式{{filetypes}}</span>
   </div>
   <!-- score -->
-  <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score','voice'].indexOf(activeSchema.type)!==-1">
+  <div class="checkbox" ng-if="['single','multiple','shorttext','longtext','score','voice','image'].indexOf(activeSchema.type)!==-1">
     <hr>
     <label>
       <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.requireScore' ng-change="updSchema(activeSchema,null,'requireScore')"> 需要计分</label>
@@ -148,6 +148,12 @@
       <label>答案长度大于等于设置值时给分</label>
       <input class='form-control' type='text' ng-model='activeSchema.answerLength' ng-change="updSchema(activeSchema)">
       <div class='help-block'>大于0的整数。优先于【参考答案】设置。</div>
+    </div>
+    <!--上传图片设置计分条件-->
+    <div class="form-group" ng-if="activeSchema.type==='image'">
+      <label>上传数量大于等于设置值时给分</label>
+      <input class='form-control' type='text' ng-model='activeSchema.answerLength' ng-change="updSchema(activeSchema)">
+      <div class='help-block'>大于0的整数。若不设置，上传就给分。</div>
     </div>
     <!--长文本设置参考答案或要求-->
     <div class="form-group" ng-if="['longtext','voice'].indexOf(activeSchema.type)!==-1">

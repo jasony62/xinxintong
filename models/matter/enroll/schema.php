@@ -100,11 +100,6 @@ class schema_model extends \TMS_MODEL
           }
           break;
         case 'shorttext':
-          /*答案长度必须是大于0的整数，如果不是就清除掉*/
-          if (isset($oSchema->answerLength)) {
-            $val = intval($oSchema->answerLength);
-            if ($val <= 0) unset($oSchema->answerLength);
-          }
           if (isset($oSchema->format)) {
             switch ($oSchema->format) {
               case 'number':
@@ -291,6 +286,12 @@ class schema_model extends \TMS_MODEL
           }
         }
       }
+      /* 数量限制 */
+      if (isset($oSchema->count)) {
+        $val = intval($oSchema->count);
+        if ($val > 0) $oSchema->count = $val;
+        else unset($oSchema->count);
+      }
       /* 答案题 */
       if (isset($oSchema->answer)) {
         switch ($oSchema->type) {
@@ -327,6 +328,18 @@ class schema_model extends \TMS_MODEL
             }
             break;
         }
+      }
+      /* 答案长度必须是大于0的整数，如果不是就清除掉 */
+      if (isset($oSchema->answerLength)) {
+        $val = intval($oSchema->answerLength);
+        if ($val > 0) $oSchema->answerLength = $val;
+        else unset($oSchema->answerLength);
+      }
+      /* 题目得分 */
+      if (isset($oSchema->score)) {
+        $val = intval($oSchema->score);
+        if ($val > 0) $oSchema->score = $val;
+        else unset($oSchema->score);
       }
       /* 是否参与打分排名 */
       if (isset($oSchema->rankScoreAbove) && !is_numeric($oSchema->rankScoreAbove)) {
@@ -513,7 +526,7 @@ class schema_model extends \TMS_MODEL
     if (!is_string($formula)) {
       return [false];
     }
-    $aOptimizedFormulas = (isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
+    $aOptimizedFormulas =  (isset($oContext) && isset($oContext->optimizedFormulas) && is_array($oContext->optimizedFormulas)) ? $oContext->optimizedFormulas : null;
 
     if (!isset($aOptimizedFormulas[$oSchema->id])) {
       /* 解析公式 */

@@ -1210,9 +1210,11 @@ ngApp.controller('ctrlInput', [
           html +=
             '<button class="btn btn-default" ng-click="pasteImage(\'' +
             oSchema.id +
-            "',$event," +
-            oSchema.count +
-            ')">点击按钮<br>Ctrl+V<br>粘贴截图'
+            "',$event"
+          if (oSchema.count !== undefined && parseInt(oSchema.count)) {
+            html += ',' + oSchema.count
+          }
+          html += ')">点击按钮<br>Ctrl+V<br>粘贴截图'
           html +=
             '<div contenteditable="true" tabindex="-1" style="width:1px;height:1px;position:fixed;left:-100px;overflow:hidden;"></div>'
           html += '</button>'

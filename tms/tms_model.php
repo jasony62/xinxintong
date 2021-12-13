@@ -87,8 +87,13 @@ class TMS_MODEL
     }
 
     /* 设置日志 */
-    $model_obj->logger = \Logger::getLogger(get_class($model_obj));
-    $model_obj->devLogger = \Logger::getLogger('dev');
+    /* kcfinder中无法加载Logger，autoloader冲突 */
+    if (class_exists('\Logger')) {
+      $model_obj->logger = \Logger::getLogger(get_class($model_obj));
+      $model_obj->devLogger = \Logger::getLogger('dev');
+    } else {
+      /* 需要实现一个自定义的版本 */
+    }
 
     return $model_obj;
   }

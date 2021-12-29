@@ -21,6 +21,25 @@ function isTraceError()
 {
   return defined('TMS_APP_EXCEPTION_TRACE') && TMS_APP_EXCEPTION_TRACE === 'Y';
 }
+/**
+ * 
+ */
+function throwableToStr($excep)
+{
+  $modelLog = TMS_APP::M('log');
+  $str = $excep->getMessage();
+  $trace = $excep->getTrace();
+  foreach ($trace as $t) {
+    $str .= '<br>';
+    foreach ($t as $k => $v) {
+      if (!in_array($k, ['file', 'line'])) {
+        continue;
+      }
+      $str .= $modelLog->toJson($v) . ' ';
+    }
+  }
+  return $str;
+}
 /***************************
  * error and exception handle
  ***************************/
@@ -38,24 +57,15 @@ function show_error($message)
   $logger = Logger::getRootLogger();
   $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
   $modelLog = TMS_APP::M('log');
+
   if ($message instanceof UrlNotMatchException || $message instanceof SiteUserException) {
     /* 已知异常信息 */
     $msg = $message->getMessage();
-  } else if ($message instanceof Exception) {
+  } else if ($message instanceof Throwable) {
     /* 未知异常 */
-    $logger->error($method, $message);
-    $excep = $message->getMessage();
-    $trace = $message->getTrace();
-    foreach ($trace as $t) {
-      $excep .= '<br>';
-      foreach ($t as $k => $v) {
-        if (!in_array($k, ['file', 'line'])) {
-          continue;
-        }
-        $excep .= $modelLog->toJson($v) . ' ';
-      }
-    }
-    $msg = isTraceError() ? $excep : '应用程序内部错误';
+    $excep = throwableToStr($message);
+    $logger->error(str_replace('<br>', PHP_EOL, $excep));
+    $msg = isTraceError() ? $excep : '应用程序内部异常错误';
   } else if (is_string($message)) {
     /* 文本错误信息 */
     $logger->error($message);

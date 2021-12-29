@@ -1,7 +1,14 @@
 <?php
 class local_model
 {
-
+  /**
+   * 根日志，默认info级别
+   */
+  protected $logger;
+  /**
+   * 运维日志，默认trace级别
+   */
+  protected $devLogger;
   // 当前公众平台
   protected $siteId;
   // 用于分割不同类型的存储资源
@@ -11,6 +18,13 @@ class local_model
 
   public function __construct($siteId, $bucket)
   {
+    if (class_exists('\Logger')) {
+      $this->logger = \Logger::getLogger(get_class($this));
+      $this->devLogger = \Logger::getLogger('dev');
+    } else {
+      /* 需要实现一个自定义的版本 */
+    }
+
     $this->siteId = $siteId;
 
     $this->bucket = $bucket;
@@ -177,48 +191,72 @@ class local_model
    */
   public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 480)
   {
-    $source_info = getimagesize($imageUrl);
-    if (false === $source_info) {
-      return [false];
+    $exif = exif_read_data($imageUrl);
+    if (false === $exif) return [false];
+
+    /* 获取图像基本信息 */
+    $source_mime = $exif['MimeType'];
+    $orientation = isset($exif['Orientation']) ? $exif['Orientation'] : 1;
+    $size = $exif['COMPUTED'];
+
+    switch ($source_mime) {
+      case 'image/gif':
+        $source_image = imagecreatefromgif($imageUrl);
+        break;
+      case 'image/jpeg':
+        $source_image = imagecreatefromjpeg($imageUrl);
+        break;
+      case 'image/png':
+        $source_image = imagecreatefrompng($imageUrl);
+        break;
+    }
+    if (!isset($source_image)) return [false];
+
+    $rotated = false;
+    switch ($orientation) {
+      case 1:
+        $source_width = $size['Width'];
+        $source_height = $size['Height'];
+        break;
+      case 3:
+        $source_width = $size['Width'];
+        $source_height = $size['Height'];
+        $source_image = imagerotate($source_image, 180, 0);
+        $rotated = true;
+        break;
+      case 8:
+        $source_width = $size['Height'];
+        $source_height = $size['Width'];
+        $source_image = imagerotate($source_image, 90, 0);
+        $rotated = true;
+        break;
+      case 6:
+        $source_width = $size['Height'];
+        $source_height = $size['Width'];
+        $source_image = imagerotate($source_image, -90, 0);
+        $rotated = true;
+        break;
     }
 
-    list($source_width, $source_height) = $source_info;
-
     $max_source = max($source_width, $source_height);
-    if ($max_source > $maxWidthOrHeight) {
-      $source_mime = $source_info['mime'];
-      switch ($source_mime) {
-        case 'image/gif':
-          $source_image = imagecreatefromgif($imageUrl);
-          break;
+    if ($rotated || $max_source > $maxWidthOrHeight) {
+      // 压缩后的图片
+      $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
+      $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
 
-        case 'image/jpeg':
-          $source_image = imagecreatefromjpeg($imageUrl);
-          break;
+      $target_image = imagecreatetruecolor($target_width, $target_height);
+      imagecopyresampled($target_image, $source_image, 0, 0, 0, 0, $target_width, $target_height, $source_width, $source_height);
 
-        case 'image/png':
-          $source_image = imagecreatefrompng($imageUrl);
-          break;
-      }
-      if (isset($source_image)) {
-        // 压缩后的图片
-        $target_width = (int) ($source_width / $max_source * $maxWidthOrHeight);
-        $target_height = (int) ($source_height / $max_source * $maxWidthOrHeight);
+      // 压缩后的文件名
+      $segs = explode('.', $imageUrl);
+      $ext = end($segs);
+      // 替换名称
+      $compactImageUrl = str_replace($ext, $prefix . '.' . $ext, $imageUrl);
+      $newUrl = $this->write($compactImageUrl, $target_image, false);
 
-        $target_image = imagecreatetruecolor($target_width, $target_height);
-        imagecopyresampled($target_image, $source_image, 0, 0, 0, 0, $target_width, $target_height, $source_width, $source_height);
+      imagedestroy($target_image);
 
-        // 压缩后的文件名
-        $segs = explode('.', $imageUrl);
-        $ext = end($segs);
-        // 替换名称
-        $compactImageUrl = str_replace($ext, $prefix . '.' . $ext, $imageUrl);
-        $newUrl = $this->write($compactImageUrl, $target_image, false);
-
-        imagedestroy($target_image);
-
-        return [true, $newUrl];
-      }
+      return [true, $newUrl];
     }
 
     return [false];

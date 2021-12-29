@@ -440,8 +440,6 @@ class data_model extends entity_model
    */
   public function socreRecordData($oApp, $oRecord, $aSchemasById, $dbData, $oAssignScore, &$aOptimizedFormulas = null)
   {
-    $this->devLogger->info('schema: ' . json_encode($aSchemasById));
-
     $oRecordScore = new \stdClass; // 记录的数据分数据
     $oRecordScore->sum = 0; // 记录总分
     $oQuizNum = new \stdClass;

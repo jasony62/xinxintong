@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN docker-php-ext-install mysqli bcmath zip
 
+RUN docker-php-ext-install exif && docker-php-ext-enable exif 
+
 # 安装composeer
 
 RUN php -r "copy('https://install.phpcomposer.com/installer', 'composer-setup.php');" && \

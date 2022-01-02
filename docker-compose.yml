@@ -58,3 +58,12 @@ services:
     restart: always
     # ports:
     # - 3000:3000
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: xxt_swagger-ui
+    restart: always
+    # environment:
+    # - URL=http://localhost:3000/oas
+    # ports:
+    #   - '7070:8080'

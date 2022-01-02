@@ -9,3 +9,13 @@
 | 项目   | 说明     | 默认值 |
 | ------ | -------- | ------ |
 | 端口号 | 服务端口 | 3000   |
+
+# 容器操作
+
+## 更新代码
+
+在项目目录下执行
+
+> docker cp $PWD/api/controllers xxt_backapi_1:/usr/src/app/
+
+> docker-compose restart backapi

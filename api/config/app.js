@@ -15,4 +15,8 @@ module.exports = {
       prefix: '/metrics', // 提供给prometheus的地址
     },
   },
+  cors: {
+    origin: '*',
+    credentials: true,
+  },
 }

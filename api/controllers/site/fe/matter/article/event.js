@@ -9,7 +9,7 @@ class Main extends Ctrl {
   /**
    * @swagger
    *
-   *  /site/fe/matter/article/event/users:
+   *  /site/fe/matter/article/event/logAccess:
    *    post:
    *      description: 记录用户行为数据
    *      requestBody:
@@ -17,7 +17,23 @@ class Main extends Ctrl {
    *          application/json:
    *            schema:
    *              type: object
-   *        required: true
+   *              properties:
+   *                user:
+   *                  type: object
+   *                  properties:
+   *                    id:
+   *                      type: string
+   *                    name:
+   *                      type: string
+   *                  required: true
+   *                article:
+   *                  type: object
+   *                  properties:
+   *                    id:
+   *                      type: string
+   *                    title:
+   *                      type: string
+   *                  required: true
    */
   async logAccess() {
     let { user, article } = this.request.body

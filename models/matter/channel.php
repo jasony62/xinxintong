@@ -469,7 +469,7 @@ class channel_model extends article_base
    * @param int $id channel's id
    * @param object $matter
    */
-  public function addMatter($id, $matter, $createrId, $createrName, $createrSrc = 'A')
+  public function addMatter($id, $matter, $createrId, $createrName)
   {
     is_array($matter) && $matter = (object) $matter;
 

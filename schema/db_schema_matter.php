@@ -200,27 +200,6 @@ if (!$mysqli->query($sql)) {
   echo 'database error: ' . $mysqli->error;
 }
 /**
- * 内置素材
- * 1、通讯录
- * 2、个人身份信息（已去除）
- * 3、翻译
- * 4、按关键字搜索文章
- * 5、用户注册
- * 6、投稿箱
- * 7、按编号搜索文章
- * 8、按编号搜索活动
- * 9、我发起的活动
- */
-$sql = "create table if not exists xxt_inner(";
-$sql .= "id int not null";
-$sql .= ",title varchar(70) not null";
-$sql .= ",name varchar(30) not null";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-  header('HTTP/1.0 500 Internal Server Error');
-  echo 'database error: ' . $mysqli->error;
-}
-/**
  * 模板消息
  */
 $sql = "create table if not exists xxt_tmplmsg(";

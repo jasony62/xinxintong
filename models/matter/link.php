@@ -105,29 +105,9 @@ class link_model extends base_model
             $url = "?site=$siteId&id=$matter->id&type=link";
           }
           break;
-        case 1: // news
-          $url = "?site=$siteId&type=news&id=" . $matter->url;
-          break;
         case 2: // channel
           $url = "?site=$siteId&type=channel&id=" . $matter->url;
           break;
-        case 3: // inner
-          $reply = \TMS_APP::model('reply\inner', $call, $matter->url);
-          $url = $reply->exec(false);
-          $q = array(
-            'pname,pvalue,authapi_id',
-            'xxt_link_param',
-            "link_id=$matter->id",
-          );
-          if ($params = $this->query_objs_ss($q)) {
-            $url .= (strpos($url, '?') === false) ? '?' : '&';
-            $url .= $this->_spliceParams($siteId, $params, $openid);
-          }
-          if (preg_match('/^(http:|https:)/', $url) === 0) {
-            $url = 'http://' . $url;
-          }
-
-          return $url;
         default:
           die('unknown link urlsrc.');
       }

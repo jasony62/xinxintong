@@ -339,7 +339,6 @@ class main extends \pl\fe\matter\main_base
   /**
    * 建立频道和素材的关联
    *
-   * @param string $site site's id
    * @param int $channel channel's id
    *
    */

@@ -1,18 +1,22 @@
 version: '3.7'
 services:
   db:
-    image: mariadb
+    image: mariadb:10.4.13
+    container_name: xxt_db
     restart: always
-    ports:
-      - 3306:3306
-    # volumes:
+    # ports:
+    #   - 3306:3306
+    volumes:
+      - ./docker/mariadb/conf:/etc/mysql/conf.d
     #   - ./docker/mariadb/data:/var/lib/mysql
+    #   - ./docker/mariadb/log:/var/log/mysql
     # environment:
     #   MYSQL_ROOT_PASSWORD: 123456
 
   php-fpm:
     build: ./docker/php-fpm
     image: xxt/php-fpm
+    container_name: xxt_php-fpm
     restart: always
     volumes:
       - .:/usr/share/nginx/html
@@ -20,6 +24,7 @@ services:
   nginx:
     build: ./docker/nginx
     image: xxt/nginx
+    container_name: xxt_nginx
     restart: always
     volumes:
       - .:/usr/share/nginx/html
@@ -35,12 +40,14 @@ services:
 
   adminer:
     image: adminer
+    container_name: xxt_adminer
     restart: always
     # ports:
     #   - 9090:8080
 
   mongodb:
     image: mongo:latest
+    container_name: xxt_mongodb
     restart: always
     # ports:
     #   - '27017:27017'
@@ -55,6 +62,7 @@ services:
   backapi:
     build: ./api
     image: xxt/api:latest
+    container_name: xxt_backapi
     restart: always
     # ports:
     # - 3000:3000
@@ -67,3 +75,49 @@ services:
     # - URL=http://localhost:3000/oas
     # ports:
     #   - '7070:8080'
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: xxt_zk
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: xxt_kafka
+    environment:
+      - KAFKA_BROKER_ID=1
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    volumes:
+      - ./docker/kafka/logs:/bitnami/kafka
+    depends_on:
+      - zookeeper
+
+  canal-server:
+    image: canal/canal-server:v1.1.5
+    container_name: xxt_canal_server
+    restart: unless-stopped
+    # ports:
+    #   - 11111:11111
+    environment:
+      - canal.auto.scan=false
+      - canal.instance.master.address=db:3306
+      - canal.instance.dbUsername=canal
+      - canal.instance.dbPassword=canal
+      # - canal.instance.filter.regex=.*\\..*
+      # - canal.instance.connectionCharset=UTF-8
+      - canal.instance.filter.query.dml=true
+      - canal.serverMode=kafka
+      - canal.mq.servers=kafka:9092
+      - canal.mq.topic=db-xxt
+      - canal.mq.partition=0
+      - canal.mq.flatMessage=true
+    volumes:
+      - ./docker/canal/xxt-log/:/home/admin/canal-server/logs/
+    depends_on:
+      - db
+      - kafka

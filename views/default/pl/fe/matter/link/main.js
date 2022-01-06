@@ -21,7 +21,6 @@ define(['frame'], function (ngApp) {
       $scope.urlsrcs = {
         0: '外部链接',
         2: '频道',
-        3: '内置回复',
       }
       $scope.linkparams = {
         '{{openid}}': '用户标识(openid)',

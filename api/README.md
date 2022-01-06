@@ -16,6 +16,6 @@
 
 在项目目录下执行
 
-> docker cp $PWD/api/controllers xxt_backapi_1:/usr/src/app/
+> docker cp $PWD/api/controllers xxt_backapi:/usr/src/app/
 
 > docker-compose restart backapi

@@ -94,7 +94,7 @@ $sql[] = "drop table if exists xxt_text";
 $sql[] = "drop table if exists xxt_channel";
 $sql[] = "drop table if exists xxt_channel_matter";
 //
-$sql[] = "drop table if exists xxt_inner";
+// $sql[] = "drop table if exists xxt_inner";
 //
 $sql[] = "drop table if exists xxt_tmplmsg";
 $sql[] = "drop table if exists xxt_tmplmsg_param";

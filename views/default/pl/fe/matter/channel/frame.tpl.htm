@@ -36,12 +36,15 @@
         </li>
         <li ng-class="{'opened':opened==='publish'}">
           <a href='' ng-click="opened=opened==='publish'?false:'publish';switchTo('preview')">发布 <span class="caret"></span></a>
-          <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'82px':'0'}">
+          <ul class="nav nav-tabs nav-stacked" ng-style="{'height':opened==='publish'?'123px':'0'}">
             <li ng-class="{'active':subView==='preview'}">
               <a href='' ng-click="switchTo('preview')">预览</a>
             </li>
             <li ng-class="{'active':subView==='invite'}">
               <a href='' ng-click="switchTo('invite')">邀请</a>
+            </li>
+            <li ng-class="{'active':subView==='dispatch'}">
+              <a href='' ng-click="switchTo('dispatch')">授权</a>
             </li>
           </ul>
         </li>

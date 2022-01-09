@@ -386,6 +386,13 @@ class log_model extends \TMS_MODEL
     // 避免数据库双机同步延迟问题
     $this->setOnlyWriteDbConn(true);
 
+    if (!$oUser) {
+      $oUser = new \stdClass;
+      $oUser->id = 'unknown';
+      $oUser->name = 'unknown';
+      $oUser->src = 'S';
+    }
+
     $userid = $oUser->id;
     $matterId = $oMatter->id;
     $matterType = $oMatter->type;

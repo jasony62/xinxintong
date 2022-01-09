@@ -7,6 +7,7 @@ define(['frame'], function (ngApp) {
     'srvTag',
     'srvSite',
     'tkEntryRule',
+    '$uibModal',
     function (
       $scope,
       http2,
@@ -14,13 +15,15 @@ define(['frame'], function (ngApp) {
       noticebox,
       srvTag,
       srvSite,
-      tkEntryRule
+      tkEntryRule,
+      $uibModal
     ) {
       var modifiedData = {}
       $scope.modified = false
       $scope.urlsrcs = {
         0: '外部链接',
         2: '频道',
+        3: '频道（授权）',
       }
       $scope.linkparams = {
         '{{openid}}': '用户标识(openid)',
@@ -295,6 +298,44 @@ define(['frame'], function (ngApp) {
             }
           })
       }
+      $scope.alterChannel = function () {
+        $uibModal
+          .open({
+            templateUrl: 'alterChannel.html',
+            controller: [
+              '$scope',
+              '$uibModalInstance',
+              function ($scope2, $mi) {
+                $scope2.ok = function () {
+                  $mi.close()
+                }
+                $scope2.cancel = function () {
+                  $mi.dismiss()
+                }
+                let { protocol, hostname, port } = location
+                let baseUrl = `${protocol}//${hostname}:${port}`
+                let linkId = $scope.editing.id
+                http2
+                  .post(
+                    '/api/pl/fe/dispatch/create',
+                    {
+                      title: '请允许链接使用频道',
+                      apiUrl: `${baseUrl}/rest/pl/fe/matter/link/wrap/channel?id=${linkId}`,
+                      provider: { id: linkId, type: 'link' },
+                    },
+                    { parseResponse: false }
+                  )
+                  .then((rsp) => {
+                    if (rsp.code === 0 && rsp.result) {
+                      $scope2.dispatchUrl = `${baseUrl}/api/pl/fe/dispatch/execute?token=${rsp.result}`
+                    }
+                  })
+              }.bind(this),
+            ],
+            backdrop: 'static',
+          })
+          .result.then()
+      }
       $scope.quitMission = function () {
         var that = this
         ;(matter = {
@@ -405,7 +446,7 @@ define(['frame'], function (ngApp) {
       }
       $scope.$watch('editing.urlsrc', function (nv) {
         switch (nv) {
-          case '2':
+          case '2': // 选择的团队内频道
             if ($scope.channels === undefined) {
               http2
                 .get(
@@ -418,12 +459,14 @@ define(['frame'], function (ngApp) {
                 })
             }
             break
-          case '3':
-            if ($scope.inners === undefined) {
+          case '3': // 通过授权方式关联的频道
+            if (parseInt($scope.editing.url) > 0) {
               http2
-                .get('/rest/pl/fe/matter/inner/list?site=' + $scope.siteId)
+                .get(
+                  `/rest/pl/fe/matter/channel/get?site=${$scope.siteId}&id=${$scope.editing.url}`
+                )
                 .then(function (rsp) {
-                  $scope.inners = rsp.data
+                  $scope.channel = rsp.data
                 })
             }
             break

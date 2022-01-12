@@ -189,7 +189,7 @@
         <label>可忽略参与规则进入的页面</label>
         <table class="table table-bordered">
           <tbody>
-            <tr ng-repeat="page in rule.exclude">
+            <tr ng-repeat="page in rule.exclude track by $index">
               <td style="padding: 0;">
                 <select style="border: 0;" class="form-control" ng-model="rule.exclude[$index]" ng-options="page.name as page.title for page in jumpPages.exclude" ng-change="updateRule()">
                 </select>

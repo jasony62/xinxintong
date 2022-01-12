@@ -8,7 +8,15 @@
 
 ## 在容器中运行
 
-> docker-compose up
+> docker-compose up -d db php-fpm nginx adminer mongodb backapi swagger-ui
+
+启动 kafka 消息队列
+
+> docker-compose up -d zookeeper kafka
+
+启动 canal-server 数据同步
+
+> docker-compose up -d canal-server
 
 需要在`php-fpm`容器中，`/usr/share/nginx/html`目录下，执行`composer install`命令，安装依赖的第三方包。
 

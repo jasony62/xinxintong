@@ -144,11 +144,8 @@ class main extends \site\fe\matter\base
           exit;
         }
         break;
-      case 1: // 多图文
-        //require_once dirname(__FILE__) . '/page_news.php';
-        //$page = new page_news((int) $oLink->url, $openid);
-        break;
       case 2: // 频道
+      case 3: // 授权方式添加的频道
         $channelUrl = $this->model('matter\channel')->getEntryUrl($oLink->siteid, (int) $oLink->url);
         $this->redirect($channelUrl);
         break;

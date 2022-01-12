@@ -79,7 +79,14 @@
         <div ng-switch='editing.urlsrc'>
           <textarea class='form-control' ng-model='editing.url' tms-auto-update tms-wait=1000 tms-update="update('url')" ng-switch-when="0"></textarea>
           <select class='form-control' ng-model='editing.url' ng-options='c.id as c.title for c in channels' ng-change="update('url')" ng-switch-when="2"></select>
-          <select class='form-control' ng-model='editing.url' ng-options='i.id as i.title for i in inners' ng-change="update('url')" ng-switch-when="3"></select>
+          <div class="input-group" ng-switch-when="3">
+            <input class='form-control' title="{{channel.title})" value="{{channel.title}}" readonly="">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" ng-click="alterChannel()">
+                <span class='glyphicon glyphicon-edit'></span>
+              </button>
+            </span>
+          </div>
         </div>
       </div>
       <div class='form-group' ng-show='editing.urlsrc==0'>
@@ -117,25 +124,6 @@
               </div>
               <select class='form-control' ng-model='p.pvalue' ng-options="k as v for (k,v) in linkparams " ng-change='updateParam(p)' ng-if='!p.customValue'></select>
               <input type='text' class='form-control' ng-model='p.pvalue' ng-if='p.customValue' tms-auto-update tms-wait=1000 tms-update='updateParam(p)'>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div class='form-group' ng-show='editing.urlsrc==3||editing.url==9'>
-        <label>参数（可选）</label>
-        <div>
-          <button class='btn btn-default btn-sm' ng-click='addParam()'>添加</button>
-          <ul class='list-group' name='params' style='margin-bottom:0'>
-            <li class='list-group-item' ng-repeat='p in editing.params'>
-              <div class='input-group'>
-                <p title='参数名称' class='form-control'>{{p.pname}}</p>
-                <span class='input-group-btn'>
-                  <button class='btn btn-default' ng-click='removeParam(p)'>
-                    <span class='glyphicon glyphicon-remove'></span>
-                  </button>
-                </span>
-              </div>
-              <select class='form-control' ng-model='p.pvalue' ng-options="c.id as c.title for c in channels" ng-change='updateParam(p)'></select>
             </li>
           </ul>
         </div>
@@ -218,4 +206,17 @@
     <div class="modal-footer">
         <button class="btn btn-primary" ng-click="ok()">确定</button>
     </div>
+</script>
+<script type="text/ng-template" id="alterChannel.html">
+  <div class="modal-header">
+      <button class="close" ng-click="cancel()">×</button>
+      <h5 class="modal-title">请求频道加入</h5>
+  </div>
+  <div class="modal-body">
+    <div class='form-control pl-line' ng-bind="dispatchUrl"></div>
+    <div class='help-block'>请将此链接发给有权限操作目标频道的用户，要求TA在频道管理界面中执行操作。</div>
+  </div>
+  <div class="modal-footer">
+      <button class="btn btn-primary" ng-click="ok()">确定</button>
+  </div>
 </script>

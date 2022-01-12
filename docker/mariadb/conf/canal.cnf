@@ -1,0 +1,4 @@
+[mysqld]
+binlog_format=ROW
+log_bin=mariadb-bin
+server_id=1

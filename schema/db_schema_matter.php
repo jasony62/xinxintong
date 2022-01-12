@@ -88,7 +88,7 @@ $sql .= ",start_at int not null default 0"; // 发布时间
 $sql .= ",pic text";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",mission_id int not null default 0"; // 所属项目
-$sql .= ",urlsrc int not null default '0' COMMENT 'url的来源，0：外部，1：多图文'";
+$sql .= ",urlsrc int not null default '0' COMMENT 'url的来源，0：外部，1：多图文，2：频道'";
 $sql .= ",url text";
 $sql .= ",method varchar(6) not null default 'GET'";
 $sql .= ",open_directly char(1) not null default 'N'";
@@ -195,27 +195,6 @@ $sql .= ",matter_id varchar(40) not null";
 $sql .= ",matter_type varchar(20)"; // article,kink
 $sql .= ",seq int not null default 10000"; // 置顶小于10000， 置底大于20000
 $sql .= ",primary key(channel_id,matter_id,matter_type)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
-if (!$mysqli->query($sql)) {
-  header('HTTP/1.0 500 Internal Server Error');
-  echo 'database error: ' . $mysqli->error;
-}
-/**
- * 内置素材
- * 1、通讯录
- * 2、个人身份信息（已去除）
- * 3、翻译
- * 4、按关键字搜索文章
- * 5、用户注册
- * 6、投稿箱
- * 7、按编号搜索文章
- * 8、按编号搜索活动
- * 9、我发起的活动
- */
-$sql = "create table if not exists xxt_inner(";
-$sql .= "id int not null";
-$sql .= ",title varchar(70) not null";
-$sql .= ",name varchar(30) not null";
-$sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
   header('HTTP/1.0 500 Internal Server Error');
   echo 'database error: ' . $mysqli->error;

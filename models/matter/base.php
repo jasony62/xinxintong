@@ -184,8 +184,10 @@ abstract class base_model extends \TMS_MODEL
     $current = time();
 
     /* 记录修改日志 */
-    $oUpdated->modifier = $oUser->id;
-    $oUpdated->modifier_name = $this->escape($oUser->name);
+    if ($oUser) {
+      $oUpdated->modifier = $oUser->id;
+      $oUpdated->modifier_name = $this->escape($oUser->name);
+    }
     $oUpdated->modify_at = $current;
 
     $rst = $this->update(

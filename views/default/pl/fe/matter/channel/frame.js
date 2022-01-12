@@ -89,6 +89,10 @@ define(['require'], function () {
           '/rest/pl/fe/matter/channel/invite',
           new RouteParam('invite', '/views/default/pl/fe/_module/')
         )
+        .when(
+          '/rest/pl/fe/matter/channel/dispatch',
+          new RouteParam('dispatchExec')
+        )
         .when('/rest/pl/fe/matter/channel/log', new RouteParam('log'))
         .otherwise(new RouteParam('main'))
 
@@ -145,6 +149,7 @@ define(['require'], function () {
             break
           case 'preview':
           case 'invite':
+          case 'dispatch':
             $scope.opened = 'publish'
             break
           case 'log':

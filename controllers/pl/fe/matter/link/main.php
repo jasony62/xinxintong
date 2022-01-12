@@ -9,6 +9,18 @@ require_once dirname(dirname(__FILE__)) . '/main_base.php';
 class main extends \pl\fe\matter\main_base
 {
   /**
+   * 在调用每个控制器的方法前调用
+   */
+  public function tmsBeforeEach()
+  {
+    // 要求登录用户操作
+    if (false === ($oUser = $this->accountUser())) {
+      return [false, new \ResponseTimeout()];
+    }
+    $this->user = $oUser;
+    return [true];
+  }
+  /**
    *
    */
   public function index_action()
@@ -29,11 +41,7 @@ class main extends \pl\fe\matter\main_base
    */
   public function get_action($id)
   {
-    if (false === ($user = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     $model = $this->model();
-    $options = $this->getPostJson();
 
     $oLink = $this->model('matter\link')->byIdWithParams($id);
     if ($oLink === false) {
@@ -67,9 +75,6 @@ class main extends \pl\fe\matter\main_base
    */
   public function list_action($site, $cascade = 'Y')
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     $model = $this->model();
     $oOptions = $this->getPostJson();
     /**
@@ -92,7 +97,7 @@ class main extends \pl\fe\matter\main_base
       }
     }
     if (isset($oOptions->byStar) && $oOptions->byStar === 'Y') {
-      $q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='article' and t.matter_id=l.id and userid='{$oUser->id}')";
+      $q[2] .= " and exists(select 1 from xxt_account_topmatter t where t.matter_type='article' and t.matter_id=l.id and userid='{$this->user->id}')";
     }
     $q2['o'] = 'create_at desc';
     $links = $model->query_objs_ss($q, $q2);
@@ -127,19 +132,16 @@ class main extends \pl\fe\matter\main_base
   /**
    *
    */
-  public function cascade_action($site, $id)
+  public function cascade_action($id)
   {
-    if (false === ($user = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     /**
      * params
      */
-    $q = array(
+    $q = [
       'id,pname,pvalue',
       'xxt_link_param',
       "link_id='$id'",
-    );
+    ];
     $l['params'] = $this->model()->query_objs_ss($q);
     /**
      * channels
@@ -153,10 +155,6 @@ class main extends \pl\fe\matter\main_base
    */
   public function create_action($site = null, $mission = null, $title = '新链接')
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
-
     $modelLink = $this->model('matter\link');
     $oLink = new \stdClass;
     /*从站点或项目获取的定义*/
@@ -179,10 +177,10 @@ class main extends \pl\fe\matter\main_base
 
     $oLink->title = $modelLink->escape($title);
 
-    $oLink = $modelLink->create($oUser, $oLink);
+    $oLink = $modelLink->create($this->user, $oLink);
 
     /* 记录操作日志 */
-    $this->model('matter\log')->matterOp($oLink->siteid, $oUser, $oLink, 'C');
+    $this->model('matter\log')->matterOp($oLink->siteid, $this->user, $oLink, 'C');
 
     return new \ResponseData($oLink);
   }
@@ -191,9 +189,6 @@ class main extends \pl\fe\matter\main_base
    */
   public function update_action($id)
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     $modelLink = $this->model('matter\link');
     $oLink = $modelLink->byId($id);
     if (false === $oLink) {
@@ -223,8 +218,8 @@ class main extends \pl\fe\matter\main_base
       $oLink->{$n} = $v;
     }
 
-    if ($oLink = $modelLink->modify($oUser, $oLink, $oUpdated)) {
-      $this->model('matter\log')->matterOp($oLink->siteid, $oUser, $oLink, 'U');
+    if ($oLink = $modelLink->modify($this->user, $oLink, $oUpdated)) {
+      $this->model('matter\log')->matterOp($oLink->siteid, $this->user, $oLink, 'U');
     }
 
     return new \ResponseData($oLink);
@@ -234,17 +229,13 @@ class main extends \pl\fe\matter\main_base
    */
   public function remove_action($id)
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
-
     $modelLink = $this->model('matter\link');
     $oLink = $modelLink->byId($id);
     if (false === $oLink) {
       return new \ObjectNotFoundError();
     }
 
-    $rst = $modelLink->remove($oUser, $oLink);
+    $rst = $modelLink->remove($this->user, $oLink);
 
     return new \ResponseData($rst);
   }
@@ -254,9 +245,6 @@ class main extends \pl\fe\matter\main_base
    */
   public function paramAdd_action($linkid)
   {
-    if (false === $this->accountUser()) {
-      return new \ResponseTimeout();
-    }
     $p = ['link_id' => $linkid, 'pname' => '', 'pvalue' => ''];
 
     $id = $this->model()->insert('xxt_link_param', $p);
@@ -271,11 +259,8 @@ class main extends \pl\fe\matter\main_base
    *
    * @param $id parameter's id
    */
-  public function paramUpd_action($site, $id)
+  public function paramUpd_action($id)
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     $p = $this->getPostJson();
 
     !empty($p->pvalue) && $p->pvalue = urldecode($p->pvalue);
@@ -292,11 +277,8 @@ class main extends \pl\fe\matter\main_base
    *
    * @param $id parameter's id
    */
-  public function removeParam_action($site, $id)
+  public function removeParam_action($id)
   {
-    if (false === ($oUser = $this->accountUser())) {
-      return new \ResponseTimeout();
-    }
     $rst = $this->model()->delete('xxt_link_param', "id=$id");
 
     return new \ResponseData($rst);

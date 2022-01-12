@@ -12,6 +12,7 @@ RUN cnpm install --production
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories
 
+# 修改时区
 RUN apk update && apk add bash tzdata \
   && cp -r -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 

@@ -10,7 +10,10 @@
   "license": "MIT",
   "dependencies": {
     "log4js": "^6.3.0",
-    "mongodb": "^4.1.2",
-    "tms-koa": "^0.0.68"
+    "mongodb": "^4.3.0",
+    "nanoid": "^3.1.30",
+    "ping": "^0.4.1",
+    "tms-koa": "^0.0.68",
+    "url-parse": "^1.5.4"
   }
 }

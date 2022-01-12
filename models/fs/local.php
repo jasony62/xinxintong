@@ -1,14 +1,7 @@
 <?php
+// @todo 是否要改为集成TMS_MODEL
 class local_model
 {
-  /**
-   * 根日志，默认info级别
-   */
-  protected $logger;
-  /**
-   * 运维日志，默认trace级别
-   */
-  protected $devLogger;
   // 当前公众平台
   protected $siteId;
   // 用于分割不同类型的存储资源
@@ -18,13 +11,6 @@ class local_model
 
   public function __construct($siteId, $bucket)
   {
-    if (class_exists('\Logger')) {
-      $this->logger = \Logger::getLogger(get_class($this));
-      $this->devLogger = \Logger::getLogger('dev');
-    } else {
-      /* 需要实现一个自定义的版本 */
-    }
-
     $this->siteId = $siteId;
 
     $this->bucket = $bucket;

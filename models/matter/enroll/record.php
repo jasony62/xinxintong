@@ -946,7 +946,7 @@ class record_model extends record_base
     $q[0] = 'count(*)';
     $total = (int) $this->query_val_ss($q);
     $oResult->total = $total;
-
+    $this->devLogger->info(json_encode($q));
     return $oResult;
   }
   /**
@@ -956,7 +956,12 @@ class record_model extends record_base
   {
     $oOptions = new \stdClass;
     $oOptions->fields = 'id';
-    $oResult = $this->byApp($oApp, $oOptions);
+
+    $oCriteria = new \stdClass;
+    $oCriteria->record = new \stdClass;
+    $oCriteria->record->rid = 'all';
+
+    $oResult = $this->byApp($oApp, $oOptions, $oCriteria);
 
     return $oResult->total;
   }

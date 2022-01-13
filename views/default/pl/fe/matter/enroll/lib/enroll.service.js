@@ -1320,8 +1320,7 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
                   function ($scope2, $mi) {
                     http2
                       .get(
-                        '/rest/pl/fe/matter/enroll/record/countByRound?rid=' +
-                          rid
+                        `/rest/pl/fe/matter/enroll/record/countByRound?app=${_appId}&rid=${rid}`
                       )
                       .then(function (rsp) {
                         var BaseDownloadUrl =

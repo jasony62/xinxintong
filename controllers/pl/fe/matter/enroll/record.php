@@ -2,6 +2,8 @@
 
 namespace pl\fe\matter\enroll;
 
+use ResponseError;
+
 require_once dirname(__FILE__) . '/record_base.php';
 /*
  * 记录活动的记录
@@ -121,18 +123,27 @@ class record extends record_base
   /**
    * 指定活动轮次的记录的数量
    */
-  public function countByRound_action($rid)
+  public function countByRound_action($rid = '')
   {
-    $modelRnd = $this->model('matter\enroll\round');
-    $oRound = $modelRnd->byId($rid, ['fields' => 'rid']);
-    if (false === $oRound) {
-      return new \ObjectNotFoundError();
+    if (!empty($rid) && $rid !== 'all') {
+      $modelRnd = $this->model('matter\enroll\round');
+      $oRound = $modelRnd->byId($rid, ['fields' => 'rid']);
+      if (false === $oRound) {
+        return new \ObjectNotFoundError();
+      }
+
+      $modelRec = $this->model('matter\enroll\record');
+      $count = $modelRec->byRound($oRound->rid, ['fields' => 'count(*)']);
+
+      return new \ResponseData($count);
+    } else if (!empty($this->app)) {
+      $modelRec = $this->model('matter\enroll\record');
+      $count = $modelRec->countByApp($this->app);
+
+      return new \ResponseData($count);
     }
 
-    $modelRec = $this->model('matter\enroll\record');
-    $count = $modelRec->byRound($oRound->rid, ['fields' => 'count(*)']);
-
-    return new \ResponseData($count);
+    return new ResponseError('没有制定有效的参数【app或rid】');
   }
   /**
    * 计算指定登记项所有记录的合计

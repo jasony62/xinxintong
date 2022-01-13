@@ -950,6 +950,17 @@ class record_model extends record_base
     return $oResult;
   }
   /**
+   * 查询符合条件的记录数
+   */
+  public function countByApp($oApp)
+  {
+    $oOptions = new \stdClass;
+    $oOptions->fields = 'id';
+    $oResult = $this->byApp($oApp, $oOptions);
+
+    return $oResult->total;
+  }
+  /**
    * 解析记录的内容，将数据库中的格式转换为应用格式
    */
   public function parse($oApp, &$records)

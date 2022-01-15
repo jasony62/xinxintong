@@ -107,17 +107,14 @@ define(['require'], function () {
       srvSite.snsList().then(function (oSns) {
         $scope.sns = oSns
       })
-      http2
-        .get(
-          '/rest/pl/fe/matter/link/get?site=' +
-            $scope.siteId +
-            '&id=' +
-            $scope.id
-        )
-        .then(function (rsp) {
-          $scope.editing = rsp.data
-          $scope.entryUrl = rsp.data.entryUrl
-        })
+      $scope.getLink = function () {
+        let { siteId, id } = $scope
+        return http2.get(`/rest/pl/fe/matter/link/get?site=${siteId}&id=${id}`)
+      }
+      $scope.getLink().then((rsp) => {
+        $scope.editing = rsp.data
+        $scope.entryUrl = rsp.data.entryUrl
+      })
     },
   ])
   /***/

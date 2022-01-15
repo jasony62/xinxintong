@@ -140,24 +140,18 @@ define(['frame'], function (ngApp) {
         }
       }
       $scope.remove = function () {
+        let { siteId, id } = $scope
         http2
-          .get(
-            '/rest/pl/fe/matter/link/remove?site=' +
-              $scope.siteId +
-              '&id=' +
-              $scope.id
-          )
+          .get(`/rest/pl/fe/matter/link/update?site=${siteId}&id=${id}`)
           .then(function () {
-            location.href = '/rest/pl/fe/site/console?site=' + $scope.siteId
+            location.href = `/rest/pl/fe/site/console?site=${siteId}`
           })
       }
       $scope.submit = function () {
+        let { siteId, id } = $scope
         http2
           .post(
-            '/rest/pl/fe/matter/link/update?site=' +
-              $scope.siteId +
-              '&id=' +
-              $scope.id,
+            `/rest/pl/fe/matter/link/update?site=${siteId}&id=${id}`,
             modifiedData
           )
           .then(function () {
@@ -307,7 +301,7 @@ define(['frame'], function (ngApp) {
               '$uibModalInstance',
               function ($scope2, $mi) {
                 $scope2.ok = function () {
-                  $mi.close()
+                  $mi.close('reload')
                 }
                 $scope2.cancel = function () {
                   $mi.dismiss()
@@ -337,7 +331,17 @@ define(['frame'], function (ngApp) {
             ],
             backdrop: 'static',
           })
-          .result.then()
+          .result.then((state) => {
+            if (state === 'reload') {
+              $scope.getLink().then((rsp) => {
+                let { url } = rsp.data
+                if (url) {
+                  $scope.editing.url = url
+                  getWrapChannel()
+                }
+              })
+            }
+          })
       }
       $scope.quitMission = function () {
         var that = this
@@ -447,6 +451,15 @@ define(['frame'], function (ngApp) {
           att.id
         )
       }
+      function getWrapChannel() {
+        http2
+          .get(
+            `/rest/pl/fe/matter/channel/get?site=${$scope.siteId}&id=${$scope.editing.url}`
+          )
+          .then(function (rsp) {
+            $scope.channel = rsp.data
+          })
+      }
       $scope.$watch('editing.urlsrc', function (nv) {
         switch (nv) {
           case '2': // 选择的团队内频道
@@ -462,15 +475,9 @@ define(['frame'], function (ngApp) {
                 })
             }
             break
-          case '3': // 通过授权方式关联的频道
+          case '3': // 通过授权方式关联的频道，url对应的是channel的id
             if (parseInt($scope.editing.url) > 0) {
-              http2
-                .get(
-                  `/rest/pl/fe/matter/channel/get?site=${$scope.siteId}&id=${$scope.editing.url}`
-                )
-                .then(function (rsp) {
-                  $scope.channel = rsp.data
-                })
+              getWrapChannel()
             }
             break
         }

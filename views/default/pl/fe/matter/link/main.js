@@ -328,6 +328,8 @@ define(['frame'], function (ngApp) {
                   .then((rsp) => {
                     if (rsp.code === 0 && rsp.result) {
                       $scope2.dispatchUrl = `${baseUrl}/api/pl/fe/dispatch/execute?token=${rsp.result}`
+                    } else {
+                      noticebox.error(rsp.msg)
                     }
                   })
               }.bind(this),

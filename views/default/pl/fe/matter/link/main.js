@@ -313,7 +313,8 @@ define(['frame'], function (ngApp) {
                   $mi.dismiss()
                 }
                 let { protocol, hostname, port } = location
-                let baseUrl = `${protocol}//${hostname}:${port}`
+                let baseUrl = `${protocol}//${hostname}`
+                if (port) baseUrl += `:${port}`
                 let linkId = $scope.editing.id
                 http2
                   .post(

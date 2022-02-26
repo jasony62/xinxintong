@@ -136,6 +136,14 @@
         <label>
           <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.embedded' ng-change="update('embedded')">采用嵌入方式打开链接内容（可显示关联应用和附件）</label>
       </div>
+      <div class='checkbox' ng-if="editing.urlsrc==0">
+        <label>
+          <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.config.site.hide' ng-change="update('config')">用户页面中隐藏平台信息</label>
+      </div>
+      <div class='checkbox' ng-if="editing.urlsrc==0">
+        <label>
+          <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='editing.config.link.hide' ng-change="update('config')">用户页面中隐藏链接信息</label>
+      </div>
     </div>
   </div>
   <div class="panel panel-default" ng-show="editing.embedded==='Y'">

@@ -13,19 +13,17 @@
   <link href="<?php echo auto_version('/views/default/site/fe/matter/link/main.css');?>" rel="stylesheet">
 </head>
 
-<body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak'>
-  <nav class='navbar hm-navbar-default navbar-fixed-top'>
+<body ng-app='app' ng-controller='ctrl' ng-cloak class='ng-cloak' ng-init="appTitle='<?php echo APP_TITLE;?>'">
+  <nav class='navbar hm-navbar-default navbar-fixed-top' ng-if="showSite===true">
     <div class='container-fluid'>
       <div class="navbar-header">
-        <a class='navbar-brand' href='/rest/home' target='_self'>
-          <?php echo APP_TITLE;?>
-        </a>
+        <a class='navbar-brand' href='/rest/home' target='_self' ng-bind='appTitle'></a>
       </div>
     </div>
   </nav>
-  <div id='content' class='container'>
+  <div id='content' class='container' ng-class="{'require-top-padding':showSite}">
     <div class='row'>
-      <div class='col-md-3 col-md-push-9 col-xs-12'>
+      <div class='col-md-3 col-md-push-9 col-xs-12' ng-if="showLink===true">
         <div id='site-card' class='hm-tile'>
           <div class="site-title">
             <img class="img-circle" ng-src="{{siteInfo.heading_pic}}">
@@ -53,7 +51,7 @@
         </div>
       </div>
       <div id="link" class='col-md-9 col-md-pull-3 col-xs-12'>
-        <button id="btnFS" class="btn btn-success" ng-if="isSmallLayout">开始体验</button>
+        <button id="btnFS" class="btn btn-success hide" ng-if="isSmallLayout">开始体验</button>
         <iframe></iframe>
         <div id="invite" class="invite">
           <a href="" ng-click="invite(user,link)" ng-if="link.invite"><i class="icon_invite"></i><span> 邀请体验</span></a>

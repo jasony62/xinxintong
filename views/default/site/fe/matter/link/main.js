@@ -28,6 +28,8 @@ angular
       linkId = $location.search().id
       invite_token = $location.search().inviteToken
       shareby = $location.search().shareby ? $location.search().shareby : ''
+      $scope.showSite = false // 是否显示平台信息
+      $scope.showLink = false // 是否显示链接信息
       $scope.isSmallLayout = false
       $scope.isFull = false
       $scope.elSiteCard = angular.element(document.querySelector('#site-card'))
@@ -187,7 +189,21 @@ angular
           .get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId)
           .success(function (rsp) {
             if (rsp.data) {
-              $scope.link = rsp.data.link
+              let { link } = rsp.data
+              $scope.link = link
+              let { config } = link
+              if (config) {
+                if (config.site && config.site.hide === 'Y') {
+                  $scope.showSite = false
+                } else {
+                  $scope.showSite = true
+                }
+                if (config.link && config.link.hide === 'Y') {
+                  $scope.showLink = false
+                } else {
+                  $scope.showLink = true
+                }
+              }
               $scope.user = rsp.data.user
               $scope.qrcode =
                 '/rest/site/fe/matter/link/qrcode?site=' +

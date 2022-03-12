@@ -584,7 +584,7 @@ angular
             let defer, filter, teamTypeId, url
             defer = $q.defer()
             filter = filterByKeyword || {}
-            if (oTeam !== null) {
+            if (oTeam) {
               teamTypeId = arg === 'team' ? 'teamId' : 'roleTeamId'
               filter[teamTypeId] = oTeam === false ? 'pending' : oTeam.team_id
             }

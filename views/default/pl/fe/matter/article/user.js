@@ -28,7 +28,7 @@ define(['frame'], function (ngApp) {
       $scope.$watch('editing', function (nv) {
         if (!nv) return
         let { scope, group, member } = nv.entryRule
-        if ((scope && scope.group === 'Y') || scope.member === 'Y') {
+        if (scope && (scope.group === 'Y' || scope.member === 'Y')) {
           /*用户来源活动类型*/
           if (scope.group === 'Y' && group) $scope.userapp.type = 'group'
           else if (scope.member === 'Y' && member)

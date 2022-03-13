@@ -584,7 +584,7 @@ ngMod.service('tmsSchema', [
       return str
     }
     /**
-     * 通信录记录中的扩展属性转化为用户可读内容
+     * 通讯录记录中的扩展属性转化为用户可读内容
      */
     this.member = {
       getExtattrsUIValue: function (schemas, oMember) {

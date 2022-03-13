@@ -2172,7 +2172,7 @@ angular
           if (!mschemaId) mschemaId = Object.keys(_oRule.member)[0]
           if (mschemaId && _oRule.member[mschemaId]) {
             if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
-              /* 取消题目和通信录的关联 */
+              /* 取消题目和通讯录的关联 */
               var aAssocSchemas = []
               oMatter.dataSchemas.forEach(function (oSchema) {
                 if (oSchema.mschema_id && oSchema.mschema_id === mschemaId) {
@@ -2213,7 +2213,7 @@ angular
         }
         this.removeGroupApp = function () {
           if (_oRule.group && _oRule.group.id) {
-            /* 取消题目和通信录的关联 */
+            /* 取消题目和通讯录的关联 */
             if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
               var aAssocSchemas = []
               oMatter.dataSchemas.forEach(function (oSchema) {
@@ -2247,7 +2247,7 @@ angular
         }
         this.removeEnrollApp = function () {
           if (_oRule.enroll && _oRule.enroll.id) {
-            /* 取消题目和通信录的关联 */
+            /* 取消题目和通讯录的关联 */
             if (oMatter.dataSchemas && oMatter.dataSchemas.length) {
               var aAssocSchemas = []
               oMatter.dataSchemas.forEach(function (oSchema) {

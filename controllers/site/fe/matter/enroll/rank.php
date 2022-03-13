@@ -463,7 +463,7 @@ class rank extends base
   {
     $modelRecDat = $this->model('matter\enroll\data');
 
-    /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+    /* 处理通讯录题目，例如：member.extattr.s1558673860999 */
     $aSchemaIdSegs = explode('.', $oRankSchema->id);
 
     switch ($oCriteria->orderby) {
@@ -544,7 +544,7 @@ class rank extends base
   {
     $schemaId = substr($oCriteria->orderby, 7);
 
-    /* 处理通信录题目，例如：member.extattr.s1558673860999 */
+    /* 处理通讯录题目，例如：member.extattr.s1558673860999 */
     $aSchemaIdSegs = explode('.', $oRankSchema->id);
 
     $modelRecDat = $this->model('matter\enroll\data');

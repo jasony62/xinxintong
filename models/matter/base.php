@@ -221,7 +221,7 @@ abstract class base_model extends \TMS_MODEL
     $oCheckedRule = clone $oRule;
     if ($this->getDeepValue($oRule, 'scope.member') === 'Y') {
       if (empty($oRule->member) || empty((array) $oRule->member)) {
-        return [false, '进入规则不完整，没有指定作为进入条件的通信录'];
+        return [false, '进入规则不完整，没有指定作为进入条件的通讯录'];
       }
     }
     if ($this->getDeepValue($oRule, 'scope.group') === 'Y') {

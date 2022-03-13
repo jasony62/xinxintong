@@ -78,7 +78,7 @@
             <a href ng-click="syncWithGroupApp()">补填全部记录的分组数据</a>
           </li>
           <li ng-if="app.entryRule.member">
-            <a href ng-click="syncWithMschema()">补填全部记录的通信录数据</a>
+            <a href ng-click="syncWithMschema()">补填全部记录的通讯录数据</a>
           </li>
         </ul>
       </div>
@@ -128,8 +128,7 @@
                 <th style="width: 140px;" ng-if="bRequireGroup">分组</th>
                 <th style="width: 100px;">填写时间</th>
                 <th style="width: 100px;">填写轮次</th>
-                <th ng-repeat="schema in recordSchemasExt track by $index"
-                  ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">
+                <th ng-repeat="schema in recordSchemasExt track by $index" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">
                   {{schema.title}}
                 </th>
                 <th ng-if="bRequireScore">总数据分</th>
@@ -153,8 +152,7 @@
                 <td ng-if="bRequireNickname"><span>{{::r.nickname}}</span></td>
                 <td ng-if="bRequireGroup">
                   <span>{{::r.group.title}}</span>
-                  <span ng-if="r.group_id!==r.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger"
-                    uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                  <span ng-if="r.group_id!==r.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger" uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                 </td>
                 <td>{{::(r.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                 <td>{{::r.round.title}}</td>
@@ -163,12 +161,10 @@
                     <span><img ng-repeat="img in r.data[schema.id].split(',')" ng-src="{{img}}" /></span>
                   </div>
                   <div ng-switch-when="file">
-                    <span ng-repeat="file in r.data[schema.id]"><a href ng-click="openFileUrl(file)"
-                        target="_blank">{{file.name}}</a></span>
+                    <span ng-repeat="file in r.data[schema.id]"><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                   </div>
                   <div ng-switch-when="voice">
-                    <span><a ng-href="{{r.data[schema.id][0].url}}"
-                        target="_blank">{{r.data[schema.id][0].name}}</a></span>
+                    <span><a ng-href="{{r.data[schema.id][0].url}}" target="_blank">{{r.data[schema.id][0].name}}</a></span>
                   </div>
                   <div ng-switch-when="voiceText">
                     <span>{{r.data[schema.id][0].text}}</span>
@@ -178,8 +174,7 @@
                       <span ng-bind-html="item.value"></span>
                     </p>
                   </div>
-                  <span ng-switch-when="date"><span
-                      ng-if="r.data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                  <span ng-switch-when="date"><span ng-if="r.data[schema.id]">{{(r._data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                   <span ng-switch-when="url" ng-bind-html="r.data[schema.id]._text"></span>
                   <div ng-switch-when="score">
                     <p ng-repeat="item in r.data[schema.id]">
@@ -190,9 +185,7 @@
                   <span ng-switch-when="supplement" ng-bind-html="r.supplement[schema.id]"></span>
                   <span ng-switch-when="calcScore">{{r.score[schema.id]}}</span>
                   <span ng-switch-default ng-bind-html="parseRecordData(r.data,schema)"></span>
-                  <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id"
-                    class="glyphicon glyphicon-exclamation-sign text-danger"
-                    uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
+                  <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==r.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger" uib-tooltip="用户分组和记录分组不一致，用户分组【{{r.user.group.title||'无'}}】"></span>
                 </td>
                 <td ng-if="bRequireScore" ng-bind="::r.score.sum"></td>
                 <td>{{r.verified}}</td>
@@ -240,10 +233,7 @@
       <div class="form-group">
         <div class="pl-pagination">
           <span>总数：{{page.total}}</span>
-          <ul class="pull-right" uib-pagination ng-show="page.total>page.size" boundary-links="true"
-            total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-            previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-change="doSearch()"></ul>
+          <ul class="pull-right" uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="doSearch()"></ul>
         </div>
       </div>
     </div>
@@ -264,8 +254,7 @@
                 <th style="width: 80px;">获赞数</th>
                 <th style="width: 80px;">获踩数</th>
                 <th style="width: 80px;">获评论数</th>
-                <th ng-repeat="schema in coworkSchemasExt track by $index"
-                  ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">
+                <th ng-repeat="schema in coworkSchemasExt track by $index" ng-class="{'nickname':schema.id===app.assignedNickname.schema.id}">
                   {{schema.title}}
                 </th>
               </tr>
@@ -283,8 +272,7 @@
                 <td><span>{{::c.nickname}}</span></td>
                 <td ng-if="bRequireGroup">
                   <span>{{::c.group.title}}</span>
-                  <span ng-if="c.group_id!==c.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger"
-                    uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span>
+                  <span ng-if="c.group_id!==c.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger" uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span>
                 </td>
                 <td>{{::(c.enroll_at*1000)|date:'MM-dd HH:mm'}}</td>
                 <td>{{::c.round.title}}</td>
@@ -297,16 +285,14 @@
                     <span><img ng-repeat="img in c.data[schema.id].split(',')" ng-src="{{img}}" /></span>
                   </div>
                   <div ng-switch-when="file">
-                    <span ng-repeat="file in c.data[schema.id]"><a href ng-click="openFileUrl(file)"
-                        target="_blank">{{file.name}}</a></span>
+                    <span ng-repeat="file in c.data[schema.id]"><a href ng-click="openFileUrl(file)" target="_blank">{{file.name}}</a></span>
                   </div>
                   <div ng-switch-when="multitext">
                     <p ng-repeat="item in c.data[schema.id]">
                       <span ng-bind-html="item.value"></span>
                     </p>
                   </div>
-                  <span ng-switch-when="date"><span
-                      ng-if="c.data[schema.id]">{{(c.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
+                  <span ng-switch-when="date"><span ng-if="c.data[schema.id]">{{(c.data[schema.id]*1000)|date:'yy-MM-dd HH:mm'}}</span></span>
                   <span ng-switch-when="url" ng-bind-html="c.data[schema.id]._text"></span>
                   <div ng-switch-when="score">
                     <p ng-repeat="item in c.data[schema.id]">
@@ -317,9 +303,7 @@
                   <span ng-switch-when="supplement" ng-bind-html="c.supplement[schema.id]"></span>
                   <span ng-switch-when="calcScore">{{c.score[schema.id]}}</span>
                   <span ng-switch-default ng-bind-html="c.data[schema.id]"></span>
-                  <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==c.user.group.id"
-                    class="glyphicon glyphicon-exclamation-sign text-danger"
-                    uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span>
+                  <span ng-if="fromApp.fromApp&&schema.id==='_round_id'&&r.group_id!==c.user.group.id" class="glyphicon glyphicon-exclamation-sign text-danger" uib-tooltip="用户分组和记录分组不一致，用户分组【{{c.user.group.title||'无'}}】"></span>
                 </td>
               </tr>
             </tbody>
@@ -330,10 +314,7 @@
       <div class="form-group">
         <div class="pl-pagination">
           <span>总数：{{page.total}}</span>
-          <ul class="pull-right" uib-pagination ng-show="page.total>page.size" boundary-links="true"
-            total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at"
-            previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"
-            ng-change="listCowork(currentSchema)"></ul>
+          <ul class="pull-right" uib-pagination ng-show="page.total>page.size" boundary-links="true" total-items="page.total" max-size="7" items-per-page="page.size" rotate="false" ng-model="page.at" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" ng-change="listCowork(currentSchema)"></ul>
         </div>
       </div>
     </div>

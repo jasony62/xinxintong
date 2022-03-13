@@ -287,7 +287,7 @@ class data_model extends entity_model
     /* 处理提交的数据，进行格式转换等操作 */
     foreach ($submitData as $schemaId => $submitVal) {
       if ($schemaId === 'member' && is_object($submitVal)) {
-        /* 通信录用户信息 */
+        /* 通讯录用户信息 */
         $oDbData->{$schemaId} = $submitVal;
       } else if (isset($aSchemasById[$schemaId])) {
         /* 活动中定义的题目 */

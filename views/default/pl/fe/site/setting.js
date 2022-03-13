@@ -331,7 +331,7 @@ define(['require'], function (require) {
           angular.forEach($scope.schemas, function (s) {
             if (s !== schema && s.qy_ab === 'Y') {
               schema.qy_ab = 'N'
-              alert('您已经定义了"企业号同步通信录使用",请先取消')
+              alert('您已经定义了"企业号同步通讯录使用",请先取消')
               return
             }
           })

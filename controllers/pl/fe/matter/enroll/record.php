@@ -1512,12 +1512,12 @@ class record extends record_base
     return new \ResponseData($aSyncResult[1]);
   }
   /**
-   * 根据记录的userid更新关联通信录题目的数据
+   * 根据记录的userid更新关联通讯录题目的数据
    */
   private function _syncMschema($oEnlApp, $rid, $overwrite = 'N')
   {
     if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
-      return [false, '当前活动没有关联通信录'];
+      return [false, '当前活动没有关联通讯录'];
     }
 
     $aMsSchemas = [];
@@ -1529,7 +1529,7 @@ class record extends record_base
       }
     }
     if (empty($aMsSchemas)) {
-      return [false, '当前活动没有指定和通信录关联的题目'];
+      return [false, '当前活动没有指定和通讯录关联的题目'];
     }
 
     $updatedCount = 0;
@@ -1570,7 +1570,7 @@ class record extends record_base
     return [true, $updatedCount];
   }
   /**
-   * 根据记录的userid更新关联通信录题目的数据
+   * 根据记录的userid更新关联通讯录题目的数据
    */
   public function syncMschema_action($rid, $overwrite = 'N')
   {
@@ -2109,7 +2109,7 @@ class record extends record_base
     /* 更新用户分组数据 */
     $this->_syncGroup($oApp, $oAssignedRnd->rid);
 
-    /* 更新通信录数据 */
+    /* 更新通讯录数据 */
     $this->_syncGroup($oApp, $oAssignedRnd->rid);
 
     /* 更新用户分组数据 */

@@ -228,6 +228,9 @@ class main extends main_base
         case 'rankConfig':
           $oUpdated->rank_config = $modelApp->escape($modelApp->toJson($val));
           break;
+        case 'count_limit':
+          $oUpdated->count_limit = empty($val) ? 0 : (int)$val;
+          break;
         default:
           $oUpdated->{$prop} = $val;
       }

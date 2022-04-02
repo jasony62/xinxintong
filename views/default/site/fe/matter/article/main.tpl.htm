@@ -86,7 +86,7 @@
                 </a>
               </p>
             </div>
-            <div id='tag' class="clearfix" ng-if="article.channels.length||article.tags.length">
+            <div id='tag' class="clearfix" ng-if="(article.config.hide.channel!=='Y'&&article.channels.length)||article.tags.length">
               <button class="btn btn-custom-default" ng-repeat="c in article.channels" ng-click="openChannel(c)" ng-bind="c.title"></button>
               <button class="btn btn-custom-default" ng-repeat="t in article.tags" ng-click="searchByTag(t)" ng-bind="t.title"></button>
             </div>

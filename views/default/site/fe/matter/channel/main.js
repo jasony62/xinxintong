@@ -86,9 +86,15 @@ angular
         }
         return item
       }
+      function supportRedirectSingle() {
+        let { channel } = $scope
+        return (
+          channel && channel.config && channel.config.redirectSingle === 'Y'
+        )
+      }
       $scope.Matter = {
         matters: [],
-        busy: false,
+        busy: true,
         page: 1,
         keyword: '',
         reset: function () {
@@ -99,30 +105,30 @@ angular
           this.nextPage()
         },
         nextPage: function () {
-          var url,
-            _this = this
-
           if (this.end) return
-
           this.busy = true
-          url = '/rest/site/fe/matter/channel/mattersGet'
-          url += '?site=' + siteId
-          url += '&id=' + channelId
-          url += '&page=' + this.page
-          url += '&size=10'
-          if (this.keyword) url += '&keyword=' + this.keyword
-          $http.get(url).success(function (rsp) {
-            if (rsp.data.matters.length) {
-              var matters = rsp.data.matters
-              for (var i = 0, l = matters.length; i < l; i++) {
-                dealImgSrc(matters[i])
-                _this.matters.push(matters[i])
-              }
-              _this.page++
+          let url = `/rest/site/fe/matter/channel/mattersGet?site=${siteId}&id=${channelId}&page=${this.page}&size=10`
+          if (this.keyword) url += `&keyword=${this.keyword}`
+          $http.get(url).success((rsp) => {
+            let { matters } = rsp.data
+            if (
+              this.page === 1 &&
+              matters.length === 1 &&
+              supportRedirectSingle()
+            ) {
+              $scope.gotoNavApp(matters[0])
             } else {
-              _this.end = true
+              if (matters.length) {
+                for (var i = 0, l = matters.length; i < l; i++) {
+                  dealImgSrc(matters[i])
+                  this.matters.push(matters[i])
+                }
+                this.page++
+              } else {
+                this.end = true
+              }
+              this.busy = false
             }
-            _this.busy = false
           })
         },
       }
@@ -216,19 +222,17 @@ angular
       }
       var getChannel = function () {
         var deferred = $q.defer()
-        $http.get('/rest/site/home/get?site=' + siteId).success(function (rsp) {
+        $http.get(`/rest/site/home/get?site=${siteId}`).success(function (rsp) {
           $scope.siteInfo = rsp.data
         })
         $http
           .get(
-            '/rest/site/fe/matter/channel/get?site=' +
-              siteId +
-              '&id=' +
-              channelId
+            `/rest/site/fe/matter/channel/get?site=${siteId}&id=${channelId}`
           )
           .success(function (rsp) {
             $scope.user = rsp.data.user
             $scope.channel = rsp.data.channel
+            $scope.Matter.busy = false
             $scope.qrcode =
               '/rest/site/fe/matter/channel/qrcode?site=' +
               siteId +

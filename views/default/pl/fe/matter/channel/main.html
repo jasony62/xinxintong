@@ -125,6 +125,12 @@
             <input type='checkbox' ng-model='editing.config.filterByEntryRule' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中只显示用户有权限进入的素材</label>
         </div>
       </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.redirectSingle' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中只有1条素材时自动跳转到该素材</label>
+        </div>
+      </div>
     </div>
   </div>
   <div class='form-group'>

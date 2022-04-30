@@ -55,7 +55,7 @@
           <div ng-repeat="app in channel.config.nav.app"><a class="matter" href="#" ng-click="gotoNavApp(app)" ng-bind="app.title"></a></div>
         </div>
       </div>
-      <div id='matters' class='col-md-9 col-md-pull-3 col-xs-12'>
+      <div id='matters' ng-if="channel" class='col-md-9 col-md-pull-3 col-xs-12'>
         <div class='input-group' ng-if="channel.matter_type==='article'">
           <input class='form-control' ng-model='Matter.keyword' placeholder='输入搜索关键字'>
           <div class="input-group-btn">

@@ -119,6 +119,12 @@
             <input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
         </div>
       </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.filterByEntryRule' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中只显示用户有权限进入的素材</label>
+        </div>
+      </div>
     </div>
   </div>
   <div class='form-group'>

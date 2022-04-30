@@ -16,7 +16,7 @@ $sql .= ",matter_summary varchar(240) not null default ''";
 $sql .= ",matter_pic text null";
 $sql .= ",creator varchar(40) not null"; // 注册用户id，来源于account表
 $sql .= ",creator_name varchar(255) not null default ''";
-$sql .= ",creator_type char(1) not null default 'A'"; // S:site,U:account
+$sql .= ",creator_type char(1) not null default 'A'"; // S:site,A:account
 $sql .= ",create_at int not null";
 $sql .= ",expire_at int not null default 0";
 $sql .= ",require_code char(1) not null default 'N'"; // 是否需要邀请码
@@ -79,10 +79,10 @@ $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 $sqls[] = $sql;
 //
 foreach ($sqls as $sql) {
-	if (!$mysqli->query($sql)) {
-		header('HTTP/1.0 500 Internal Server Error');
-		echo 'database error: ' . $mysqli->error;
-	}
+  if (!$mysqli->query($sql)) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'database error: ' . $mysqli->error;
+  }
 }
 
 echo "end update " . __FILE__ . PHP_EOL;

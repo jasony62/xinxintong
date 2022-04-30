@@ -38,6 +38,13 @@ class main extends \site\fe\matter\base
    */
   public function mattersGet_action($site, $id, $page = null, $size = null, $keyword = null)
   {
+    $modelChannel = $this->model('matter\channel');
+    $channel = $this->model('matter\channel')->byId($id);
+    if (false === $channel) {
+      return new \ObjectNotFoundError();
+    }
+
+    /**处理查询参数*/
     $params = new \stdClass;
     if ($page !== null && $size !== null) {
       $params->page = $page;
@@ -47,8 +54,9 @@ class main extends \site\fe\matter\base
       $params->keyword = $keyword;
     }
 
-    $modelChannel = $this->model('matter\channel');
-    $data = $modelChannel->getMattersNoLimit($id, $params);
+    $user = $this->who;
+    $data = $modelChannel->getMattersNoLimit($id, $params, $channel, $user, $this);
+
     // 频道是否开启了邀请
     $checkInvite = false;
     $oInvitee = new \stdClass;
@@ -61,7 +69,9 @@ class main extends \site\fe\matter\base
     if ($oInvite && $oInvite->state === '1') {
       $checkInvite = true;
     }
+
     foreach ($data->matters as $matter) {
+      /**补充素材访问链接数据*/
       if ($matter->type === 'link' && !$checkInvite) {
         $oLink = $this->model('matter\link')->byIdWithParams($matter->id);
         $oInvite = $this->model('invite')->byMatter($oLink, $oInvitee, ['fields' => 'id,code,expire_at,state']);
@@ -86,6 +96,8 @@ class main extends \site\fe\matter\base
         $matterModel = \TMS_APP::M('matter\\' . $matter->type);
         $matter->url = $matterModel->getEntryUrl($matter->siteid, $matter->id);
       }
+
+      $availableMatters[] = $matter;
     }
 
     return new \ResponseData($data);

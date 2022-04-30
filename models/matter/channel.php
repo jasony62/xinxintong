@@ -299,6 +299,183 @@ class channel_model extends article_base
     return $articles;
   }
   /**
+   * 获得单图文频道下的单图文
+   */
+  private function _getArticlesNoLimit($channel, $params)
+  {
+    $orderby = $channel->orderby;
+    $q1 = [];
+    $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
+    $q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
+    $q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
+    if (!empty($params->weight)) {
+      switch ($params->weight) {
+        case 'top':
+          $q1[2] .= " and cm.seq < 10000";
+          break;
+        case 'bottom':
+          $q1[2] .= " and cm.seq > 20000";
+          break;
+        default:
+          $q1[2] .= " and cm.seq = 10000";
+          break;
+      }
+    }
+    // 指定按关键字过滤
+    if (!empty($params->keyword)) {
+      $q1[2]  .= " and (m.title like '%$params->keyword%'";
+      $q1[2]  .= "or m.summary like '%$params->keyword%'";
+      $q1[2]  .= "or m.body like '%$params->keyword%')";
+    }
+    $q2 = [];
+    $q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
+
+    if (isset($params->page) && isset($params->size)) {
+      $q2['r'] = array(
+        'o' => ($params->page - 1) * $params->size,
+        'l' => $params->size,
+      );
+    } else if (isset($channel->volume)) {
+      $q2['r'] = array(
+        'o' => 0,
+        'l' => $channel->volume,
+      );
+    }
+
+    if ($matters = $this->query_objs_ss($q1, $q2)) {
+      foreach ($matters as $matter) {
+        !empty($matter->matter_cont_tag) && $matter->matter_cont_tag = json_decode($matter->matter_cont_tag);
+        !empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
+      }
+    }
+    $q1[0] = 'count(*)';
+    $total = (int) $this->query_val_ss($q1);
+
+    $data = new \stdClass;
+    $data->matters = $matters;
+    $data->total = $total;
+
+    return $data;
+  }
+  /**
+   * 获得任意素材频道下的素材
+   */
+  private function _getAnyNoLimit($channel, $params, $bFilterByEntryRule, $user, $ctrl)
+  {
+    /**
+     * 获得频道中的素材
+     */
+    $q1 = [
+      'cm.create_at,cm.matter_type,cm.matter_id,cm.seq',
+      'xxt_channel_matter cm',
+      ["cm.channel_id" => $channel->id],
+    ];
+    if (!empty($params->weight)) {
+      switch ($params->weight) {
+        case 'top':
+          $q1[2]['cm.seq'] = (object) ['op' => '<', 'pat' => 10000];
+          break;
+        case 'bottom':
+          $q1[2]['cm.seq'] = (object) ['op' => '>', 'pat' => 20000];
+          break;
+        default:
+          $q1[2]['cm.seq'] = 10000;
+          break;
+      }
+    }
+    $q2['o'] = 'cm.seq, cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
+
+    // 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
+    if (isset($params->page) && isset($params->size)) {
+      $q2['r'] = [
+        'o' => ($params->page - 1) * $params->size,
+        'l' => $params->size,
+      ];
+    }
+    $matters = []; // 可用的素材
+    $simpleMatters = $this->query_objs_ss($q1, $q2);
+    $q1[0] = 'count(*)';
+    $total = (int) $this->query_val_ss($q1);
+
+    /**
+     * 获得素材详细数据
+     */
+    foreach ($simpleMatters as $sm) {
+      /* 检查素材是否可用 */
+      $valid = true;
+      if ($sm->matter_type !== 'article') {
+        $fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
+      } else {
+        $q = [
+          "a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,entry_rule,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
+          'xxt_article a, xxt_site s',
+          "a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
+        ];
+        $fullMatter = $this->query_obj_ss($q);
+      }
+
+      if (false === $fullMatter) {
+        continue;
+      }
+      /**
+       * 检查素材状态
+       */
+      switch ($sm->matter_type) {
+        case 'enroll':
+        case 'signin':
+          if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {
+            $valid = false;
+          }
+          break;
+        default:
+          if ($fullMatter->state !== '1') {
+            $valid = false;
+          }
+      }
+      if (!$valid) {
+        continue;
+      }
+      /**
+       * 检查进入规则
+       */
+      if ($bFilterByEntryRule && $user && $ctrl) {
+        /**处理进入规则*/
+        if (empty($fullMatter->entry_rule))
+          $fullMatter->entryRule = new \stdClass;
+        else if (is_string($fullMatter->entry_rule))
+          $fullMatter->entryRule = json_decode($fullMatter->entry_rule);
+        else
+          $fullMatter->entryRule = $fullMatter->entry_rule;
+        /**检查进入规则*/
+        if ($aResult = $ctrl->checkEntryRule($fullMatter, false, $user)) {
+          if ($aResult[0] !== true)
+            continue;
+        }
+      }
+      unset($fullMatter->entry_rule);
+      unset($fullMatter->entryRule);
+      /**
+       * 补充数据
+       */
+      $fullMatter->type = $sm->matter_type;
+      $fullMatter->add_at = $sm->create_at;
+      $fullMatter->seq = $sm->seq;
+      if (!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)) {
+        $fullMatter->matter_cont_tag = json_decode($fullMatter->matter_cont_tag);
+      }
+      if (!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)) {
+        $fullMatter->matter_mg_tag = json_decode($fullMatter->matter_mg_tag);
+      }
+      $matters[] = $fullMatter;
+    }
+
+    $data = new \stdClass;
+    $data->matters = $matters;
+    $data->total = $total;
+
+    return $data;
+  }
+  /**
    * 直接打开频道的情况下（不是返回信息卡片），忽略置顶和置底，返回频道中的所有条目
    *
    * @param int $channel_id 频道的id
@@ -307,15 +484,13 @@ class channel_model extends article_base
    * @param int $params->page 分页
    * @param int $params->keyword 如果频道的素材类型是单图文，支持按关键字进行搜索
    * @param object $channel 频道对象，减少查询次数
+   * @param object $user 访问数据的用户。如果频道要求按素材访问规则进行过滤时使用。
+   * @param object $ctrl 调用访问的控制器。为了检查访问权限时调用控制器上的方法。
    *
    * @return 频道包含的所有条目
    */
-  public function getMattersNoLimit($channel_id, $params, $channel = null)
+  public function getMattersNoLimit($channel_id, $params, $channel = null, $user = null, $ctrl = null)
   {
-    // 返回数据
-    $data = new \stdClass;
-    $data->matters = [];
-    $data->total = 0;
     /**
      * load channel.
      */
@@ -323,143 +498,22 @@ class channel_model extends article_base
       $channel = $this->byId($channel_id, ['fields' => 'id,state,matter_type,orderby,volume']);
     }
     if ($channel === false || $channel->state != 1) {
+      $data = new \stdClass;
+      $data->matters = [];
+      $data->total = 0;
       return $data;
     }
-    /**
-     * in channel
-     */
+    // 根据素材的进入规则进行过滤
+    $bFilterByEntryRule = false;
+    if ($user && \TMS_MODEL::getDeepValue($channel, 'config.filterByEntryRule') === 'Y') {
+      $bFilterByEntryRule = true;
+    }
+    // 获取素材
     if ($channel->matter_type === 'article') {
-      $orderby = $channel->orderby;
-      $q1 = [];
-      $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
-      $q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
-      $q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
-      if (!empty($params->weight)) {
-        switch ($params->weight) {
-          case 'top':
-            $q1[2] .= " and cm.seq < 10000";
-            break;
-          case 'bottom':
-            $q1[2] .= " and cm.seq > 20000";
-            break;
-          default:
-            $q1[2] .= " and cm.seq = 10000";
-            break;
-        }
-      }
-      // 指定按关键字过滤
-      if (!empty($params->keyword)) {
-        $q1[2]  .= " and (m.title like '%$params->keyword%'";
-        $q1[2]  .= "or m.summary like '%$params->keyword%'";
-        $q1[2]  .= "or m.body like '%$params->keyword%')";
-      }
-      $q2 = [];
-      $q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
-
-      if (isset($params->page) && isset($params->size)) {
-        $q2['r'] = array(
-          'o' => ($params->page - 1) * $params->size,
-          'l' => $params->size,
-        );
-      } else if (isset($channel->volume)) {
-        $q2['r'] = array(
-          'o' => 0,
-          'l' => $channel->volume,
-        );
-      }
-
-      if ($matters = $this->query_objs_ss($q1, $q2)) {
-        foreach ($matters as $matter) {
-          !empty($matter->matter_cont_tag) && $matter->matter_cont_tag = json_decode($matter->matter_cont_tag);
-          !empty($matter->matter_mg_tag) && $matter->matter_mg_tag = json_decode($matter->matter_mg_tag);
-        }
-      }
-      $q1[0] = 'count(*)';
-      $total = (int) $this->query_val_ss($q1);
-
-      $data->matters = $matters;
-      $data->total = $total;
+      $data = $this->_getArticlesNoLimit($channel, $params);
       return $data;
     } else {
-      $q1 = [
-        'cm.create_at,cm.matter_type,cm.matter_id,cm.seq',
-        'xxt_channel_matter cm',
-        ["cm.channel_id" => $channel->id],
-      ];
-      if (!empty($params->weight)) {
-        switch ($params->weight) {
-          case 'top':
-            $q1[2]['cm.seq'] = (object) ['op' => '<', 'pat' => 10000];
-            break;
-          case 'bottom':
-            $q1[2]['cm.seq'] = (object) ['op' => '>', 'pat' => 20000];
-            break;
-          default:
-            $q1[2]['cm.seq'] = 10000;
-            break;
-        }
-      }
-      $q2['o'] = 'cm.seq, cm.create_at desc , cm.matter_id desc , cm.matter_type desc';
-
-      // 分页获取，如果素材已经删除，或者素材尚未批准的情况下，分页会导致返回的数量不正确
-      if (isset($params->page) && isset($params->size)) {
-        $q2['r'] = array(
-          'o' => ($params->page - 1) * $params->size,
-          'l' => $params->size,
-        );
-      }
-      $matters = []; // 可用的素材
-      $simpleMatters = $this->query_objs_ss($q1, $q2);
-      $q1[0] = 'count(*)';
-      $total = (int) $this->query_val_ss($q1);
-      foreach ($simpleMatters as $sm) {
-        /* 检查素材是否可用 */
-        $valid = true;
-        if ($sm->matter_type !== 'article') {
-          $fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
-        } else {
-          $q = [
-            "a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
-            'xxt_article a, xxt_site s',
-            "a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
-          ];
-          $fullMatter = $this->query_obj_ss($q);
-        }
-
-        if (false === $fullMatter) {
-          continue;
-        }
-
-        switch ($sm->matter_type) {
-          case 'enroll':
-          case 'signin':
-            if ($fullMatter->state !== '1' && $fullMatter->state !== '2') {
-              $valid = false;
-            }
-            break;
-          default:
-            if ($fullMatter->state !== '1') {
-              $valid = false;
-            }
-        }
-        if (!$valid) {
-          continue;
-        }
-
-        $fullMatter->type = $sm->matter_type;
-        $fullMatter->add_at = $sm->create_at;
-        $fullMatter->seq = $sm->seq;
-        if (!empty($fullMatter->matter_cont_tag) && is_string($fullMatter->matter_cont_tag)) {
-          $fullMatter->matter_cont_tag = json_decode($fullMatter->matter_cont_tag);
-        }
-        if (!empty($fullMatter->matter_mg_tag) && is_string($fullMatter->matter_mg_tag)) {
-          $fullMatter->matter_mg_tag = json_decode($fullMatter->matter_mg_tag);
-        }
-        $matters[] = $fullMatter;
-      }
-
-      $data->matters = $matters;
-      $data->total = $total;
+      $data = $this->_getAnyNoLimit($channel, $params, $bFilterByEntryRule, $user, $ctrl);
       return $data;
     }
   }

@@ -528,7 +528,7 @@ class base extends \site\fe\base
    * @param object $oUser
    *
    */
-  protected function checkEntryRule($oMatter, $bRedirect = false, $oUser = null, $page = null)
+  public function checkEntryRule($oMatter, $bRedirect = false, $oUser = null, $page = null)
   {
     if (!empty($page) && !empty($oMatter->entryRule->exclude)) {
       if (in_array($page, $oMatter->entryRule->exclude)) {

@@ -116,6 +116,18 @@
       <div class='form-group'>
         <div class='checkbox'>
           <label>
+            <input type='checkbox' ng-model='editing.config.hide.platform' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">页面形式中隐藏平台信息</label>
+        </div>
+      </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.hide.site' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">页面形式中隐藏团队信息</label>
+        </div>
+      </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
             <input type='checkbox' ng-model='editing.show_pic_in_page' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('show_pic_in_page')">页面形式中显示每条素材的头图</label>
         </div>
       </div>

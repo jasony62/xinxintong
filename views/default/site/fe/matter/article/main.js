@@ -353,7 +353,7 @@ ngApp.controller('ctrlMain', [
               .get(
                 `/rest/site/fe/matter/article/assocRecords?id=${id}&site=${siteId}`
               )
-              .then(function (rsp) {
+              .then((rsp) => {
                 $scope.enrollAssocs = rsp.data
                 angular.forEach(rsp.data, function (data) {
                   if (data.entity_a_str) {
@@ -406,33 +406,22 @@ ngApp.controller('ctrlMain', [
       }
     }
     $scope.openChannel = function (ch) {
-      location.href =
-        '/rest/site/fe/matter?site=' + siteId + '&type=channel&id=' + ch.id
+      location.href = `/rest/site/fe/matter?site=${siteId}&type=channel&id=${ch.id}`
     }
     $scope.openEnrollAssoc = function (oEnrollAssoc) {
       if (oEnrollAssoc.app && oEnrollAssoc.entityA)
-        location.href =
-          '/rest/site/fe/matter/enroll?site=' +
-          oEnrollAssoc.app.siteid +
-          '&app=' +
-          oEnrollAssoc.app.id +
-          '&ek=' +
-          oEnrollAssoc.entityA.enroll_key +
-          '&page=cowork'
+        location.href = `/rest/site/fe/matter/enroll?site=${oEnrollAssoc.app.siteid}&app=${oEnrollAssoc.app.id}&ek=${oEnrollAssoc.entityA.enroll_key}&page=cowork`
     }
     $scope.searchByTag = function (tag) {
-      location.href =
-        '/rest/site/fe/matter/article?site=' + siteId + '&tagid=' + tag.id
+      location.href = `/rest/site/fe/matter/article?site=${siteId}'&tagid=${tag.id}`
     }
     $scope.openMatter = function (evt, id, type) {
       evt.preventDefault()
       evt.stopPropagation()
       if (/article|custom|channel|link/.test(type)) {
-        location.href =
-          '/rest/site/fe/matter?site=' + siteId + '&id=' + id + '&type=' + type
+        location.href = `/rest/site/fe/matter?site=${siteId}&id=${id}&type=${type}`
       } else {
-        location.href =
-          '/rest/site/fe/matter/' + type + '?site=' + siteId + '&app=' + id
+        location.href = `/rest/site/fe/matter/${type}?site=${siteId}&app=${id}`
       }
     }
     $scope.gotoNavApp = function (oNavApp, event) {
@@ -440,40 +429,17 @@ ngApp.controller('ctrlMain', [
       event.stopPropagation()
       switch (oNavApp.type) {
         case 'enroll':
-          location.href =
-            '/rest/site/fe/matter/enroll?site=' +
-            oNavApp.siteid +
-            '&app=' +
-            oNavApp.id
+          location.href = `/rest/site/fe/matter/enroll?site=${oNavApp.siteid}&app=${oNavApp.id}`
           break
         case 'article':
         case 'channel':
-          location.href =
-            '/rest/site/fe/matter?site=' +
-            oNavApp.siteid +
-            '&id=' +
-            oNavApp.id +
-            '&type=' +
-            oNavApp.type
+          location.href = `/rest/site/fe/matter?site=${oNavApp.siteid}&id=${oNavApp.id}&type=${oNavApp.type}`
           break
         case 'link':
-          location.href =
-            '/rest/site/fe/matter/link?site=' +
-            oNavApp.siteid +
-            '&id=' +
-            oNavApp.id +
-            '&type=' +
-            oNavApp.type
+          location.href = `/rest/site/fe/matter/link?site=${oNavApp.siteid}&id=${oNavApp.id}&type=${oNavApp.type}`
           break
         case 'topic':
-          location.href =
-            '/rest/site/fe/matter/enroll?site=' +
-            oNavApp.siteid +
-            '&app=' +
-            oNavApp.aid +
-            '&topic=' +
-            oNavApp.id +
-            '&page=topic'
+          location.href = `/rest/site/fe/matter/enroll?site=${oNavApp.siteid}&app=${oNavApp.aid}&topic=${oNavApp.id}&page=topic`
           break
         default:
           break

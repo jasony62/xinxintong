@@ -23,7 +23,7 @@ class main extends \site\fe\matter\base
    */
   public function index_action($site, $id, $type, $preview = 'N')
   {
-    if (!$this->afterSnsOAuth()) {
+    if (!$this->afterSnsOAuth() && $preview !== 'Y') {
       /* 检查是否需要第三方社交帐号OAuth */
       $this->_requireSnsOAuth($site);
     }

@@ -217,11 +217,40 @@ ngApp.controller('ctrlMain', [
         }
       }
     }
-
+    /**设置微信分享*/
+    function setWxShare(oArticle) {
+      /* 设置分享 */
+      if (
+        /MicroMessenger/i.test(navigator.userAgent) &&
+        oArticle.can_share === 'Y'
+      ) {
+        var shareid, sharelink
+        shareid = `${$scope.user.uid}_${Date.now()}`
+        sharelink = `${location.protocol}//${location.hostname}/rest/site/fe/matter?site=${siteId}&type=article&id=${id}&shareby=${shareid}`
+        tmsSnsShare.config({
+          siteId,
+          logger: function (shareto) {
+            let url = `/rest/site/fe/matter/logShare?shareid=${shareid}&site=${siteId}&id=${id}&type=article&title=${oArticle.title}&shareto=${shareto}&shareby=${shareby}`
+            http2.get(url)
+          },
+          jsApiList: [
+            'hideOptionMenu',
+            'onMenuShareTimeline',
+            'onMenuShareAppMessage',
+          ],
+        })
+        tmsSnsShare.set(
+          oArticle.title,
+          sharelink,
+          oArticle.summary,
+          oArticle.pic
+        )
+      }
+    }
     function loadArticle() {
       var deferred = $q.defer()
       http2
-        .get('/rest/site/fe/matter/article/get?site=' + siteId + '&id=' + id)
+        .get(`/rest/site/fe/matter/article/get?site=${siteId}$id=${id}`)
         .then(
           function (rsp) {
             var site = rsp.data.site,
@@ -282,44 +311,7 @@ ngApp.controller('ctrlMain', [
             $scope.article = oArticle
             $scope.user = rsp.data.user
             /* 设置分享 */
-            if (/MicroMessenger/i.test(navigator.userAgent)) {
-              var shareid, sharelink
-              shareid = $scope.user.uid + '_' + new Date() * 1
-              sharelink =
-                location.protocol +
-                '//' +
-                location.hostname +
-                '/rest/site/fe/matter'
-              sharelink += '?site=' + siteId
-              sharelink += '&type=article'
-              sharelink += '&id=' + id
-              sharelink += '&shareby=' + shareid
-              tmsSnsShare.config({
-                siteId: siteId,
-                logger: function (shareto) {
-                  var url = '/rest/site/fe/matter/logShare'
-                  url += '?shareid=' + shareid
-                  url += '&site=' + siteId
-                  url += '&id=' + id
-                  url += '&type=article'
-                  url += '&title=' + oArticle.title
-                  url += '&shareto=' + shareto
-                  url += '&shareby=' + shareby
-                  http2.get(url)
-                },
-                jsApiList: [
-                  'hideOptionMenu',
-                  'onMenuShareTimeline',
-                  'onMenuShareAppMessage',
-                ],
-              })
-              tmsSnsShare.set(
-                oArticle.title,
-                sharelink,
-                oArticle.summary,
-                oArticle.pic
-              )
-            }
+            setWxShare(oArticle)
 
             if (oArticle.can_siteuser === 'Y') {
               $scope.siteUser = function (siteId) {

@@ -250,16 +250,14 @@ ngApp.controller('ctrlMain', [
     function loadArticle() {
       var deferred = $q.defer()
       http2
-        .get(`/rest/site/fe/matter/article/get?site=${siteId}$id=${id}`)
+        .get(`/rest/site/fe/matter/article/get?site=${siteId}&id=${id}`)
         .then(
-          function (rsp) {
-            var site = rsp.data.site,
-              mission = rsp.data.mission,
-              oArticle = rsp.data.article,
-              channels = oArticle.channels,
-              shareby = location.search.match(/shareby=([^&]*)/)
-                ? location.search.match(/shareby=([^&]*)/)[1]
-                : ''
+          (rsp) => {
+            let { site, mission, article: oArticle } = rsp.data
+            let { channels } = oArticle
+            let shareby = location.search.match(/shareby=([^&]*)/)
+              ? location.search.match(/shareby=([^&]*)/)[1]
+              : ''
 
             if (oArticle.use_site_header === 'Y' && site && site.header_page) {
               tmsDynaPage.loadCode(ngApp, site.header_page)
@@ -322,7 +320,7 @@ ngApp.controller('ctrlMain', [
               }
             }
             if (!_bPreview) {
-              http2.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+              http2.post(`/rest/site/fe/matter/logAccess?site=${siteId}`, {
                 id: id,
                 type: 'article',
                 title: oArticle.title,
@@ -333,7 +331,7 @@ ngApp.controller('ctrlMain', [
               /*通过新api记录访问日志*/
               let { uid, nickname } = $scope.user
               http2.post(
-                '/api/site/fe/matter/article/event/logAccess?site=' + siteId,
+                `/api/site/fe/matter/article/event/logAccess?site=${siteId}`,
                 {
                   user: { id: uid, name: nickname },
                   article: { id: oArticle.id, title: oArticle.title },

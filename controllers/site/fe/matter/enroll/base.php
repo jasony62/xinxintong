@@ -43,7 +43,7 @@ class base extends \site\fe\matter\base
    * @param object $oUser
    *
    */
-  protected function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $page = null, $ek = null)
+  public function checkEntryRule($oApp, $bRedirect = false, $oUser = null, $page = null, $ek = null)
   {
     if (empty($oUser)) {
       $oUser = $this->getUser($oApp);

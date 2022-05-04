@@ -13,6 +13,14 @@
   }
 }
 
+.headpic {
+  max-width: 100%;
+}
+
+.headpic img {
+  width: 100%;
+}
+
 .channel-summary {
   line-height: 1.7;
 }

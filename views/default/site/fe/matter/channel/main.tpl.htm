@@ -44,10 +44,10 @@
           </div>
           <p class="site-summary" ng-bind="siteInfo.summary"></p>
         </div>
-        <div class="headpic" ng-if="channel.config.show.headpic==='Y'">
+        <div class="headpic" ng-if="initialized&&channel.config.show.headpic==='Y'">
           <span><img ng-src="{{channel.pic}}"></span>
         </div>
-        <div class='hm-tile' ng-if="channel.summary">
+        <div class='hm-tile' ng-if="initialized&&channel.summary">
           <div class='channel-summary' ng-bind="channel.summary"></div>
         </div>
         <div id='qrCode' class='hidden-xs hidden-sm'>

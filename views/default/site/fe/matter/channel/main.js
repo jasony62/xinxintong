@@ -129,9 +129,11 @@ angular
               }
               this.busy = false
             }
+            $scope.initialized = true
           })
         },
       }
+      $scope.initialized = false
       $scope.back = function () {
         history.back()
       }

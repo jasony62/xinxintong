@@ -234,15 +234,13 @@ angular
             $scope.channel = rsp.data.channel
             $scope.Matter.busy = false
             $scope.qrcode =
-              '/rest/site/fe/matter/channel/qrcode?site=' +
-              siteId +
-              '&url=' +
+              `/rest/site/fe/matter/channel/qrcode?site=${siteId}&url=` +
               encodeURIComponent(location.href)
-            if (/MicroMessenge/i.test(navigator.userAgent)) {
-              setShare()
-            }
+            // if (/MicroMessenge/i.test(navigator.userAgent)) {
+            //   setShare()
+            // }
             deferred.resolve()
-            $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
+            $http.post(`/rest/site/fe/matter/logAccess?site=${siteId}`, {
               id: channelId,
               type: 'channel',
               title: $scope.channel.title,

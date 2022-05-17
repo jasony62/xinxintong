@@ -191,21 +191,15 @@ define(['frame'], function (ngApp) {
               .update(['user_app_id', 'user_app_type'])
               .then(function (rsp) {
                 if (data.appType === 'mschema') {
-                  var url = '/rest/pl/fe/matter/mission/get?id=' + mission.id
+                  let url = `/rest/pl/fe/matter/mission/get?id=${mission.id}`
                   http2.get(url).then(function (rsp) {
                     mission.userApp = rsp.data.userApp
                   })
                 } else {
-                  var key = data.appType == 'enroll' ? 'app' : 'id'
-                  var url =
-                    '/rest/pl/fe/matter/' +
-                    data.appType +
-                    '/get?site=' +
-                    mission.siteid +
-                    '&' +
-                    key +
-                    '=' +
-                    data.appId
+                  let key = ['enroll', 'group'].includes(data.appType)
+                    ? 'app'
+                    : 'id'
+                  let url = `/rest/pl/fe/matter/${data.appType}/get?site=${mission.siteid}&${key}=${data.appId}`
                   http2.get(url).then(function (rsp) {
                     mission.userApp = rsp.data
                     if (

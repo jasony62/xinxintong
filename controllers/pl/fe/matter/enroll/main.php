@@ -724,17 +724,17 @@ class main extends main_base
           'xxt_enroll_round',
           ["aid" => $oApp->id]
         );
-        $this->logger->info("记录活动【{$oApp->id}】删除轮次");
-        $modelApp->delete(
-          'xxt_code_page',
-          "id in (select code_id from xxt_enroll_page where aid='" . $modelApp->escape($oApp->id) . "')"
-        );
-        $this->logger->info("记录活动【{$oApp->id}】删除定制页面");
+        // $this->logger->info("记录活动【{$oApp->id}】完成删除轮次");
+        // $modelApp->delete(
+        //   'xxt_code_page',
+        //   "id in (select code_id from xxt_enroll_page where aid='" . $modelApp->escape($oApp->id) . "')"
+        // );
+        // $this->logger->info("记录活动【{$oApp->id}】完成删除定制页面");
         $modelApp->delete(
           'xxt_enroll_page',
           ["aid" => $oApp->id]
         );
-        $this->logger->info("记录活动【{$oApp->id}】删除活动页面");
+        $this->logger->info("记录活动【{$oApp->id}】完成删除活动页面");
         $rst = $modelApp->remove($oUser, $oApp, 'D');
       }
     }

@@ -709,6 +709,7 @@ class main extends main_base
         return new \ResponseError('没有删除数据的权限');
       }
       $rst = $modelApp->remove($oUser, $oApp, 'Recycle');
+      $this->logger->info("记录活动【{$oApp->id}】不是创建人删除活动，放入回收站");
     } else {
       $q = [
         'count(*)',
@@ -717,19 +718,23 @@ class main extends main_base
       ];
       if ((int) $modelApp->query_val_ss($q) > 0) {
         $rst = $modelApp->remove($oUser, $oApp, 'Recycle');
+        $this->logger->info("记录活动【{$oApp->id}】已经有数据，放入回收站");
       } else {
         $modelApp->delete(
           'xxt_enroll_round',
           ["aid" => $oApp->id]
         );
+        $this->logger->info("记录活动【{$oApp->id}】删除轮次");
         $modelApp->delete(
           'xxt_code_page',
           "id in (select code_id from xxt_enroll_page where aid='" . $modelApp->escape($oApp->id) . "')"
         );
+        $this->logger->info("记录活动【{$oApp->id}】删除定制页面");
         $modelApp->delete(
           'xxt_enroll_page',
           ["aid" => $oApp->id]
         );
+        $this->logger->info("记录活动【{$oApp->id}】删除活动页面");
         $rst = $modelApp->remove($oUser, $oApp, 'D');
       }
     }

@@ -1,9 +1,8 @@
 import { createApp } from 'vue'
 import Login from './Login.vue'
 import { TmsAxiosPlugin, TmsAxios } from 'tms-vue3'
-import { Frame } from 'tms-vue3-ui'
+import Frame from 'tms-vue3-ui/dist/es/frame'
 import 'tms-vue3-ui/dist/es/frame/style/index.css'
-import 'tms-vue3-ui/dist/es/flex/style/index.css'
 import './index.css'
 
 import router from './router/login'

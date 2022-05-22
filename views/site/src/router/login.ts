@@ -4,12 +4,12 @@ import Account from '../views/login/Account.vue'
 import SmsCode from '../views/login/SmsCode.vue'
 import Register from '../views/Login/Register.vue'
 
-const VITE_BASE_URL = import.meta.env.VITE_BASE_URL ?? '/login'
+const VITE_BASE_URL = import.meta.env.VITE_BASE_URL ?? '/smscode'
 
 const routes = [
   {
-    path: '/:pathMatch(.*)*',
-    name: 'login',
+    path: '/account',
+    name: 'account',
     component: Account,
   },
   {
@@ -21,6 +21,10 @@ const routes = [
     path: '/register',
     name: 'register',
     component: Register,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    component: SmsCode,
   },
 ]
 const router = createRouter({

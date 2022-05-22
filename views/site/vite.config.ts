@@ -1,14 +1,16 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { viteCommonjs } from '@originjs/vite-plugin-commonjs'
 import styleImport, { VantResolve } from 'vite-plugin-style-import'
-import { config } from 'dotenv'
+// import { config } from 'dotenv'
 import { resolve } from 'path'
 
-config({ path: `.env.${process.env.NODE_ENV}` })
+// config({ path: `.env.${process.env.NODE_ENV}` })
 
 export default defineConfig({
   plugins: [
     vue(),
+    viteCommonjs(),
     styleImport({
       resolves: [VantResolve()],
     }),
@@ -18,7 +20,9 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
-  base: process.env.VITE_BASE_URL ?? '/',
+  // base: process.env.VITE_BASE_URL ?? '/',
+  base: '/ue/site/fe',
+  // base: '/',
   build: {
     outDir: '../../ue/site/fe',
     assetsInlineLimit: 10240,

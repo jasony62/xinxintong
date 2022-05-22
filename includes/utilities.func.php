@@ -123,7 +123,7 @@ function tmsHttpGet($url)
   }
   $rsp = json_decode(($txtResponse));
 
-  return [true, $rsp];
+  return [true, $rsp, $txtResponse];
 }
 /**
  * Http Post请求
@@ -152,5 +152,5 @@ function tmsHttpPost($url, $posted)
 
   $rsp = json_decode(($txtResponse));
 
-  return [true, $rsp];
+  return [true, $rsp, $txtResponse];
 }

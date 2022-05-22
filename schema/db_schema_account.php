@@ -24,6 +24,7 @@ $sql .= ",online_time int default 0 comment '在线时间(分钟)'";
 $sql .= ",last_active int default null comment '最后活跃时间'";
 $sql .= ",forbidden tinyint(3) default 0 comment '是否禁止用户'";
 $sql .= ",is_first_login tinyint(1) default 1 comment '首次登录标记'";
+$sql .= ",is_smscode_register tinyint(1) default 0 comment '验证码注册'";
 $sql .= ",coin int not null default 0"; // 虚拟货币
 $sql .= ",coin_last_at int not null default 0"; // 最近一次增加虚拟货币
 $sql .= ",coin_day int not null default 0"; // 虚拟货币日增量

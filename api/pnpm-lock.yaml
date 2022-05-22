@@ -5,8 +5,8 @@ specifiers:
   mongodb: ^4.3.0
   nanoid: ^3.1.30
   ping: ^0.4.1
-  svg-captcha: ^1.4.0
-  tms-koa: ^0.0.75
+  tms-koa: ^0.0.79
+  tms-koa-account: ^0.0.4
   url-parse: ^1.5.4
 
 dependencies:
@@ -14,8 +14,8 @@ dependencies:
   mongodb: 4.5.0
   nanoid: 3.3.3
   ping: 0.4.1
-  svg-captcha: 1.4.0
-  tms-koa: 0.0.75_mongodb@4.5.0
+  tms-koa: 0.0.79_mongodb@4.5.0
+  tms-koa-account: 0.0.4_tms-koa@0.0.79
   url-parse: 1.5.10
 
 packages:
@@ -138,10 +138,10 @@ packages:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
     dev: false
 
-  /axios/0.26.1:
+  /axios/0.26.1_debug@4.3.4:
     resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
     dependencies:
-      follow-redirects: 1.14.9
+      follow-redirects: 1.14.9_debug@4.3.4
     transitivePeerDependencies:
       - debug
     dev: false
@@ -205,7 +205,7 @@ packages:
     dev: false
 
   /call-me-maybe/1.0.1:
-    resolution: {integrity: sha1-JtII6onje1y95gJQoV8DHBak1ms=}
+    resolution: {integrity: sha512-wCyFsDQkKPwwF8BDwOiWNx/9K45L/hvggQiDbve+viMNMQnWhrlYIuBk09offfwCRtCO9P6XwUttufzU11WCVw==}
     dev: false
 
   /cfb/1.2.2:
@@ -418,7 +418,7 @@ packages:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: false
 
-  /follow-redirects/1.14.9:
+  /follow-redirects/1.14.9_debug@4.3.4:
     resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
     engines: {node: '>=4.0'}
     peerDependencies:
@@ -426,6 +426,8 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
+    dependencies:
+      debug: 4.3.4
     dev: false
 
   /formidable/1.2.6:
@@ -454,6 +456,10 @@ packages:
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
+    dev: false
+
+  /fs/0.0.1-security:
+    resolution: {integrity: sha1-invTcYa23d84E/I4WLV+yq9eQdQ=}
     dev: false
 
   /function-bind/1.1.1:
@@ -582,6 +588,10 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       has-tostringtag: 1.0.0
+    dev: false
+
+  /is-promise/2.2.2:
+    resolution: {integrity: sha512-+lP4/6lKUBfQjZ2pdxThZvLUAafmZb8OAxFb8XXtiQmS35INgr85hdOGoEs124ez1FCnZJt6jau/T+alh58QFQ==}
     dev: false
 
   /js-yaml/4.1.0:
@@ -766,6 +776,17 @@ packages:
       - supports-color
     dev: false
 
+  /lowdb/1.0.0:
+    resolution: {integrity: sha512-2+x8esE/Wb9SQ1F9IHaYWfsC9FIecLOPrK4g17FGEayjUWH172H6nwicRovGvSE2CPZouc2MCIqCI7h9d+GftQ==}
+    engines: {node: '>=4'}
+    dependencies:
+      graceful-fs: 4.2.10
+      is-promise: 2.2.2
+      lodash: 4.17.21
+      pify: 3.0.0
+      steno: 0.4.4
+    dev: false
+
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}
     engines: {node: '>= 0.6'}
@@ -879,6 +900,11 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /password-validator/5.3.0:
+    resolution: {integrity: sha512-Q+bSEM5pjokZqzWGoQaoylkeWeH4+9uMYlVImiPD0EOJClQ2RPBhrJ5h0OjhMKtwOmu5rRcLaTZo5Gk9RBl0ig==}
+    engines: {node: '>=8.10.0'}
+    dev: false
+
   /path-is-absolute/1.0.1:
     resolution: {integrity: sha1-F0uSaHNVNP+8es5r9TpanhtcX18=}
     engines: {node: '>=0.10.0'}
@@ -888,12 +914,29 @@ packages:
     resolution: {integrity: sha512-f66KywYG6+43afgE/8j/GoiNyygk/bnoCbps++3ErRKsIYkGGupyv07R2Ok5m9i67Iqc+T2g1eAUGUPzWhYTyg==}
     dev: false
 
+  /path/0.12.7:
+    resolution: {integrity: sha1-1NwqUGxM4hl+tIHr/NWzbAFAsQ8=}
+    dependencies:
+      process: 0.11.10
+      util: 0.10.4
+    dev: false
+
+  /pify/3.0.0:
+    resolution: {integrity: sha1-5aSs0sEB/fPZpNB/DbxNtJ3SgXY=}
+    engines: {node: '>=4'}
+    dev: false
+
   /ping/0.4.1:
     resolution: {integrity: sha512-zYouogtyis0QpEZwWY1T26iuIOMJx+ajtjVMcPKIdWRq2Ie3Ftkbel8I25M5kCAQQMQhsez6ZbPiYjNe7aBjSQ==}
     engines: {node: '>=4.0.0'}
     dependencies:
       q: 1.5.1
       underscore: 1.13.3
+    dev: false
+
+  /process/0.11.10:
+    resolution: {integrity: sha1-czIwDoQBYb2j5podHZGn1LwW8YI=}
+    engines: {node: '>= 0.6.0'}
     dev: false
 
   /punycode/2.1.1:
@@ -1049,6 +1092,12 @@ packages:
     engines: {node: '>= 0.8'}
     dev: false
 
+  /steno/0.4.4:
+    resolution: {integrity: sha1-BxEFvfwobmYVwEA8J+nXtdy4Vcs=}
+    dependencies:
+      graceful-fs: 4.2.10
+    dev: false
+
   /streamroller/3.0.8:
     resolution: {integrity: sha512-VI+ni3czbFZrd1MrlybxykWZ8sMDCMtTU7YJyhgb9M5X6d1DDxLdJr+gSnmRpXPMnIWxWKMaAE8K0WumBp3lDg==}
     engines: {node: '>=8.0'}
@@ -1095,20 +1144,44 @@ packages:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
     dev: false
 
-  /tms-koa/0.0.75_mongodb@4.5.0:
-    resolution: {integrity: sha512-X5EAV2ApNf5q5Xu6ZfDG5KEJo9cWE7QP20Znb6qQazEl2rdz4QFMjm1hFIMsKDg8K32UNPoHfsCRxIthSmN0LQ==}
+  /tms-koa-account/0.0.4_tms-koa@0.0.79:
+    resolution: {integrity: sha512-vVFAdWnVlIaBlwkNVwQsKGDGK3TYu4/H5yO40hEvJGq+gd9svxIvASbFXxGjO7+WA79Jpqbg+/H0mZsGI2pPzw==}
+    peerDependencies:
+      redis: 3.1.2
+      tms-koa: ^0.0.64
+    dependencies:
+      '@koa/cors': 3.3.0
+      '@koa/router': 10.1.1
+      '@log4js-node/log4js-api': 1.0.2
+      dotenv-flow: 3.2.0
+      fs: 0.0.1-security
+      koa: 2.13.4
+      koa-body: 4.2.0
+      lodash: 4.17.21
+      lowdb: 1.0.0
+      nanoid: 3.3.3
+      password-validator: 5.3.0
+      path: 0.12.7
+      svg-captcha: 1.4.0
+      tms-koa: 0.0.79_mongodb@4.5.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /tms-koa/0.0.79_mongodb@4.5.0:
+    resolution: {integrity: sha512-+nK5cwJExD6N3FQWaEs2abDQnNX+Wu116qlfZCNOG4A49n+HZRJv7BBSit+m7fUtz17Vfy8iwRNZn54Dq7CWLw==}
     peerDependencies:
       mongodb: 4.5.0
-      mongoose: ^5.7.13
       prom-client: ^13.1.0
-      redis: ^4.0.6
+      redis: 3.1.2
       sharp: ^0.25.3
       tms-db: ^0.0.12
     dependencies:
       '@koa/cors': 3.3.0
       '@koa/router': 10.1.1
       '@log4js-node/log4js-api': 1.0.2
-      axios: 0.26.1
+      axios: 0.26.1_debug@4.3.4
+      debug: 4.3.4
       dotenv-flow: 3.2.0
       fs-extra: 10.1.0
       jsonwebtoken: 8.5.1
@@ -1125,7 +1198,6 @@ packages:
       xlsx: 0.18.5
     transitivePeerDependencies:
       - bufferutil
-      - debug
       - openapi-types
       - supports-color
       - utf-8-validate
@@ -1175,6 +1247,12 @@ packages:
     dependencies:
       querystringify: 2.2.0
       requires-port: 1.0.0
+    dev: false
+
+  /util/0.10.4:
+    resolution: {integrity: sha512-0Pm9hTQ3se5ll1XihRic3FDIku70C+iHUdT/W926rSgHV5QgXsYbKZN8MSC3tJtSkhuROzvsQjAaFENRXr+19A==}
+    dependencies:
+      inherits: 2.0.3
     dev: false
 
   /uuid/8.3.2:

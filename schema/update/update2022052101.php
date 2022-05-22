@@ -3,7 +3,7 @@ require_once '../../db.php';
 
 $sqls = [];
 //
-$sqls[] = "ALTER TABLE xxt_mission add page_config text null";
+$sqls[] = "ALTER TABLE account add is_smscode_register tinyint(1) default 0 comment '验证码注册' after is_first_login";
 //
 foreach ($sqls as $sql) {
   if (!$mysqli->query($sql)) {

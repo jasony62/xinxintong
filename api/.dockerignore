@@ -2,3 +2,4 @@ node_modules/
 Dockerfile*
 .dockerignore
 *.local.js
+_lowdb.json

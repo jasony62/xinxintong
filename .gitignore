@@ -6,12 +6,23 @@ log/*
 kcfinder/upload
 vendor/
 *.log
+.env
+.env.*
+
 #ue/
 docker/mariadb/data
 docker/mariadb/log
 docker/mongodb/data
 docker-compose.override.yml
 *.local.js
+ue/site/fe/assets
+
 #kafka
 docker/kafka/logs
 docker/canal/*log
+
+#lowdb
+_lowdb.json
+
+# pnpm
+pnpm-lock.yaml

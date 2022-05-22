@@ -119,11 +119,11 @@ function tmsHttpGet($url)
   if (false === ($txtResponse = curl_exec($ch))) {
     $err = curl_error($ch);
     curl_close($ch);
-    return [false, $err];
+    return [false, $err, $txtResponse];
   }
   $rsp = json_decode(($txtResponse));
 
-  return [true, $rsp];
+  return [true, $rsp, $txtResponse];
 }
 /**
  * Http Post请求
@@ -147,10 +147,10 @@ function tmsHttpPost($url, $posted)
   if (false === ($txtResponse = curl_exec($ch))) {
     $err = curl_error($ch);
     curl_close($ch);
-    return [false, $err];
+    return [false, $err, $txtResponse];
   }
 
   $rsp = json_decode(($txtResponse));
 
-  return [true, $rsp];
+  return [true, $rsp, $txtResponse];
 }

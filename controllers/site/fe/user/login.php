@@ -3,11 +3,15 @@
 namespace site\fe\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
+require_once dirname(__FILE__) . '/captcha.php';
+
 /**
  * 站点注册用户登录
  */
 class login extends \site\fe\base
 {
+
+  use CaptchaTrait;
 
   public function get_access_rule()
   {
@@ -15,6 +19,7 @@ class login extends \site\fe\base
     $rule_action['actions'] = array();
     $rule_action['actions'][] = 'index';
     $rule_action['actions'][] = 'do';
+    $rule_action['actions'][] = 'do2';
     $rule_action['actions'][] = 'checkPwdStrength';
     $rule_action['actions'][] = 'byRegAndWxopenid';
     $rule_action['actions'][] = 'getCaptcha';
@@ -46,6 +51,9 @@ class login extends \site\fe\base
    */
   public function do_action()
   {
+    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept');
+    header("Access-Control-Allow-Origin: *");
+
     $data = $this->getPostJson(false);
     if (empty($data->uname) || empty($data->password) || empty($data->pin)) {
       return new \ResponseError("登录信息不完整");
@@ -72,14 +80,15 @@ class login extends \site\fe\base
       $modelWay->quitRegUser();
     }
 
-    $data->uname = $modelReg->escape($data->uname);
+    $uname = $modelReg->escape($data->uname);
+
     // 检查登录条件
     $rst = tms_login_check();
     if ($rst[0] === false) {
       return new \ResponseError($rst[1]);
     }
 
-    $oResult = $modelReg->validate($data->uname, $data->password);
+    $oResult = $modelReg->validate($uname, $data->password);
     if (false === $oResult[0]) {
       return new \ResponseError($oResult[1]);
     }
@@ -117,6 +126,77 @@ class login extends \site\fe\base
 
       $this->mySetCookie('_login_auto', 'Y', $expire);
       $this->mySetCookie('_login_token', $encoded, $expire);
+    }
+
+    return new \ResponseData($oCookieUser);
+  }
+  /**
+   * 执行登录
+   */
+  public function do2_action($appId, $captchaId)
+  {
+    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept');
+    header("Access-Control-Allow-Origin: *");
+
+    $data = $this->getPostJson(false);
+    if (empty($appId) || empty($captchaId) || empty($data->uname) || empty($data->password) || empty($data->captcha)) {
+      return new \ResponseError("登录信息不完整");
+    }
+
+    $modelWay = $this->model('site\fe\way');
+    $modelReg = $this->model('site\user\registration');
+    $cookieRegUser = $modelWay->getCookieRegUser();
+    if ($cookieRegUser) {
+      if (isset($cookieRegUser->loginExpire)) {
+        return new \ResponseError("请退出当前账号再登录");
+      }
+      $modelWay->quitRegUser();
+    }
+
+    // 检查登录条件
+    $rst = tms_login_check();
+    if ($rst[0] === false) {
+      return new \ResponseError($rst[1]);
+    }
+
+    $uname = $modelReg->escape($data->uname);
+    $captcha = $modelReg->escape($data->captcha);
+
+    // 通过账号服务检查验证码是否有效
+    if (false === $this->checkCaptcha($appId, $captchaId, $captcha)) {
+      return new \ResponseError("验证码未通过验证，请重试");
+    }
+
+    // 检查是否允许用使用账号密码登录
+    $oRegistration = $modelReg->byUname($uname, ['forbidden' => 0, 'fields' => 'is_smscode_register']);
+    if (!$oRegistration) {
+      return new \ResponseError("提供的登录信息不正确，请重试");
+    }
+    if ($oRegistration->is_smscode_register == 1) {
+      return new \ResponseError("该账号不支持账号密码登录方式，请使用短信验证码登录");
+    }
+
+    $oResult = $modelReg->validate($uname, $data->password);
+    if (false === $oResult[0]) {
+      return new \ResponseError($oResult[1]);
+    }
+    $oRegistration = $oResult[1];
+
+    /* cookie中保留注册信息 */
+    $aResult = $modelWay->shiftRegUser($oRegistration);
+    if (false === $aResult[0]) {
+      return new \ResponseError($aResult[1]);
+    }
+
+    /* 记录登录状态 */
+    $fromip = $this->client_ip();
+    $modelReg->updateLastLogin($oRegistration->unionid, $fromip);
+
+    /* 要跳转的页面 */
+    $oCookieUser = $modelWay->who($this->siteId);
+    if ($referer = $this->myGetCookie('_user_access_referer')) {
+      $oCookieUser->_loginReferer = $referer;
+      $this->mySetCookie('_user_access_referer', null);
     }
 
     return new \ResponseData($oCookieUser);

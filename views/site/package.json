@@ -10,7 +10,7 @@
   "dependencies": {
     "pinia": "^2.0.13",
     "tms-vue3": "^0.0.4",
-    "tms-vue3-ui": "0.0.29",
+    "tms-vue3-ui": "0.0.30",
     "vant": "^3.4.7",
     "vue": "^3.2.25",
     "vue-router": "4"

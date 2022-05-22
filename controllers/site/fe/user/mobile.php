@@ -24,14 +24,14 @@ class mobile extends \site\fe\base
   /**
    * 执行用户检查
    */
-  public function login_action()
+  public function login_action($appId, $captchaId)
   {
     header('Access-Control-Allow-Headers: Origin, Content-Type, Accept');
     header("Access-Control-Allow-Origin: *");
 
     // 检查输入的数据是否完整
     $data = $this->getPostJson(false);
-    if (empty($data->uname) || empty($data->appId) || empty($data->captchaId) || empty($data->captcha)) {
+    if (empty($appId) || empty($captchaId) || empty($data->uname) ||  empty($data->captcha)) {
       return new \ResponseError("登录信息不完整");
     }
 

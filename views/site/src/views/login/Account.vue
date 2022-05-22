@@ -4,7 +4,6 @@
     :fn-captcha="genCaptcha"
     :fn-login="login"
     :on-success="onLoginSuccess"
-    :on-fail="onLoginFail"
   >
   </tms-login>
 </template>
@@ -19,9 +18,7 @@ const tmsAxios = TmsAxios.ins('xxt-axios')
 
 const CAPTCHA_URL = import.meta.env.VITE_GENERATE_CAPTCHA_URL
 
-const CAPTCHA_APPID = import.meta.env.VITE_CAPTCHA_APPID
-
-const LOGIN_URL = `/rest/site/fe/user/login/do2?site=platform&appId=${CAPTCHA_APPID}`
+const LOGIN_URL = import.meta.env.VITE_ACCOUNT_LOGIN_URL
 
 const schema = [
   {
@@ -52,7 +49,7 @@ let captchaId: string
 
 const genCaptcha = async () => {
   captchaId = genCaptchaId()
-  const url = CAPTCHA_URL + `?appid=${CAPTCHA_APPID}&userid=${captchaId}`
+  const url = CAPTCHA_URL + `&captchaid=${captchaId}`
 
   const rsp = await tmsAxios.get(url)
   const { code, msg, result: captcha } = rsp.data
@@ -67,11 +64,13 @@ const login = async (input: any): Promise<LoginResponse> => {
   return { code, msg, data }
 }
 
-const onLoginSuccess = () => {
-  location.href = '/rest/pl/fe'
-}
-
-const onLoginFail = (rsp: any) => {
-  alert(rsp.msg)
+const onLoginSuccess = (rsp: any) => {
+  if (rsp.data._loginReferer) {
+    location.replace(rsp.data._loginReferer)
+    // } else if ($scope.loginData.gotoConsole === 'Y') {
+    //   location.href = '/rest/pl/fe'
+  } else {
+    location.replace('/rest/site/fe/user?site=platform')
+  }
 }
 </script>

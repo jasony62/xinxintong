@@ -4,8 +4,7 @@
     action-text="进入"
     :fn-send-sms-code="sendSmsCode"
     :fn-verify="login"
-    :on-success="fnSuccessVerify"
-    :on-fail="fnFailVerify"
+    :on-success="fnLoginSuccess"
   >
   </tms-sms-code>
 </template>
@@ -30,8 +29,6 @@ const schema = [
   },
 ]
 
-const appId = import.meta.env.VITE_SMSCODe_APPID
-
 const SMSCODE_SEND_URL = import.meta.env.VITE_SMSCODE_SEND_URL
 
 const SMSCODE_LOGIN_URL = import.meta.env.VITE_SMSCODE_LOGIN_URL
@@ -46,7 +43,7 @@ let captchaId = ''
 
 const sendSmsCode = async () => {
   captchaId = genCaptchaId()
-  const url = SMSCODE_SEND_URL + `?appid=${appId}&captchaId=${captchaId}`
+  const url = SMSCODE_SEND_URL + `&captchaId=${captchaId}`
 
   const rsp = await tmsAxios.get(url)
   const { code, msg } = rsp.data
@@ -57,7 +54,7 @@ const sendSmsCode = async () => {
 const login = async (userInput: any) => {
   let { uname, captcha } = userInput
   let loginData = { uname, captcha }
-  const url = SMSCODE_LOGIN_URL + `?appid=${appId}&captchaId=${captchaId}`
+  const url = SMSCODE_LOGIN_URL + `&captchaId=${captchaId}`
 
   const rsp = await tmsAxios.post(url, loginData)
   const { err_code, err_msg, data } = rsp.data
@@ -68,7 +65,13 @@ const login = async (userInput: any) => {
   return { code: err_code, msg: err_msg, data }
 }
 
-const fnSuccessVerify = () => Promise.resolve()
-
-const fnFailVerify = () => Promise.resolve()
+const fnLoginSuccess = (rsp: any) => {
+  if (rsp.data._loginReferer) {
+    location.replace(rsp.data._loginReferer)
+    // } else if ($scope.loginData.gotoConsole === 'Y') {
+    //   location.href = '/rest/pl/fe'
+  } else {
+    location.replace('/rest/site/fe/user?site=platform')
+  }
+}
 </script>

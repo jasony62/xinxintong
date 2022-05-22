@@ -2,6 +2,8 @@
 
 namespace site\fe\user;
 
+use Zend\Stdlib\Response;
+
 require_once dirname(dirname(__FILE__)) . '/base.php';
 require_once dirname(__FILE__) . '/captcha.php';
 
@@ -17,9 +19,38 @@ class mobile extends \site\fe\base
     $rule_action['rule_type'] = 'white';
     $rule_action['actions'] = array();
     $rule_action['actions'][] = 'index';
+    $rule_action['actions'][] = 'sendCode';
     $rule_action['actions'][] = 'login';
 
     return $rule_action;
+  }
+  /**
+   * 发送验证码
+   */
+  public function sendCode_action($appId, $captchaId)
+  {
+    header('Access-Control-Allow-Headers: Origin, Content-Type, Accept');
+    header("Access-Control-Allow-Origin: *");
+
+    // 检查输入的数据是否完整
+    $data = $this->getPostJson(false);
+    if (empty($appId) || empty($captchaId) || empty($data->mobile)) {
+      return new \ResponseError("参数不完整");
+    }
+
+    $mobile = $data->mobile;
+    if (0 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\\d{8}$/', $mobile)) {
+      return new \ResponseError("请提供正确的手机号");
+    }
+
+    // 通过账号服务生成验证码
+    $captcha = $this->createCaptcha($appId, $captchaId);
+    if (false === $captcha) {
+      return new \ResponseError("获取验证码失败");
+    }
+    // 通过短信通道发送验证码
+
+    return new \ResponseData($captcha);
   }
   /**
    * 执行用户检查
@@ -31,7 +62,7 @@ class mobile extends \site\fe\base
 
     // 检查输入的数据是否完整
     $data = $this->getPostJson(false);
-    if (empty($appId) || empty($captchaId) || empty($data->uname) ||  empty($data->captcha)) {
+    if (empty($appId) || empty($captchaId) || empty($data->mobile) ||  empty($data->captcha)) {
       return new \ResponseError("登录信息不完整");
     }
 
@@ -52,14 +83,14 @@ class mobile extends \site\fe\base
     }
 
     // 清理数据
-    $uname = $modelReg->escape($data->uname);
+    $uname = $modelReg->escape($data->mobile);
 
     if (0 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\\d{8}$/', $uname)) {
       return new \ResponseError("请使用手机号作为登录账号");
     }
 
     // 通过账号服务检查验证码是否有效
-    if (false === $this->checkCaptcha($data->appId, $data->captchaId, $data->captcha)) {
+    if (false === $this->checkCaptcha($appId, $captchaId, $data->captcha)) {
       return new \ResponseError("验证码未通过验证，请重试");
     }
 

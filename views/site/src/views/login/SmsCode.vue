@@ -18,7 +18,7 @@ let tmsAxios = TmsAxios.ins('xxt-axios')
 
 const schema = [
   {
-    key: 'uname',
+    key: 'mobile',
     type: 'text',
     placeholder: '请输入手机号',
   },
@@ -41,26 +41,23 @@ const genCaptchaId = () => {
 
 let captchaId = ''
 
-const sendSmsCode = async () => {
+const sendSmsCode = async (userInput: any) => {
   captchaId = genCaptchaId()
   const url = SMSCODE_SEND_URL + `&captchaId=${captchaId}`
 
-  const rsp = await tmsAxios.get(url)
-  const { code, msg } = rsp.data
+  const rsp = await tmsAxios.post(url, { mobile: userInput.mobile })
+  const { err_code: code, err_msg: msg } = rsp.data
 
   return { code, msg }
 }
 
 const login = async (userInput: any) => {
-  let { uname, captcha } = userInput
-  let loginData = { uname, captcha }
+  let { mobile, captcha } = userInput
+  let loginData = { mobile, captcha }
   const url = SMSCODE_LOGIN_URL + `&captchaId=${captchaId}`
 
   const rsp = await tmsAxios.post(url, loginData)
   const { err_code, err_msg, data } = rsp.data
-  if (err_code !== 0) {
-    alert(err_msg)
-  }
 
   return { code: err_code, msg: err_msg, data }
 }

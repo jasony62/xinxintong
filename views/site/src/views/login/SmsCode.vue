@@ -1,18 +1,18 @@
 <template>
-  <sms-code
+  <tms-sms-code
     :schema="schema"
     action-text="进入"
-    :fn-verify="fnLogin"
+    :fn-send-sms-code="sendSmsCode"
+    :fn-verify="login"
     :on-success="fnSuccessVerify"
-    :fn-send-sms-code="fnSendSmsCode"
     :on-fail="fnFailVerify"
   >
-  </sms-code>
+  </tms-sms-code>
 </template>
 
 <script setup lang="ts">
 import { TmsAxios } from 'tms-vue3'
-import SmsCode from 'tms-vue3-ui/dist/es/sms-code'
+import TmsSmsCode from 'tms-vue3-ui/dist/es/sms-code'
 import 'tms-vue3-ui/dist/es/sms-code/style/tailwind.scss'
 
 let tmsAxios = TmsAxios.ins('xxt-axios')
@@ -30,19 +30,36 @@ const schema = [
   },
 ]
 
-const appId = 'app001'
-let captchaId = ''
+const appId = import.meta.env.VITE_SMSCODe_APPID
 
-const fnSendSmsCode = () => {
-  captchaId = 'captcha001'
-  return Promise.resolve({ code: 0, result: '1234' })
+const SMSCODE_SEND_URL = import.meta.env.VITE_SMSCODE_SEND_URL
+
+const SMSCODE_LOGIN_URL = import.meta.env.VITE_SMSCODE_LOGIN_URL
+
+const genCaptchaId = () => {
+  let rand = Math.floor(Math.random() * 1000 + 1)
+  let id = Date.now() * 1000 + rand
+  return `${id}`
 }
 
-const fnLogin = async (userInput: any) => {
+let captchaId = ''
+
+const sendSmsCode = async () => {
+  captchaId = genCaptchaId()
+  const url = SMSCODE_SEND_URL + `?appid=${appId}&captchaId=${captchaId}`
+
+  const rsp = await tmsAxios.get(url)
+  const { code, msg } = rsp.data
+
+  return { code, msg }
+}
+
+const login = async (userInput: any) => {
   let { uname, captcha } = userInput
-  let authData = { uname, captcha, appId, captchaId }
-  const url = import.meta.env.VITE_SMSCODE_LOGIN_URL
-  const rsp = await tmsAxios.post(url, authData)
+  let loginData = { uname, captcha }
+  const url = SMSCODE_LOGIN_URL + `?appid=${appId}&captchaId=${captchaId}`
+
+  const rsp = await tmsAxios.post(url, loginData)
   const { err_code, err_msg, data } = rsp.data
   if (err_code !== 0) {
     alert(err_msg)

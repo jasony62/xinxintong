@@ -23,3 +23,6 @@ docker/canal/*log
 
 #lowdb
 _lowdb.json
+
+# pnpm
+pnpm-lock.yaml

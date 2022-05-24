@@ -1,10 +1,5 @@
 <template>
-  <tms-login
-    :schema="schema"
-    :fn-captcha="genCaptcha"
-    :fn-login="login"
-    :on-success="onLoginSuccess"
-  >
+  <tms-login :schema="schema" :fn-captcha="genCaptcha" :fn-login="login" :on-success="onLoginSuccess">
   </tms-login>
 </template>
 

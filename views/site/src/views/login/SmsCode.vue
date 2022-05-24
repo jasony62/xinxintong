@@ -1,11 +1,6 @@
 <template>
-  <tms-sms-code
-    :schema="schema"
-    action-text="进入"
-    :fn-send-sms-code="sendSmsCode"
-    :fn-verify="login"
-    :on-success="fnLoginSuccess"
-  >
+  <tms-sms-code :schema="schema" action-text="进入" :fn-send-sms-code="sendSmsCode" :fn-verify="login"
+    :on-success="fnLoginSuccess">
   </tms-sms-code>
 </template>
 

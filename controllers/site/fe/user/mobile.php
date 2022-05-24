@@ -2,8 +2,6 @@
 
 namespace site\fe\user;
 
-use Zend\Stdlib\Response;
-
 require_once dirname(dirname(__FILE__)) . '/base.php';
 require_once dirname(__FILE__) . '/captcha.php';
 
@@ -32,6 +30,11 @@ class mobile extends \site\fe\base
     header('Access-Control-Allow-Headers: Origin, Content-Type, Accept');
     header("Access-Control-Allow-Origin: *");
 
+    // 通过短信通道发送验证码
+    if (!defined('TMS_SEND_SMSCODE_ADDRESS')) {
+      return new \ResponseError("系统未配置短信通道，无法发送验证码");
+    }
+
     // 检查输入的数据是否完整
     $data = $this->getPostJson(false);
     if (empty($appId) || empty($captchaId) || empty($data->mobile)) {
@@ -48,9 +51,31 @@ class mobile extends \site\fe\base
     if (false === $captcha) {
       return new \ResponseError("获取验证码失败");
     }
-    // 通过短信通道发送验证码
 
-    return new \ResponseData($captcha);
+    // 通过短信通道发送验证码
+    $url = TMS_SEND_SMSCODE_ADDRESS;
+    $posted = new \stdClass;
+    $posted->phoneNumber = $mobile;
+    $posted->code = $captcha;
+    $posted->outId = $captchaId;
+
+    list($success, $rsp, $rawRsp) = tmsHttpPost($url, $posted);
+    if ($success !== true) {
+      $this->logger->error($rsp);
+      return new \ResponseError("短信发送失败");
+    }
+
+    if (!is_object($rsp) && !isset($rsp->code)) {
+      $this->logger->error($rawRsp);
+      return new \ResponseError("短信发送失败");
+    }
+
+    if ($rsp->code !== 0) {
+      $this->logger->error($rawRsp);
+      return new \ResponseError("短信发送失败");
+    }
+
+    return new \ResponseData('ok');
   }
   /**
    * 执行用户检查

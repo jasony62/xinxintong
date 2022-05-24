@@ -946,7 +946,6 @@ class record_model extends record_base
     $q[0] = 'count(*)';
     $total = (int) $this->query_val_ss($q);
     $oResult->total = $total;
-    $this->devLogger->info(json_encode($q));
     return $oResult;
   }
   /**

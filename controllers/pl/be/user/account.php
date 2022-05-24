@@ -1,112 +1,122 @@
 <?php
+
 namespace pl\be\user;
 
 require_once dirname(dirname(__FILE__)) . '/base.php';
 /**
  * 平台注册用户
  */
-class account extends \pl\be\base {
-    /**
-     *
-     */
-    public function index_action() {
-        \TPL::output('/pl/be/user/main');
-        exit;
+class account extends \pl\be\base
+{
+  /**
+   *
+   */
+  public function index_action()
+  {
+    \TPL::output('/pl/be/user/main');
+    exit;
+  }
+  /**
+   * 返回现有注册用户的列表
+   */
+  public function list_action($page, $size)
+  {
+    if (false === $this->accountUser()) {
+      return new \ResponseTimeout();
     }
-    /**
-     * 返回现有注册用户的列表
-     */
-    public function list_action($page, $size) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
 
-        $oFilter = $this->getPostJson();
-        $rst = $this->model('account')->getAccount($page, $size, $oFilter);
+    $oFilter = $this->getPostJson();
+    $rst = $this->model('account')->getAccount($page, $size, $oFilter);
 
-        return new \ResponseData($rst);
+    return new \ResponseData($rst);
+  }
+  /**
+   *
+   */
+  public function changeGroup_action($uid)
+  {
+    $posted = $this->getPostJson();
+
+    $gid = $posted->gid;
+
+    $ret = $this->model()->update(
+      'account_in_group',
+      ['group_id' => $gid],
+      ["account_uid" => $uid]
+    );
+
+    return new \ResponseData($ret);
+  }
+  /**
+   *
+   */
+  public function remove_action($uid)
+  {
+    $rst = $this->model('account')->remove($uid);
+
+    if ($rst) {
+      return new \ResponseData('success');
+    } else {
+      return new \ResponseError('fail');
     }
+  }
+  /**
+   * 生成随机密码
+   */
+  public function getRandomPwd_action()
+  {
+    $pwd = tms_pwd_create_random();
+
+    return new \ResponseData($pwd);
+  }
+  /**
+   * 修改当前用户的口令
+   */
+  public function resetPwd_action()
+  {
+    $data = $this->getPostJson(false);
+    $modelAcnt = $this->model('account');
+    $uid = $modelAcnt->escape($data->uid);
+    $account = $modelAcnt->byId($uid);
     /**
-     *
+     * set new password
      */
-    public function changeGroup_action($uid) {
-        $posted = $this->getPostJson();
-
-        $gid = $posted->gid;
-
-        $ret = $this->model()->update(
-            'account_in_group',
-            ['group_id' => $gid],
-            ["account_uid" => $uid]
-        );
-
-        return new \ResponseData($ret);
+    $pwd = $data->password;
+    $rst = tms_pwd_check($pwd, ['account' => $account->email]);
+    if ($rst[0] === false) {
+      return new \ResponseError($rst[1]);
     }
-    /**
-     *
-     */
-    public function remove_action($uid) {
-        $rst = $this->model('account')->remove($uid);
+    $email = $this->escape($account->email);
+    $modelAcnt->change_password($email, $pwd, $account->salt);
 
-        if ($rst) {
-            return new \ResponseData('success');
-        } else {
-            return new \ResponseError('fail');
-        }
+    return new \ResponseData($account->uid);
+  }
+  /**
+   * 禁用站点用户注册帐号
+   */
+  public function forbid_action($uid)
+  {
+    if (false === $this->accountUser()) {
+      return new \ResponseTimeout();
     }
-    /**
-     * 生成随机密码
-     */
-    public function getRandomPwd_action() {
-        $pwd = tms_pwd_create_random();
 
-        return new \ResponseData($pwd);
+    $this->model()->update('account', ['forbidden' => '1'], ['uid' => $uid]);
+
+    return new \ResponseData('ok');
+  }
+  /**
+   * 激活被禁用的站点用户注册帐号
+   */
+  public function active_action($uid)
+  {
+    if (false === $this->accountUser()) {
+      return new \ResponseTimeout();
     }
-    /**
-     * 修改当前用户的口令
-     */
-    public function resetPwd_action() {
-        $data = $this->getPostJson(false);
-        $modelAcnt = $this->model('account');
-        $uid = $modelAcnt->escape($data->uid);
-        $account = $modelAcnt->byId($uid);
-        /**
-         * set new password
-         */
-        $pwd = $data->password;
-        $rst = tms_pwd_check($pwd, ['account' => $account->email]);
-        if ($rst[0] === false) {
-            return new \ResponseError($rst[1]);
-        }
-        $email = $this->escape($account->email);
-        $modelAcnt->change_password($email, $pwd, $account->salt);
 
-        return new \ResponseData($account->uid);
-    }
-    /**
-     * 禁用站点用户注册帐号
-     */
-    public function forbid_action($uid) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
+    $user = $this->getPostJson();
 
-        $this->model()->update('account', ['forbidden' => '1'], ['uid' => $uid]);
+    $this->model()->update('account', ['forbidden' => '0'], ['uid' => $uid]);
 
-        return new \ResponseData('ok');
-    }
-    /**
-     * 激活被禁用的站点用户注册帐号
-     */
-    public function active_action($uid) {
-        if (false === $this->accountUser()) {
-            return new \ResponseTimeout();
-        }
-
-        $user = $this->getPostJson();
-
-        $this->model()->update('account', ['forbidden' => '0'], ['uid' => $uid]);
-
-        return new \ResponseData('ok');
-    }
+    return new \ResponseData('ok');
+  }
 }

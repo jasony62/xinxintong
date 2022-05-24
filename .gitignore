@@ -9,13 +9,15 @@ vendor/
 .env
 .env.*
 
-#ue/
 docker/mariadb/data
 docker/mariadb/log
 docker/mongodb/data
 docker-compose.override.yml
 *.local.js
+
+#ue/
 ue/site/fe/assets
+ue/site/fe/login
 
 #kafka
 docker/kafka/logs

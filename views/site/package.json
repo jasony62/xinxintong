@@ -12,7 +12,7 @@
     "tms-vue3": "^0.0.4",
     "tms-vue3-ui": "0.0.32",
     "vant": "^3.4.7",
-    "vue": "^3.2.25",
+    "vue": "^3.2.36",
     "vue-router": "4"
   },
   "devDependencies": {

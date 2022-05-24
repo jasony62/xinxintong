@@ -2,7 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 
 import Account from '../views/login/Account.vue'
 import SmsCode from '../views/login/SmsCode.vue'
-import Register from '../views/Login/Register.vue'
+import Register from '../views/login/Register.vue'
 
 const supportSmscode = /yes|true/i.test(import.meta.env.VITE_SMSCODE_SUPPORT)
 const supportRegister = /yes|true/i.test(import.meta.env.VITE_SMSCODE_REGISTER)

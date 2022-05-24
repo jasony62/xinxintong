@@ -20,5 +20,6 @@ RUN apk update && apk add bash tzdata \
 COPY ./server.js ./server.js
 COPY ./config ./config
 COPY ./controllers ./controllers
+COPY ./.env ./.env
 
 CMD [ "node", "./server.js"]

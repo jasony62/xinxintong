@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
 
 import Account from '../views/login/Account.vue'
 import SmsCode from '../views/login/SmsCode.vue'
@@ -9,7 +9,7 @@ const supportRegister = /yes|true/i.test(import.meta.env.VITE_SMSCODE_REGISTER)
 
 const VITE_BASE_URL = import.meta.env.VITE_BASE_URL ?? '/smscode'
 
-let routes = [
+let routes: RouteRecordRaw[] = [
   {
     path: '/account',
     name: 'account',
@@ -30,8 +30,7 @@ if (supportSmscode) {
     })
   routes.push({
     path: '/:pathMatch(.*)*',
-    name: 'smscode',
-    component: SmsCode,
+    redirect: { name: 'smscode' },
   })
 } else {
   if (supportRegister)
@@ -42,8 +41,7 @@ if (supportSmscode) {
     })
   routes.push({
     path: '/:pathMatch(.*)*',
-    name: 'account',
-    component: Account,
+    redirect: { name: 'account' },
   })
 }
 

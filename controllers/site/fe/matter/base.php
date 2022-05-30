@@ -508,19 +508,6 @@ class base extends \site\fe\base
     }
   }
   /**
-   * 跳转到用户登陆注册页
-   */
-  protected function gotoAccess()
-  {
-    $originUrl = $this->getRequestUrl();
-    // 对url加密避免在浏览器地址栏上直接显示
-    $originUrl = $this->model()->encrypt($originUrl, 'ENCODE', 'originUrl');
-    $authUrl = '/rest/site/fe/user/access';
-    $authUrl .= '?originUrl=' . $originUrl . '&urlEncryptKey=originUrl';
-
-    $this->redirect($authUrl);
-  }
-  /**
    * 检查参与规则
    *
    * @param object $oMatter

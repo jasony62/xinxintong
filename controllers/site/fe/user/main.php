@@ -69,7 +69,9 @@ class main extends \site\fe\base
       $referer = $_SERVER['HTTP_REFERER'];
     }
     if (!empty($referer) && !in_array($referer, array('/'))) {
-      if (false === strpos($referer, '/fe/user')) {
+      if (strpos($referer, '/fe/user/member')) {
+        $this->mySetCookie('_user_access_referer', $referer);
+      } else if (false === strpos($referer, '/fe/user')) {
         $this->mySetCookie('_user_access_referer', $referer);
       }
     }

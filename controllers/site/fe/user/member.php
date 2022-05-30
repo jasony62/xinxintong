@@ -36,6 +36,12 @@ class member extends \site\fe\base
       $this->requireSnsOAuth($oMschema->siteid);
     }
 
+    /**当前用户不是登录状态，先登录*/
+    if (empty($this->who->unionid)) {
+      $this->gotoAccess();
+      exit;
+    }
+
     if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y') {
       $cookieUser = $this->who;
       $modelSiteUser = $this->model('site\user\account');

@@ -2,7 +2,8 @@ define(['frame'], function (ngApp) {
   ngApp.provider.controller('ctrlLog', [
     '$scope',
     'http2',
-    function ($scope, http2) {
+    'noticebox',
+    function ($scope, http2, noticebox) {
       var oApp, read, download
       $scope.read = read = {
         page: {
@@ -51,6 +52,12 @@ define(['frame'], function (ngApp) {
             _this.page.total = rsp.data.total
           })
         },
+      }
+      $scope.renewNickname = function () {
+        let url = `/rest/pl/fe/matter/link/log/renewNickname?&appId=${oApp.id}`
+        http2.get(url).then((rsp) => {
+          noticebox.success(`完成【${rsp.data.length}】个用户数据更新`)
+        })
       }
       $scope.$watch('editing', function (nv) {
         if (!nv) return

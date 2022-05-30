@@ -201,14 +201,14 @@ class log extends \pl\fe\matter\main_base
 
     $sources = [];
     /**分组活动*/
-    if ($entryRule->scope->group === 'Y' && is_object($entryRule->group)) {
+    if ($this->getDeepValue($entryRule->scope, 'group') === 'Y' && is_object($entryRule->group)) {
       $source = new \stdClass;
       $source->type = 'group';
       $source->id = $entryRule->group->id;
       $sources[] = $source;
     }
     /**通讯录*/
-    if ($entryRule->scope->member === 'Y' && count(array_keys((array)($entryRule->member))) > 0) {
+    if ($this->getDeepValue($entryRule->scope, 'member') === 'Y' && count(array_keys((array)($entryRule->member))) > 0) {
       $source = new \stdClass;
       $source->type = 'member';
       $source->id = array_keys((array)$entryRule->member)[0];

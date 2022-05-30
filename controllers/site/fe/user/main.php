@@ -74,8 +74,9 @@ class main extends \site\fe\base
       }
     }
 
-    \TPL::output('/site/fe/user/access');
-    exit;
+    // \TPL::output('/site/fe/user/access');
+    $this->redirect('/ue/site/fe/login/#/smscode');
+    die;
   }
   /**
    * 返回平台定制的安全级别

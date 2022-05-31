@@ -36,10 +36,14 @@ class member extends \site\fe\base
       $this->requireSnsOAuth($oMschema->siteid);
     }
 
-    /**当前用户不是登录状态，先登录*/
+    /**如果已经是登录状态，跳过注册登录*/
     if (empty($this->who->unionid)) {
-      $this->gotoAccess();
-      exit;
+      /**如果已经注册，跳过注册登录*/
+      $checkRegister = $this->checkRegisterEntryRule($this->who);
+      if ($checkRegister[0] === false) {
+        $this->gotoAccess();
+        exit;
+      }
     }
 
     if ($oMschema->is_wx_fan === 'Y' || $oMschema->is_qy_fan === 'Y') {

@@ -552,40 +552,6 @@ class base extends \site\fe\base
     return [true];
   }
   /**
-   * 检查用户是否是注册用户
-   */
-  protected function checkRegisterEntryRule($oUser)
-  {
-    $bCheckRegister = false;
-
-    if (empty($oUser->unionid)) {
-      $modelAct = $this->model('site\user\account');
-      $getUserRegisterInfo = function ($unionid) use ($modelAct) {
-        $q = [
-          'count(uid)',
-          'account',
-          "uid = '" . $modelAct->escape($unionid) . "' and forbidden = 0",
-        ];
-        $val = (int) $modelAct->query_val_ss($q);
-        return $val;
-      };
-
-      $siteUser = $modelAct->byId($oUser->uid, ['fields' => 'unionid']);
-      if ($siteUser && !empty($siteUser->unionid)) {
-        $val = $getUserRegisterInfo($siteUser->unionid);
-        if ($val > 0) {
-          $bCheckRegister = true;
-        }
-      }
-    } else {
-      $bCheckRegister = true;
-    }
-
-    $result = [$bCheckRegister];
-
-    return $result;
-  }
-  /**
    * 下载附件
    */
   public function attachmentGet($oApp, $attachmentid)

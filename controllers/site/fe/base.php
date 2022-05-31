@@ -185,6 +185,40 @@ class base extends \site\base
     return $oUserMember;
   }
   /**
+   * 检查用户是否是注册用户
+   */
+  protected function checkRegisterEntryRule($oUser)
+  {
+    $bCheckRegister = false;
+
+    if (empty($oUser->unionid)) {
+      $modelAct = $this->model('site\user\account');
+      $getUserRegisterInfo = function ($unionid) use ($modelAct) {
+        $q = [
+          'count(uid)',
+          'account',
+          "uid = '" . $modelAct->escape($unionid) . "' and forbidden = 0",
+        ];
+        $val = (int) $modelAct->query_val_ss($q);
+        return $val;
+      };
+
+      $siteUser = $modelAct->byId($oUser->uid, ['fields' => 'unionid']);
+      if ($siteUser && !empty($siteUser->unionid)) {
+        $val = $getUserRegisterInfo($siteUser->unionid);
+        if ($val > 0) {
+          $bCheckRegister = true;
+        }
+      }
+    } else {
+      $bCheckRegister = true;
+    }
+
+    $result = [$bCheckRegister];
+
+    return $result;
+  }
+  /**
    * 检查当前用户是否已经登录，且在有效期内
    */
   public function isLogined()

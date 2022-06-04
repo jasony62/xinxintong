@@ -2142,15 +2142,17 @@ angular
           )
         }
         this.chooseMschema = function () {
-          srvSite.chooseMschema(oMatter).then(function (oResult) {
-            if (!_oRule.member) {
-              _oRule.member = {}
-            }
-            _oRule.member[oResult.chosen.id] = {
-              entry: 'Y',
-              title: oResult.chosen.title,
-            }
-          })
+          srvSite
+            .chooseMschema(oMatter, oMatter.mission)
+            .then(function (oResult) {
+              if (!_oRule.member) {
+                _oRule.member = {}
+              }
+              _oRule.member[oResult.chosen.id] = {
+                entry: 'Y',
+                title: oResult.chosen.title,
+              }
+            })
         }
         this.removeMschema = function (mschemaId) {
           if (

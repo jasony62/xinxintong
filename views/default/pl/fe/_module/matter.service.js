@@ -2092,21 +2092,12 @@ angular
    */
   .factory('tkEntryRule', [
     '$rootScope',
-    '$timeout',
     'noticebox',
     'http2',
     'srvSite',
     'tkEnrollApp',
     'tkGroupApp',
-    function (
-      $rootScope,
-      $timeout,
-      noticebox,
-      http2,
-      srvSite,
-      tkEnrollApp,
-      tkGroupApp
-    ) {
+    function ($rootScope, noticebox, http2, srvSite, tkEnrollApp, tkGroupApp) {
       var RelativeProps = ['scope', 'member', 'group', 'enroll', 'sns']
       /**
        * bNoSave 不对修改进行保存，直接修改传入的原始数据

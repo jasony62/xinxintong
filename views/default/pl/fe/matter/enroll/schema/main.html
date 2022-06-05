@@ -87,7 +87,7 @@
     <label>
       <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.required' ng-change="updSchema(activeSchema)"> 必填</label>
   </div>
-  <div class="checkbox" ng-if="'html'!==activeSchema.type&&activeSchema.fromApp">
+  <div class="checkbox" ng-if="'html'!==activeSchema.type&&(activeSchema.fromApp||activeSchema.mschema_id)">
     <label>
       <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model='activeSchema.readonly' ng-change="updSchema(activeSchema)"> 只读</label>
   </div>

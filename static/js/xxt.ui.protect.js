@@ -107,10 +107,11 @@ ngMod.directive('tmsProtect', [
           })
       }
 
-      this.occurEvent = function (timer) {
+      this.occurEvent = function (interval) {
+        if (interval <= 0) return
         var currentTime = new Date() * 1
         var lasttime = getLastTime()
-        currentTime - lasttime > timer ? validPwd() : storeTrace(currentTime)
+        currentTime - lasttime > interval ? validPwd() : storeTrace(currentTime)
       }
 
       this.getStorage = function () {

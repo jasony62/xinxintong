@@ -106,9 +106,12 @@ class main extends \site\fe\matter\base
             die($rst[1]);
           }
         }
-
-        \TPL::assign('title', $channel->title);
-        \TPL::output('site/fe/matter/channel/main');
+        if ($this->getDeepValue($channel, 'config.useNewVersion') === 'Y') {
+          $this->redirect("/ue/site/fe/channel/index.html?site={$site}&id={$id}&type=channel");
+        } else {
+          \TPL::assign('title', $channel->title);
+          \TPL::output('site/fe/matter/channel/main');
+        }
         break;
     }
     exit;

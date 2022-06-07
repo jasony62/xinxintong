@@ -8,10 +8,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "dayjs": "^1.11.3",
     "pinia": "^2.0.13",
+    "query-string": "^7.1.1",
     "tms-vue3": "^0.0.4",
     "tms-vue3-ui": "0.0.32",
-    "vant": "^3.4.7",
+    "vant": "^3.4.9",
     "vue": "^3.2.36",
     "vue-router": "4"
   },

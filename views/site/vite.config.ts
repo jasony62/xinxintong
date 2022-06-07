@@ -29,6 +29,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         login: resolve(__dirname, './login/index.html'),
+        channel: resolve(__dirname, './channel/index.html'),
       },
       // output: {
       //   entryFileNames: '[name]-[hash].js',
@@ -37,5 +38,15 @@ export default defineConfig({
   },
   server: {
     port: 9000,
+    proxy: {
+      '^/rest/.*': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '^/kcfinder/.*': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+    },
   },
 })

@@ -149,6 +149,24 @@
             <input type='checkbox' ng-model='editing.config.redirectSingle' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中只有1条素材时自动跳转到该素材</label>
         </div>
       </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.hide.headpicHasMatters' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中有素材时不显示频道头图</label>
+        </div>
+      </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.hide.summaryHasMatters' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">频道中有素材时不显示频道说明</label>
+        </div>
+      </div>
+      <div class='form-group'>
+        <div class='checkbox'>
+          <label>
+            <input type='checkbox' ng-model='editing.config.useNewVersion' ng-true-value="'Y'" ng-false-value="'N'" ng-change="update('config')">使用新版本</label>
+        </div>
+      </div>
     </div>
   </div>
   <div class='form-group'>

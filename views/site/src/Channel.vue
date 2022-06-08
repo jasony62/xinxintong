@@ -1,33 +1,48 @@
 <template>
   <nav-bar v-if="initialized" :left-text="returnText" :left-arrow="showReturn" @click-left="back" />
-  <swipe class="headpic" :show-indicators="false" v-if="showHeadpic">
-    <swipe-item>
-      <img :src="data.channel.pic" />
-    </swipe-item>
-  </swipe>
-  <div v-if="showSummary">
-    <cell :title="data.channel.summary"></cell>
-  </div>
-  <div id='qrCode' class="hidden md:block">
-    <img :src="qrcode">
-  </div>
-  <div id="matters-empty" v-if="Matter.matters.length === 0 && Matter.end">
-    <notice-bar>没有可以访问的内容</notice-bar>
-  </div>
-  <div id='matters' v-if="data.channel.id">
-    <list v-model:loading="Matter.busy" :finished="Matter.end" @load="Matter.nextPage">
-      <card v-for="m in Matter.matters" :desc="m.summary" :title="m.title" :thumb="m.pic" @click='openMatter(m)'>
-        <template #num>
-          <span>{{ dealCreateAt(m) }}</span>
-        </template>
-      </card>
-    </list>
+  <div class="flex gap-4 flex-col md:flex-row-reverse lg:mx-48 bg-gray-100">
+    <div class="md:w-1/4 flex flex-col gap-2">
+      <div class='bg-white' v-if="data.siteInfo && data.channel.config.hide.site !== 'Y'">
+        <div class="flex flex-row gap-2 items-center p-2">
+          <div class="h-8 w-8 rounded-full bg-cover bg-center"
+            :style="'background-image:url(' + data.siteInfo.heading_pic + ')'">
+          </div>
+          <a :href="'/rest/site/home?site=' + data.siteInfo.id" target='_self'>{{ data.siteInfo.name }}</a>
+        </div>
+        <p class="p-2">{{ data.siteInfo.summary }}</p>
+      </div>
+      <swipe :show-indicators="false" v-if="showHeadpic">
+        <swipe-item>
+          <img :src="data.channel.pic" />
+        </swipe-item>
+      </swipe>
+      <div v-if="showSummary" class="p-2 bg-white">{{ data.channel.summary }}</div>
+      <div class="hidden md:block">
+        <img :src="qrcode" class="w-3/4 mx-auto">
+      </div>
+    </div>
+    <div v-if="Matter.matters.length === 0 && Matter.end">
+      <notice-bar>没有可以访问的内容</notice-bar>
+    </div>
+    <div v-if="data.channel.id" class="md:w-3/4">
+      <list v-model:loading="Matter.busy" :finished="Matter.end" @load="Matter.nextPage">
+        <card v-for="m in Matter.matters" :desc="m.summary" :title="m.title" :thumb="m.pic" @click='openMatter(m)'>
+          <template #num>
+            <span>{{ dealCreateAt(m) }}</span>
+          </template>
+        </card>
+      </list>
+    </div>
   </div>
 </template>
 
 <style lang="scss">
 .van-cell__title {
   @apply text-base;
+}
+
+.van-card {
+  @apply bg-white;
 }
 
 .van-card__title {
@@ -166,7 +181,7 @@ const openMatter = (opened: any) => {
 }
 
 const getChannel = async () => {
-  let url = `/rest/site/fe/matter/channel/get?site=${site}&id=${id}`
+  const url = `/rest/site/fe/matter/channel/get?site=${site}&id=${id}`
   // 获取频道基本信息
   const rsp = await tmsAxios.get(url)
   data.channel = rsp.data.data.channel
@@ -187,5 +202,10 @@ const getChannel = async () => {
 
 onMounted(() => {
   getChannel()
+
+  const url = `/rest/site/home/get?site=${site}`
+  tmsAxios.get(url).then((rsp: any) => {
+    data.siteInfo = rsp.data.data
+  })
 })
 </script>

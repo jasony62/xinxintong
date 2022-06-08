@@ -72,7 +72,9 @@ data.channel = { title: '', pic: '', summary: '', config: { show: { headpic: fal
 
 const qrcode = ref('')
 
-const showReturn = !/\/ue\/site\/fe\/channel/.test(document.referrer)
+// const showReturn = !/\/ue\/site\/fe\/channel/.test(document.referrer)
+// 需要确定什么情况下支持返回
+const showReturn = false
 const returnText = showReturn ? '返回' : ''
 
 let user

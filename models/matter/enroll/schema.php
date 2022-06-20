@@ -398,6 +398,8 @@ class schema_model extends \TMS_MODEL
    * >15?(x-15)*2;<16?0
    * 
    * 内置的公式：min,max,data
+   * 
+   * 如果公式中只有数字，例如：10，没有x，那么算式为：x*10
    *
    */
   public function scoreByWeight($oSchema, $x, &$oContext = null)

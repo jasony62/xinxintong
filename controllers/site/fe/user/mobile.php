@@ -42,7 +42,7 @@ class mobile extends \site\fe\base
     }
 
     $mobile = $data->mobile;
-    if (0 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|7[0135678]|8[0-9]|9[0-9])\\d{8}$/', $mobile)) {
+    if (0 === preg_match('/^1(3[0-9]|4[57]|5[0-35-9]|66|7[0135678]|8[0-9]|9[0-9])\\d{8}$/', $mobile)) {
       return new \ResponseError("请提供正确的手机号");
     }
 

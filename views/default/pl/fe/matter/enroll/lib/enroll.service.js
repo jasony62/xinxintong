@@ -909,6 +909,7 @@ define(['frame/templates', 'page'], function (FrameTemplates, pageLib) {
           url = '/rest/pl/fe/matter/enroll/record/recycle'
           url += '?site=' + _siteId
           url += '&app=' + _appId
+          url += '&rid=ALL'
           url += this._oPage.joinParams()
           http2.get(url).then(function (rsp) {
             var records

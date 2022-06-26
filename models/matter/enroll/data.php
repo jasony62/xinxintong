@@ -177,6 +177,7 @@ class data_model extends entity_model
       if (!isset($aSchemasById[$schemaId])) {
         continue;
       }
+      $this->logger->debug("准备更新题目[enroll_key={$oRecord->enroll_key},schema_id={$schemaId}]的值");
       $oSchema = $aSchemasById[$schemaId];
 
       /* 记录的题目之前保存过的数据 */
@@ -215,7 +216,7 @@ class data_model extends entity_model
         isset($oRecordScore->{$schemaId}) && $aSchemaData['score'] = (float)$oRecordScore->{$schemaId};
         if (empty($aSchemaData['score'])) $aSchemaData['score'] = 0; // 避免空字符串的情况
         $this->insert('xxt_enroll_record_data', $aSchemaData, false);
-      } else if (count($oLastSchemaValues) == 1) {
+      } else if (count($oLastSchemaValues) === 1) {
         $aSchemaData = [];
         if ($oSchema->type == 'multitext') {
           /* 处理多项填写题型（已经存在1条空的总数据，需要更新这条数据）*/
@@ -257,6 +258,8 @@ class data_model extends entity_model
             $aSchemaData,
             ['id' => $oLastSchemaValues[0]->id]
           );
+        } else {
+          $this->logger->debug("数据[id={$oLastSchemaValues[0]->id}]的值没有变化，不更新数据");
         }
       } else {
         /* 获得一道题目的多条数据，多项填写题型 */

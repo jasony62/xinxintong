@@ -260,7 +260,7 @@ class data_model extends entity_model
             $aSchemaData,
             ['id' => $oLastSchemaValues[0]->id]
           );
-          $this->logger->debug("数据[id={$oLastSchemaValues[0]->id}]的值更新为：{$aSchemaData['value']}");
+          $this->logger->debug("数据[id={$oLastSchemaValues[0]->id}]的值或分数被更新");
         } else {
           $this->logger->debug("数据[id={$oLastSchemaValues[0]->id}]的值没有变化，不更新数据");
         }
@@ -269,6 +269,8 @@ class data_model extends entity_model
         /* 获得一道题目的多条数据，多项填写题型 */
         if ($oSchema->type === 'multitext') {
           $fnUpdItems($schemaId, $treatedValue, $oLastSchemaValues);
+        } else {
+          $this->logger->warn("更新失败，更新题目[enroll_key={$oRecord->enroll_key},schema_id={$schemaId}]的值，有" . count($oLastSchemaValues) . "条历史数据");
         }
       }
     }

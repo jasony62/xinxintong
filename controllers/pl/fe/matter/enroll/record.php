@@ -1035,7 +1035,10 @@ class record extends record_base
     if (isset($oPosted->data)) {
       $score = isset($oPosted->quizScore) ? $oPosted->quizScore : null;
       $userSite = $this->model('site\fe\way')->who($oApp->siteid);
-      $modelRec->setData($userSite, $oApp, $ek, $oPosted->data, '', false, $score);
+      $aResult = $modelRec->setData($userSite, $oApp, $ek, $oPosted->data, '', false, $score);
+      if ($aResult[0] === false) {
+        return new \ResponseError($aResult[1]);
+      }
     } else if (isset($oPosted->quizScore)) {
       /* 只修改登记项的分值 */
       $oAfterScore = new \stdClass;

@@ -10,6 +10,11 @@ require('../../../../../../asset/js/xxt.ui.coinpay.js')
 require('../../../../../../asset/js/xxt.ui.share.js')
 require('../../../../../../asset/js/xxt.ui.picviewer.js')
 
+window.onerror = (message, source, lineno, colno) => {
+  if (/^script error/.test(message) === false)
+    alert('错误：' + JSON.stringify({ message, source, lineno, colno }))
+}
+
 var ngApp = angular.module('app', [
   'ui.bootstrap',
   'http.ui.xxt',
@@ -151,6 +156,9 @@ ngApp.controller('ctrlMain', [
     tmsSnsShare,
     picviewer
   ) {
+    if (/_test=ep/i.test(location.search)) {
+      alert('进入页面')
+    }
     var width = document.body.clientWidth
     $scope.width = width
 
@@ -158,6 +166,9 @@ ngApp.controller('ctrlMain', [
       let eleLoading
       if ((eleLoading = document.querySelector('.loading'))) {
         eleLoading.parentNode.removeChild(eleLoading)
+      }
+      if (/_test=ep/i.test(location.search)) {
+        alert('完成加载')
       }
     }
 

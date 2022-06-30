@@ -47,7 +47,7 @@ class data_model extends entity_model
       'enroll_key' => $oRecord->enroll_key,
       'state' => $oRecord->state,
       'submit_at' => $oRecord->enroll_at,
-      'userid' => isset($oUser->uid) ? $oUser->uid : '',
+      'userid' => isset($oUser->uid) ? $oUser->uid : '', // 合理吗？
       'nickname' => $this->escape($oRecord->nickname),
       'group_id' => isset($oUser->group_id) ? $oUser->group_id : '',
     ];

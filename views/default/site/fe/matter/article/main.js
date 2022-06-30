@@ -234,32 +234,32 @@ ngApp.controller('ctrlMain', [
     /**设置微信分享*/
     function setWxShare(oArticle) {
       /* 设置分享 */
-      if (
-        /MicroMessenger/i.test(navigator.userAgent) &&
-        oArticle.can_share === 'Y'
-      ) {
-        var shareid, sharelink
-        shareid = `${$scope.user.uid}_${Date.now()}`
-        sharelink = `${location.protocol}//${location.hostname}/rest/site/fe/matter?site=${siteId}&type=article&id=${id}&shareby=${shareid}`
-        tmsSnsShare.config({
-          siteId,
-          logger: function (shareto) {
-            let url = `/rest/site/fe/matter/logShare?shareid=${shareid}&site=${siteId}&id=${id}&type=article&title=${oArticle.title}&shareto=${shareto}&shareby=${shareby}`
-            http2.get(url)
-          },
-          jsApiList: [
-            'hideOptionMenu',
-            'onMenuShareTimeline',
-            'onMenuShareAppMessage',
-          ],
-        })
-        tmsSnsShare.set(
-          oArticle.title,
-          sharelink,
-          oArticle.summary,
-          oArticle.pic
-        )
-      }
+      // if (
+      //   /MicroMessenger/i.test(navigator.userAgent) &&
+      //   oArticle.can_share === 'Y'
+      // ) {
+      //   var shareid, sharelink
+      //   shareid = `${$scope.user.uid}_${Date.now()}`
+      //   sharelink = `${location.protocol}//${location.hostname}/rest/site/fe/matter?site=${siteId}&type=article&id=${id}&shareby=${shareid}`
+      //   tmsSnsShare.config({
+      //     siteId,
+      //     logger: function (shareto) {
+      //       let url = `/rest/site/fe/matter/logShare?shareid=${shareid}&site=${siteId}&id=${id}&type=article&title=${oArticle.title}&shareto=${shareto}&shareby=${shareby}`
+      //       http2.get(url)
+      //     },
+      //     jsApiList: [
+      //       'hideOptionMenu',
+      //       'onMenuShareTimeline',
+      //       'onMenuShareAppMessage',
+      //     ],
+      //   })
+      //   tmsSnsShare.set(
+      //     oArticle.title,
+      //     sharelink,
+      //     oArticle.summary,
+      //     oArticle.pic
+      //   )
+      // }
     }
     function loadArticle() {
       var deferred = $q.defer()
@@ -323,7 +323,7 @@ ngApp.controller('ctrlMain', [
             $scope.article = oArticle
             $scope.user = rsp.data.user
             /* 设置分享 */
-            setWxShare(oArticle)
+            // setWxShare(oArticle)
 
             if (oArticle.can_siteuser === 'Y') {
               $scope.siteUser = function (siteId) {

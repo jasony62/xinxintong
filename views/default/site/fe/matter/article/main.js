@@ -11,7 +11,10 @@ require('../../../../../../asset/js/xxt.ui.share.js')
 require('../../../../../../asset/js/xxt.ui.picviewer.js')
 
 window.onerror = (message, source, lineno, colno) => {
-  if (/^script error/.test(message) === false)
+  if (
+    /_test=ep/i.test(location.search) ||
+    /^script error/.test(message) === false
+  )
     alert('错误：' + JSON.stringify({ message, source, lineno, colno }))
 }
 

@@ -159,9 +159,6 @@ ngApp.controller('ctrlMain', [
     tmsSnsShare,
     picviewer
   ) {
-    if (/_test=ep/i.test(location.search)) {
-      alert('进入页面')
-    }
     var width = document.body.clientWidth
     $scope.width = width
 
@@ -169,9 +166,6 @@ ngApp.controller('ctrlMain', [
       let eleLoading
       if ((eleLoading = document.querySelector('.loading'))) {
         eleLoading.parentNode.removeChild(eleLoading)
-      }
-      if (/_test=ep/i.test(location.search)) {
-        alert('完成加载')
       }
     }
 

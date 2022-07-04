@@ -255,6 +255,21 @@ class log extends \pl\fe\matter\main_base
           ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => ['未知', '']],
         );
       }
+    } else  if ($userApp->type === 'member') {
+      foreach ($userids as $userid) {
+        $q = [
+          'name',
+          'xxt_site_member',
+          ['schema_id' => $userApp->id, 'userid' => $userid, 'forbidden' => 'N'],
+        ];
+        $nickname = $modelLink->query_val_ss($q);
+        // 更新数据
+        $modelLink->update(
+          'xxt_log_matter_read',
+          ['nickname' => $nickname],
+          ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => ['未知', '']],
+        );
+      }
     }
 
     return new \ResponseData($userids);

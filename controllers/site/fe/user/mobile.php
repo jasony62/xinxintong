@@ -79,6 +79,7 @@ class mobile extends \site\fe\base
   }
   /**
    * 执行用户检查
+   * 没有记录昵称
    */
   public function login_action($appId, $captchaId)
   {

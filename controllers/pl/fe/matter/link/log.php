@@ -252,7 +252,7 @@ class log extends \pl\fe\matter\main_base
         $modelLink->update(
           'xxt_log_matter_read',
           ['nickname' => $nickname],
-          ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => '未知'],
+          ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => ['未知', '']],
         );
       }
     }

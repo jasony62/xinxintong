@@ -30,6 +30,7 @@ class memberschema_model extends \TMS_MODEL
             $oProp->hide = $oSchema->{'attr_' . $prop}[0] === '1';
             $oProp->required = $oSchema->{'attr_' . $prop}[1] === '1';
             $oProp->unique = $oSchema->{'attr_' . $prop}[2] === '1';
+            $oProp->readonly = $oSchema->{'attr_' . $prop}[3] === '1';
             $oProp->identity = $oSchema->{'attr_' . $prop}[5] === '1';
             $oAttrs->{$prop} = $oProp;
           }

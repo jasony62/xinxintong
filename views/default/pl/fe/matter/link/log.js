@@ -57,6 +57,7 @@ define(['frame'], function (ngApp) {
         let url = `/rest/pl/fe/matter/link/log/renewNickname?&appId=${oApp.id}`
         http2.get(url).then((rsp) => {
           noticebox.success(`完成【${rsp.data.length}】个用户数据更新`)
+          $scope.download.list()
         })
       }
       $scope.$watch('editing', function (nv) {

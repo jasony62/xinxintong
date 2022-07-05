@@ -385,7 +385,7 @@ class proxy_model extends \sns\proxybase
       }
       $userRst[0] = true;
       $userRst[1] = $fan;
-      // $this->logger->debug("获取用户信息【{$openid}】成功：\n" . json_encode($fan));
+      $this->logger->debug("获取用户信息【{$openid}】成功：\n" . json_encode($fan));
     } else if (empty($userRst[1])) {
       // $this->logger->error("获取用户信息【{$openid}】失败（1）");
       return [false, 'empty openid:' . $openid];

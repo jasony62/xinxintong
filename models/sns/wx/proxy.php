@@ -373,6 +373,9 @@ class proxy_model extends \sns\proxybase
     $params = ['openid' => $openid];
     /*user info*/
     $userRst = $this->httpGet($cmd, $params);
+    if ($userRst[0] === false) {
+      $this->logger->debug("获取用户信息【{$openid}】失败：\n" . empty($userRst[1]) ? '未知原因' : $userRst[1]);
+    }
     if ($userRst[0] === false && strpos($userRst[1], 'json failed:') === 0) {
       $fan = new \stdClass;
       $json = str_replace(array('json failed:', '{', '}'), '', $userRst[1]);
@@ -385,9 +388,7 @@ class proxy_model extends \sns\proxybase
       }
       $userRst[0] = true;
       $userRst[1] = $fan;
-      $this->logger->debug("获取用户信息【{$openid}】成功：\n" . json_encode($fan));
     } else if (empty($userRst[1])) {
-      // $this->logger->error("获取用户信息【{$openid}】失败（1）");
       return [false, 'empty openid:' . $openid];
     }
     /*group info*/

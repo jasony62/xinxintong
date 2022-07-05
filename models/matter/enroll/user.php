@@ -39,6 +39,9 @@ class user_model extends \TMS_MODEL
   }
   /**
    * 用户的详细信息
+   * 如果活动进入规则中指定了通讯录，在返回结果中添加用户在通讯录中的记录
+   * 自动更新用户昵称
+   * 如果活动进入规则中指定分组活动，添加用户的分组信息
    */
   public function detail($oApp, $who, $oEnrolledData = null)
   {
@@ -97,7 +100,7 @@ class user_model extends \TMS_MODEL
       if ($oEnlUser) {
         $oUser->nickname = $oEnlUser->nickname;
       }
-      if (empty($oUser->nickname) || !$oEnlUser) {
+      if (empty($oUser->nickname) || $oUser->nickname === '未知' || !$oEnlUser) {
         $modelEnl = $this->model('matter\enroll');
         $userNickname = $modelEnl->getUserNickname($oApp, $oUser);
         $oUser->nickname = $userNickname;

@@ -13,12 +13,21 @@ class proxy_model extends \sns\proxybase
    */
   private $accessToken;
   /**
+   * 根日志，默认info级别
+   */
+  protected $logger;
+  /**
    *
-   * $siteid
    */
   public function __construct($config)
   {
     parent::__construct($config);
+
+    if (class_exists('\Logger')) {
+      $this->logger = \Logger::getLogger(get_class($this));
+    } else {
+      /* 需要实现一个自定义的版本 */
+    }
   }
   /**
    *
@@ -361,7 +370,7 @@ class proxy_model extends \sns\proxybase
   public function userInfo($openid, $getGroup = false)
   {
     $cmd = 'https://api.weixin.qq.com/cgi-bin/user/info';
-    $params = array('openid' => $openid);
+    $params = ['openid' => $openid];
     /*user info*/
     $userRst = $this->httpGet($cmd, $params);
     if ($userRst[0] === false && strpos($userRst[1], 'json failed:') === 0) {
@@ -376,8 +385,10 @@ class proxy_model extends \sns\proxybase
       }
       $userRst[0] = true;
       $userRst[1] = $fan;
+      $this->logger->debug("获取用户信息【{$openid}】成功：\n" . json_encode($fan));
     } else if (empty($userRst[1])) {
-      return array(false, 'empty openid:' . $openid);
+      $this->logger->error("获取用户信息【{$openid}】失败（1）");
+      return [false, 'empty openid:' . $openid];
     }
     /*group info*/
     if ($getGroup && $userRst[0]) {

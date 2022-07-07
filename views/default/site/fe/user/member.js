@@ -382,7 +382,7 @@ ngApp.controller('ctrlMember', [
         //!oAttrs.name.hide && ($scope.member.name = user.login.nickname);
         if (
           !oAttrs.mobile.hide &&
-          /^1[3|4|5|7|8][0-9]\d{4,8}$/.test(user.login.uname)
+          /^1[3|4|5|7|8|9][0-9]\d{4,8}$/.test(user.login.uname)
         ) {
           $scope.member.mobile = user.login.uname
         }

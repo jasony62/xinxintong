@@ -78,6 +78,7 @@ class account_model extends \TMS_MODEL
     $aOptions['is_primary'] = 'Y';
     $siteUsers = $this->byOpenid($siteId, $snsName, $openid, $aOptions);
     if (count($siteUsers) > 1) {
+      $this->logger->error('数据错误，获得了多个公众号用户【' . $siteId . '/' . $openid . '】主访客账号');
       throw new \Exception('数据错误，获得了多个公众号用户主访客账号');
     } else if (count($siteUsers) === 0) {
       return false;

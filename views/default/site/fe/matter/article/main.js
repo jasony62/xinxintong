@@ -263,10 +263,6 @@ ngApp.controller('ctrlMain', [
           (rsp) => {
             let { site, mission, article: oArticle } = rsp.data
             let { channels } = oArticle
-            let shareby = location.search.match(/shareby=([^&]*)/)
-              ? location.search.match(/shareby=([^&]*)/)[1]
-              : ''
-
             if (oArticle.use_site_header === 'Y' && site && site.header_page) {
               tmsDynaPage.loadCode(ngApp, site.header_page)
             }
@@ -388,11 +384,12 @@ ngApp.controller('ctrlMain', [
       return deferred.promise
     }
 
-    var ls, siteId, id, _bPreview
+    var ls, siteId, id, shareby, _bPreview
 
     ls = location.search
     siteId = ls.match(/[\?&]site=([^&]*)/)[1]
     id = ls.match(/[\?|&]id=([^&]*)/)[1]
+    shareby = ls.match(/shareby=([^&]*)/) ? ls.match(/shareby=([^&]*)/)[1] : ''
     _bPreview = ls.match(/[\?|&]preview=Y/)
 
     $scope.back = function () {

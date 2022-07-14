@@ -243,7 +243,7 @@ class log extends \pl\fe\matter\main_base
     if (!empty($filter->startAt) && !empty($filter->endAt))
       $q[2]['read_at'] = (object)['op' => 'between', 'pat' => [$filter->startAt, $filter->endAt]];
 
-    $userids = $modelLink->query_objs_ss($q);
+    $userids = $modelLink->query_vals_ss($q);
     if ($userApp->type === 'group') {
       foreach ($userids as $userid) {
         $q = [
@@ -267,6 +267,7 @@ class log extends \pl\fe\matter\main_base
           ['schema_id' => $userApp->id, 'userid' => $userid, 'forbidden' => 'N'],
         ];
         $nickname = $modelLink->query_val_ss($q);
+        $this->logger->info($nickname . ':' . $userid);
         // 更新数据
         $modelLink->update(
           'xxt_log_matter_read',

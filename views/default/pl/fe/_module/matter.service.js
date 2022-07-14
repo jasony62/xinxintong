@@ -1283,8 +1283,7 @@ angular
     '$q',
     'http2',
     '$uibModal',
-    'noticebox',
-    function ($q, http2, $uibModal, noticebox) {
+    function ($q, http2, $uibModal) {
       this.create = function (oMschema, oProto) {
         var defer = $q.defer()
         http2
@@ -1407,7 +1406,8 @@ angular
   .controller('ctrlStat', [
     '$scope',
     'http2',
-    function ($scope, http2) {
+    'noticebox',
+    function ($scope, http2, noticebox) {
       var page, criteria, time1, time2, app
       time1 = (function () {
         var t
@@ -1470,25 +1470,20 @@ angular
           page.total = rsp.data.total
         })
       }
+      $scope.renewNickname = function () {
+        if (app.type === 'link') {
+          let url = `/rest/pl/fe/matter/link/log/renewNickname?&appId=${app.id}`
+          http2.post(url, criteria).then((rsp) => {
+            noticebox.success(`完成【${rsp.data.length}】个用户数据更新`)
+            $scope.list()
+          })
+        }
+      }
       $scope.export = function () {
-        var url
-        url =
-          '/rest/pl/fe/matter/' +
-          app.type +
-          '/log/exportMatterActionLog?site=' +
-          app.siteid +
-          '&appId=' +
-          app.id
-        url +=
-          '&startAt=' +
-          criteria.startAt +
-          '&endAt=' +
-          criteria.endAt +
-          '&byEvent=' +
-          criteria.byEvent
+        let url = `/rest/pl/fe/matter/${app.type}/log/exportMatterActionLog?site=${app.siteid}&appId=${app.id}`
+        url += `&startAt=${criteria.startAt}&endAt=${criteria.endAt}&byEvent=${criteria.byEvent}`
         window.open(url)
       }
-
       $scope.$watch('editing', function (nv) {
         if (!nv) return
         app = nv

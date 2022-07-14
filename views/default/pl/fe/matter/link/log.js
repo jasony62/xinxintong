@@ -53,9 +53,9 @@ define(['frame'], function (ngApp) {
           })
         },
       }
-      $scope.renewNickname = function () {
+      $scope.renewNickname = function (criteria) {
         let url = `/rest/pl/fe/matter/link/log/renewNickname?&appId=${oApp.id}`
-        http2.get(url).then((rsp) => {
+        http2.post(url, criteria).then((rsp) => {
           noticebox.success(`完成【${rsp.data.length}】个用户数据更新`)
           $scope.read.list()
         })

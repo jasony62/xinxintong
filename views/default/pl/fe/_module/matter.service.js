@@ -1463,12 +1463,7 @@ angular
       $scope.list = function () {
         var url
         url =
-          '/rest/pl/fe/matter/' +
-          app.type +
-          '/log/matterActionLog?site=' +
-          app.siteid +
-          '&appId=' +
-          app.id +
+          `/rest/pl/fe/matter/${app.type}/log/matterActionLog?site=${app.siteid}&appId=${app.id}` +
           page._j()
         http2.post(url, criteria).then(function (rsp) {
           $scope.logs = rsp.data.logs

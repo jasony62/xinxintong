@@ -228,18 +228,24 @@ class log extends \pl\fe\matter\main_base
       return new \ObjectNotFoundError();
 
     $userSource = $this->_getUserSource($oLink->entry_rule);
-    if (count($userSource) === 0)
+    if ($userSource === false || count($userSource) === 0)
       return new \ResponseError('没有指定用户来源，无法更新昵称');
 
     $userApp = $userSource[0];
+
+    $filter = $this->getPostJson();
 
     $q = [
       'distinct userid',
       'xxt_log_matter_read',
       ['matter_type' => 'link', 'matter_id' => $appId],
     ];
-    $userids = $modelLink->query_objs_ss($q);
+    if (!empty($filter->startAt))
+      $q[2]['read_at'] = ['op' => '>=', 'pat' => $filter->startAt];
+    if (!empty($filter->endAt))
+      $q[2]['read_at'] = ['op' => '<=', 'pat' => $filter->endAt];
 
+    $userids = $modelLink->query_objs_ss($q);
     if ($userApp->type === 'group') {
       foreach ($userids as $userid) {
         $q = [

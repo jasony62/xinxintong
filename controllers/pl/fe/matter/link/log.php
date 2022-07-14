@@ -236,7 +236,7 @@ class log extends \pl\fe\matter\main_base
     $q = [
       'distinct userid',
       'xxt_log_matter_read',
-      ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => '未知'],
+      ['matter_type' => 'link', 'matter_id' => $appId],
     ];
     $userids = $modelLink->query_objs_ss($q);
 
@@ -252,7 +252,7 @@ class log extends \pl\fe\matter\main_base
         $modelLink->update(
           'xxt_log_matter_read',
           ['nickname' => $nickname],
-          ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => ['未知', '']],
+          ['matter_type' => 'link', 'matter_id' => $appId, 'userid' => $userid],
         );
       }
     } else  if ($userApp->type === 'member') {
@@ -267,7 +267,7 @@ class log extends \pl\fe\matter\main_base
         $modelLink->update(
           'xxt_log_matter_read',
           ['nickname' => $nickname],
-          ['matter_type' => 'link', 'matter_id' => $appId, 'nickname' => ['未知', '']],
+          ['matter_type' => 'link', 'matter_id' => $appId, 'userid' => $userid],
         );
       }
     }

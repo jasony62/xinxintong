@@ -267,7 +267,6 @@ class log extends \pl\fe\matter\main_base
           ['schema_id' => $userApp->id, 'userid' => $userid, 'forbidden' => 'N'],
         ];
         $nickname = $modelLink->query_val_ss($q);
-        $this->logger->info($nickname . ':' . $userid);
         // 更新数据
         $modelLink->update(
           'xxt_log_matter_read',

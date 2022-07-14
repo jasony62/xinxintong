@@ -240,10 +240,8 @@ class log extends \pl\fe\matter\main_base
       'xxt_log_matter_read',
       ['matter_type' => 'link', 'matter_id' => $appId],
     ];
-    if (!empty($filter->startAt))
-      $q[2]['read_at'] = ['op' => '>=', 'pat' => $filter->startAt];
-    if (!empty($filter->endAt))
-      $q[2]['read_at'] = ['op' => '<=', 'pat' => $filter->endAt];
+    if (!empty($filter->startAt) && !empty($filter->endAt))
+      $q[2]['read_at'] = (object)['op' => 'between', 'pat' => [$filter->startAt, $filter->endAt]];
 
     $userids = $modelLink->query_objs_ss($q);
     if ($userApp->type === 'group') {

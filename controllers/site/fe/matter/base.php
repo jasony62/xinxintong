@@ -536,6 +536,7 @@ class base extends \site\fe\base
           $this->gotoAccess();
         } else {
           $msg = '未检测到您的注册信息，不满足【' . $oMatter->title . '】的参与规则，请登陆后再尝试操作。';
+          $this->logger->warn($msg . '\n' . json_encode($oUser));
           return [false, $msg];
         }
       }

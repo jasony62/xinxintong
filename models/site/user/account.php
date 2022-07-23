@@ -137,10 +137,12 @@ class account_model extends \TMS_MODEL
     $acts = $this->byUnionid($unionid, $aOptions);
     if (count($acts) > 1) {
       // 正常情况下一定会存在，且只有一个
+      $this->logger->error('数据错误，注册账号的主访客账号存在多条数据【siteid=' . $siteId . '/unionid=' . $unionid . '】');
       throw new \Exception('数据错误，注册账号的主访客账号存在多条数据');
     } else if (count($acts) === 1) {
       return $acts[0];
     } else {
+      $this->logger->error('数据错误，注册账号不存在主访客账号【siteid=' . $siteId . '/unionid=' . $unionid . '】');
       return false;
     }
   }

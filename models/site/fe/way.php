@@ -19,7 +19,8 @@ class way_model extends \TMS_MODEL
    */
   public function who($siteId, $aSnsAuth = [])
   {
-    $modified = false;
+    $created = false; // 新建了cookie用户
+    $modified = false; // 修改了cookie用户信息
     /* cookie中缓存的用户信息 */
     $oCookieUser = $this->getCookieUser($siteId);
     $oCookieRegUser = $this->getCookieRegUser();
@@ -52,6 +53,8 @@ class way_model extends \TMS_MODEL
             $props['nickname'] = $oCookieRegUser->nickname;
           }
           $oSiteUser = $modelSiteUser->blank($siteId, true, $props);
+        } else {
+          //
         }
       } else {
         /* 未登录状态，创建非持久化的站点访客账号 */
@@ -61,22 +64,23 @@ class way_model extends \TMS_MODEL
       $oCookieUser->uid = $oSiteUser->uid;
       $oCookieUser->nickname = $oSiteUser->nickname;
       $oCookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
-      $modified = true;
+      $created = true;
     } else {
-      if (empty($oCookieUser->loginExpire)) {
-        if ($oCookieRegUser && isset($oCookieRegUser->loginExpire)) {
-          $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
-          $modified = true;
-        }
-      }
+      // if (empty($oCookieUser->loginExpire)) {
+      //   if ($oCookieRegUser && isset($oCookieRegUser->loginExpire)) {
+      //     $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
+      //     $modified = true;
+      //   }
+      // }
     }
     if ($oCookieRegUser && isset($oCookieRegUser->loginExpire)) {
       $oCookieUser->unionid = $oCookieRegUser->unionid;
       $oCookieUser->nickname = $oCookieRegUser->nickname;
       $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
+      $modified = true;
     }
     /* 将用户信息保存在cookie中 */
-    if ($modified) {
+    if ($created || $modified) {
       $this->setCookieUser($siteId, $oCookieUser);
     }
 
@@ -95,10 +99,13 @@ class way_model extends \TMS_MODEL
     if ($oCookieRegUser) {
       /* 已登录状态，切换到注册账号的主访客账号 */
       $oSiteUser = $modelSiteUser->byPrimaryUnionid($siteId, $oCookieRegUser->unionid);
+      if ($oSiteUser === false) {
+        // 应该如何处理？
+      }
       if ($oCookieUser) {
         if ($oSiteUser->uid !== $oCookieUser->uid) {
           // 应该提示用户重新登录
-          throw new \SiteUserException('数据错误，注册主访客账号与当前访客账号不一致', $oSiteUser->uid, $oCookieUser->uid);
+          throw new \SiteUserException('数据错误，注册主访客账号与当前访客账号不一致，请重新登录', $oSiteUser->uid, $oCookieUser->uid);
         }
       }
       if (empty($oSiteUser->{$snsName . '_openid'})) {
@@ -128,11 +135,11 @@ class way_model extends \TMS_MODEL
           // 什么也不做
         }
       } else {
+        /* 查找公众号用户的主访客账号 */
+        $oSiteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
         /* 存在访客账号 */
         if (!isset($oCookieUser->sns->{$snsName})) {
           /* 当前帐号，没有绑定过公众号用户 */
-          /* 查找公众号用户的主访客账号 */
-          $oSiteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
           if ($oSiteUser === false) {
             /* 不存在公众号用户主访客账号，将当前帐号更新为公众号用户主访客账号 */
             $dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
@@ -177,7 +184,6 @@ class way_model extends \TMS_MODEL
           $cookieSnsUser = $oCookieUser->sns->{$snsName};
           if ($cookieSnsUser->openid !== $snsUser->openid) {
             /* 切换到公众号用户主访客账号 */
-            $oSiteUser = $modelSiteUser->byPrimaryOpenid($siteId, $snsName, $snsUser->openid);
             if ($oSiteUser === false) {
               $dbSnsUser = $this->_getDbSnsUser($siteId, $snsName, $snsUser);
               $propsAccount = [
@@ -213,6 +219,7 @@ class way_model extends \TMS_MODEL
         }
       }
     }
+
     /* 更新cookie信息 */
     $oCookieUser === false && $oCookieUser = new \stdClass;
     $oCookieUser->uid = $oSiteUser->uid;
@@ -220,6 +227,9 @@ class way_model extends \TMS_MODEL
     !isset($oCookieUser->sns) && $oCookieUser->sns = new \stdClass;
     $oCookieUser->nickname = isset($snsUser->nickname) ? $snsUser->nickname : '';
     $oCookieUser->sns->{$snsName} = $snsUser;
+    if (!empty($oSiteUser->unionid)) {
+      $oCookieUser->unionid = $oSiteUser->unionid;
+    }
 
     return $oCookieUser;
   }

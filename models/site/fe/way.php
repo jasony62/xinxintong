@@ -73,11 +73,22 @@ class way_model extends \TMS_MODEL
       //   }
       // }
     }
-    if ($oCookieRegUser && isset($oCookieRegUser->loginExpire)) {
-      $oCookieUser->unionid = $oCookieRegUser->unionid;
-      $oCookieUser->nickname = $oCookieRegUser->nickname;
-      $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
-      $modified = true;
+    if ($oCookieRegUser) {
+      if (isset($oCookieRegUser->loginExpire)) {
+        $oCookieUser->unionid = $oCookieRegUser->unionid;
+        $oCookieUser->nickname = $oCookieRegUser->nickname;
+        $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
+        $modified = true;
+      }
+    } else {
+      if (isset($oCookieUser->unionid)) {
+        /*如果是用户已经注册，自动生成登录信息*/
+        $oCookieRegUser = new \stdClass;
+        $oCookieRegUser->unionid = $oCookieUser->unionid;
+        $oCookieRegUser->nickname = $oCookieUser->nickname;
+        $oCookieRegUser->loginExpire = $oCookieUser->loginExpire = $oCookieUser->expire;
+        $this->setCookieRegUser($oCookieRegUser);
+      }
     }
     /* 将用户信息保存在cookie中 */
     if ($created || $modified) {

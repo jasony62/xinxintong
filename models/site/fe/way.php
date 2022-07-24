@@ -25,6 +25,7 @@ class way_model extends \TMS_MODEL
     $oCookieUser = $this->getCookieUser($siteId);
     $oCookieRegUser = $this->getCookieRegUser();
     if (!empty($aSnsAuth)) {
+      $this->logger->debug('[way] 指定了社交账号');
       /* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
       foreach ($aSnsAuth['sns'] as $snsName => $snsUser) {
         if ($oCookieUser) {
@@ -92,6 +93,7 @@ class way_model extends \TMS_MODEL
     }
     /* 将用户信息保存在cookie中 */
     if ($created || $modified) {
+      $this->logger->debug('[way] 更新cookieUser ' . json_encode($oCookieUser));
       $this->setCookieUser($siteId, $oCookieUser);
     }
 

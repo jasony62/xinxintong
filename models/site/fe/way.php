@@ -70,8 +70,9 @@ class way_model extends \TMS_MODEL
       }
       $created = true;
     } else {
-      $this->logger->debug('[way] 团队【site=' . $siteId . '】有用户信息');
+      $this->logger->debug('[way] 团队【site=' . $siteId . '】有用户信息【' . $oCookieUser->uid . '】');
       if (empty($oCookieUser->unionid)) {
+        $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】中未包含补充注册信息');
         /*尝试查找用户是否有注册信息*/
         $modelSiteUser = $this->model('site\user\account');
         $oSiteUser = $modelSiteUser->byId($oCookieUser->uid);
@@ -79,7 +80,7 @@ class way_model extends \TMS_MODEL
           if (!empty($oSiteUser->unionid)) {
             $oCookieUser->unionid = $oSiteUser->unionid;
             $modified = true;
-            $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息补充注册信息');
+            $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】补充注册信息');
           }
         }
       }

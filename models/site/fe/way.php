@@ -86,7 +86,7 @@ class way_model extends \TMS_MODEL
       }
     }
     if ($oCookieRegUser) {
-      if (isset($oCookieRegUser->loginExpire) && (!isset($oCookieRegUser->_creator) || $oCookieRegUser->_creator !== 'system')) {
+      if (isset($oCookieRegUser->loginExpire)) {
         $oCookieUser->unionid = $oCookieRegUser->unionid;
         $oCookieUser->nickname = $oCookieRegUser->nickname;
         $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;

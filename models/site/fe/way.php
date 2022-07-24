@@ -65,17 +65,27 @@ class way_model extends \TMS_MODEL
       $oCookieUser->uid = $oSiteUser->uid;
       $oCookieUser->nickname = $oSiteUser->nickname;
       $oCookieUser->expire = time() + (86400 * TMS_COOKIE_SITE_USER_EXPIRE);
+      if (!empty($oSiteUser->unionid)) {
+        $oCookieUser->unionid = $oSiteUser->unionid;
+      }
       $created = true;
     } else {
-      // if (empty($oCookieUser->loginExpire)) {
-      //   if ($oCookieRegUser && isset($oCookieRegUser->loginExpire)) {
-      //     $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
-      //     $modified = true;
-      //   }
-      // }
+      $this->logger->debug('[way] 团队【site=' . $siteId . '】有用户信息');
+      if (empty($oCookieUser->unionid)) {
+        /*尝试查找用户是否有注册信息*/
+        $modelSiteUser = $this->model('site\user\account');
+        $oSiteUser = $modelSiteUser->byId($oCookieUser->uid);
+        if ($oSiteUser) {
+          if (!empty($oSiteUser->unionid)) {
+            $oCookieUser->unionid = $oSiteUser->unionid;
+            $modified = true;
+            $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息补充注册信息');
+          }
+        }
+      }
     }
     if ($oCookieRegUser) {
-      if (isset($oCookieRegUser->loginExpire)) {
+      if (isset($oCookieRegUser->loginExpire) && (!isset($oCookieRegUser->_creator) || $oCookieRegUser->_creator !== 'system')) {
         $oCookieUser->unionid = $oCookieRegUser->unionid;
         $oCookieUser->nickname = $oCookieRegUser->nickname;
         $oCookieUser->loginExpire = $oCookieRegUser->loginExpire;
@@ -88,6 +98,8 @@ class way_model extends \TMS_MODEL
         $oCookieRegUser->unionid = $oCookieUser->unionid;
         $oCookieRegUser->nickname = $oCookieUser->nickname;
         $oCookieRegUser->loginExpire = $oCookieUser->loginExpire = $oCookieUser->expire;
+        $oCookieRegUser->_creator = 'system'; // 标记为是系统自动创建的的
+        $this->logger->debug('[way] 根据cookieUser生成cookieRegUser');
         $this->setCookieRegUser($oCookieRegUser);
       }
     }

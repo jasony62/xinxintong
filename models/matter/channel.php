@@ -323,9 +323,13 @@ class channel_model extends article_base
     }
     // 指定按关键字过滤
     if (!empty($params->keyword)) {
-      $q1[2]  .= " and (m.title like '%$params->keyword%'";
-      $q1[2]  .= "or m.summary like '%$params->keyword%'";
-      $q1[2]  .= "or m.body like '%$params->keyword%')";
+      $q1[2] .= " and (m.title like '%$params->keyword%'";
+      $q1[2] .= "or m.summary like '%$params->keyword%'";
+      $q1[2] .= "or m.body like '%$params->keyword%')";
+    }
+    // 指定最晚加入频道的时间
+    if (!empty($params->afterAddAt)) {
+      $q1[2] .= " and cm.create_at>={$params->afterAddAt}";
     }
     $q2 = [];
     $q2['o'] = 'cm.seq,' . $this->matterOrderby('article', $orderby, 'cm.create_at desc');
@@ -370,6 +374,9 @@ class channel_model extends article_base
       'xxt_channel_matter cm',
       ["cm.channel_id" => $channel->id],
     ];
+    if (!empty($params->afterAddAt)) {
+      $q1[2]['cm.create_at'] = (object)['op' => '>=', 'pat' => $params->afterAddAt];
+    }
     if (!empty($params->weight)) {
       switch ($params->weight) {
         case 'top':
@@ -482,7 +489,8 @@ class channel_model extends article_base
    * @param object $params 查询参数
    * @param int $params->size 分页大小
    * @param int $params->page 分页
-   * @param int $params->keyword 如果频道的素材类型是单图文，支持按关键字进行搜索
+   * @param string $params->keyword 如果频道的素材类型是单图文，支持按关键字进行搜索
+   * @param int $params->afterAddAt 最晚加入频道时间
    * @param object $channel 频道对象，减少查询次数
    * @param object $user 访问数据的用户。如果频道要求按素材访问规则进行过滤时使用。
    * @param object $ctrl 调用访问的控制器。为了检查访问权限时调用控制器上的方法。

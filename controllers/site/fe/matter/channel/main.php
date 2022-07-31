@@ -32,14 +32,18 @@ class main extends \site\fe\matter\base
     return new \ResponseData($data);
   }
   /**
-   *
+   * 获得指定频道下的素材
+   * 
    * $site
    * $id channel's id
+   * $keyword 包含的关键字
+   * $afterAddAt 最晚加入频道的时间
+   * 
    */
-  public function mattersGet_action($site, $id, $page = null, $size = null, $keyword = null)
+  public function mattersGet_action($site, $id, $page = null, $size = null, $keyword = null, $afterAddAt = 0)
   {
     $modelChannel = $this->model('matter\channel');
-    $channel = $this->model('matter\channel')->byId($id);
+    $channel = $modelChannel->byId($id);
     if (false === $channel) {
       return new \ObjectNotFoundError();
     }
@@ -50,9 +54,10 @@ class main extends \site\fe\matter\base
       $params->page = $page;
       $params->size = $size;
     }
-    if (!empty($keyword)) {
-      $params->keyword = $keyword;
-    }
+
+    if (!empty($keyword)) $params->keyword = $keyword;
+
+    if ($afterAddAt > 0) $params->afterAddAt = $afterAddAt;
 
     $user = $this->who;
     $data = $modelChannel->getMattersNoLimit($id, $params, $channel, $user, $this);

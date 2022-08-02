@@ -25,7 +25,7 @@ class way_model extends \TMS_MODEL
     $oCookieUser = $this->getCookieUser($siteId);
     $oCookieRegUser = $this->getCookieRegUser();
     if (!empty($aSnsAuth)) {
-      $this->logger->debug('[way] 指定了社交账号');
+      // $this->logger->debug('[way] 指定了社交账号');
       /* 有身份用户首次访问，若已经有绑定的站点用户，获取站点用户；否则，创建持久化的站点用户，并绑定关系 */
       foreach ($aSnsAuth['sns'] as $snsName => $snsUser) {
         if ($oCookieUser) {
@@ -70,9 +70,9 @@ class way_model extends \TMS_MODEL
       }
       $created = true;
     } else {
-      $this->logger->debug('[way] 团队【site=' . $siteId . '】有用户信息【' . $oCookieUser->uid . '】');
+      // $this->logger->debug('[way] 团队【site=' . $siteId . '】有用户信息【' . $oCookieUser->uid . '】');
       if (empty($oCookieUser->unionid)) {
-        $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】中未包含补充注册信息');
+        // $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】中未包含补充注册信息');
         /*尝试查找用户是否有注册信息*/
         $modelSiteUser = $this->model('site\user\account');
         $oSiteUser = $modelSiteUser->byId($oCookieUser->uid);
@@ -80,7 +80,7 @@ class way_model extends \TMS_MODEL
           if (!empty($oSiteUser->unionid)) {
             $oCookieUser->unionid = $oSiteUser->unionid;
             $modified = true;
-            $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】补充注册信息');
+            // $this->logger->debug('[way] 团队【site=' . $siteId . '】用户信息【' . $oCookieUser->uid . '】补充注册信息');
           }
         }
       }
@@ -100,13 +100,13 @@ class way_model extends \TMS_MODEL
         $oCookieRegUser->nickname = $oCookieUser->nickname;
         $oCookieRegUser->loginExpire = $oCookieUser->loginExpire = $oCookieUser->expire;
         $oCookieRegUser->_creator = 'system'; // 标记为是系统自动创建的的
-        $this->logger->debug('[way] 根据cookieUser生成cookieRegUser');
+        // $this->logger->debug('[way] 根据cookieUser生成cookieRegUser');
         $this->setCookieRegUser($oCookieRegUser);
       }
     }
     /* 将用户信息保存在cookie中 */
     if ($created || $modified) {
-      $this->logger->debug('[way] 更新cookieUser ' . json_encode($oCookieUser));
+      // $this->logger->debug('[way] 更新cookieUser ' . json_encode($oCookieUser));
       $this->setCookieUser($siteId, $oCookieUser);
     }
 

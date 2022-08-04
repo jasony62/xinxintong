@@ -36,6 +36,11 @@ angular
       if (window.screen && window.screen.width < 992) {
         $scope.isSmallLayout = true
       }
+
+      let counter = sessionStorage.getItem(`link:${linkId}:counter`)
+      counter = counter ? parseInt(counter) + 1 : 1
+      sessionStorage.setItem(`link:${linkId}:counter`, counter)
+
       var setShare = function () {
         var shareid, sharelink
         shareid = $scope.user.uid + '_' + new Date() * 1
@@ -183,10 +188,10 @@ angular
             break
         }
       }
-      $http.get('/rest/site/home/get?site=' + siteId).success(function (rsp) {
+      $http.get(`/rest/site/home/get?site=${siteId}`).success(function (rsp) {
         $scope.siteInfo = rsp.data
         $http
-          .get('/rest/site/fe/matter/link/get?site=' + siteId + '&id=' + linkId)
+          .get(`/rest/site/fe/matter/link/get?site=${siteId}&id=${linkId}`)
           .success(function (rsp) {
             if (rsp.data) {
               let { link } = rsp.data
@@ -206,9 +211,7 @@ angular
               }
               $scope.user = rsp.data.user
               $scope.qrcode =
-                '/rest/site/fe/matter/link/qrcode?site=' +
-                siteId +
-                '&url=' +
+                `/rest/site/fe/matter/link/qrcode?site=${siteId}&url=` +
                 encodeURIComponent(location.href)
               if (Object.keys($scope.link).indexOf('invite') !== -1) {
                 if ($scope.link.fullUrl.indexOf('?') !== -1) {
@@ -225,8 +228,9 @@ angular
               document
                 .querySelector('#link>iframe')
                 .setAttribute('src', $scope.link.fullUrl)
-              $http.post('/rest/site/fe/matter/logAccess?site=' + siteId, {
-                search: location.search.replace('?', ''),
+              $http.post(`/rest/site/fe/matter/logAccess?site=${siteId}`, {
+                search:
+                  location.search.replace('?', '') + `&counter=${counter}`,
                 referer: document.referrer,
                 id: linkId,
                 type: 'link',
@@ -329,7 +333,7 @@ angular
               }
             }
           })
-          .error(function (content, httpCode) {})
+          .error(function () {})
       })
     },
   ])

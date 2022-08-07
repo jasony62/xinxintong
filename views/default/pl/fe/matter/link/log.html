@@ -19,7 +19,7 @@
         </thead>
         <tbody>
           <tr ng-repeat='log in read.logs'>
-            <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+            <td>{{log.operate_at*1000|date:'yy-MM-dd HH:mm:ss'}}</td>
             <td>{{log.nickname||'未知'}}</td>
             <td>{{log.operation}}</td>
             <td>{{log.user_op_num}}</td>

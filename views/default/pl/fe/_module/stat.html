@@ -31,7 +31,7 @@
     <table class='table table-bordered table-striped pl-workspace'>
       <thead>
         <tr>
-          <th style='width:120px;'>打开时间</th>
+          <th style='width:132px;'>打开时间</th>
           <th>用户名</th>
           <th style='width:120px;'>操作</th>
           <th>来源</th>
@@ -39,7 +39,7 @@
       </thead>
       <tbody>
         <tr ng-repeat='log in logs'>
-          <td>{{log.action_at*1000|date:'yy-MM-dd HH:mm'}}</td>
+          <td>{{log.action_at*1000|date:'yy-MM-dd HH:mm:ss'}}</td>
           <td>{{log.nickname||'未知'}}</td>
           <td>{{operation[log.event]}}</td>
           <td>{{log.origin_nickname}}</td>

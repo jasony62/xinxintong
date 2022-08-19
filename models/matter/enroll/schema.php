@@ -132,6 +132,10 @@ class schema_model extends \TMS_MODEL
           }
           break;
       }
+      /* 设置权重的默认值 */
+      if (empty($oSchema->weight)) {
+        $oSchema->weight = 1;
+      }
       /* 关联到其他应用时才需要检查 */
       if (empty($oSchema->fromApp) && empty($oSchema->mschema_id)) {
         unset($oSchema->requireCheck);

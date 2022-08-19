@@ -418,7 +418,7 @@ ngApp.controller('ctrlMain', [
         location.href = `/rest/site/fe/matter/enroll?site=${oEnrollAssoc.app.siteid}&app=${oEnrollAssoc.app.id}&ek=${oEnrollAssoc.entityA.enroll_key}&page=cowork`
     }
     $scope.searchByTag = function (tag) {
-      location.href = `/rest/site/fe/matter/article?site=${siteId}'&tagid=${tag.id}`
+      location.href = `/rest/site/fe/matter/article?site=${siteId}&tagid=${tag.id}`
     }
     $scope.openMatter = function (evt, id, type) {
       evt.preventDefault()

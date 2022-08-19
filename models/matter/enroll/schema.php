@@ -118,11 +118,13 @@ class schema_model extends \TMS_MODEL
               case 'calculate':
                 if (empty($oSchema->formula)) {
                   $oSchema->formula = '0';
+                  $oSchema->weight = 1;
                 } else if (!is_numeric($oSchema->formula)) {
                   /* 检查是否为可运行的表达式 */
                   $aCheckResult = $this->valueByFormula($oSchema);
                   if (false === $aCheckResult[0]) {
                     $oSchema->formula = '0';
+                    $oSchema->weight = 1;
                   }
                 }
                 break;

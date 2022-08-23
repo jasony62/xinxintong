@@ -150,7 +150,7 @@ class formula
         for ($i = 0; $i < count($matches); $i++) {
           if (count($matches[$i]) === 2) {
             $search[] = $matches[$i][0];
-            if (isset($oContext->data->{$matches[$i][1]})) {
+            if (!empty($oContext->data->{$matches[$i][1]})) {
               $replace[] = $oContext->data->{$matches[$i][1]};
             } else {
               $replace[] = 0;

@@ -169,14 +169,25 @@ class article_model extends article_base
   {
     $s = "a.id,a.title,a.modify_at,a.author,a.summary,a.pic,a.url";
     $w = "a.siteid='$site' and a.state=1 and finished='Y'";
-    if (empty($options->tag)) {
-      $q = array(
+    if (empty($options->channel) && empty($options->tag)) {
+      $q = [
         $s,
         'xxt_article a',
         $w,
-      );
-    } else {
-      /* 按标签过滤 */
+      ];
+    } else if (!empty($options->channel)) {
+      /* 按频道筛选 */
+      list($channelIds, $num) = is_array($options->channel) ? [implode(',', $options->channel), count($options->channel)] : [$options->channel, count(explode(',', $options->channel))];
+      $w .= " and exists (select 1 from xxt_channel_matter cm where cm.matter_type='article' and cm.matter_id=a.id and cm.channel_id in (" . $channelIds . ")";
+      if ($options->logicOR === false) $w .= " group by cm.matter_id having count(cm.matter_id)=" . $num;
+      $w .= ")";
+      $q = [
+        $s,
+        'xxt_article a',
+        $w,
+      ];
+    } else if (!empty($options->tag)) {
+      /* 按标签筛选 */
       if (is_array($options->tag)) {
         foreach ($options->tag as $tag) {
           $w .= " and a.matter_cont_tag like '%" . $tag . "%'";
@@ -184,23 +195,25 @@ class article_model extends article_base
       } else {
         $w .= " and a.matter_cont_tag like '%" . $options->tag . "%'";
       }
-      $q = array(
+
+      $q = [
         $s,
         'xxt_article a',
         $w,
-      );
+      ];
     }
+
     $q2['o'] = 'a.modify_at desc';
-    $q2['r'] = array('o' => ($page - 1) * $size, 'l' => $size);
+    $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
 
     if ($articles = $this->query_objs_ss($q)) {
       $q[0] = 'count(*)';
       $total = (int) $this->query_val_ss($q);
 
-      return array('articles' => $articles, 'total' => $total);
+      return ['articles' => $articles, 'total' => $total];
     }
 
-    return array('articles' => array(), 'total' => 0);
+    return ['articles' => array(), 'total' => 0];
   }
   /**
    * 全文检索单图文，将符合条件的结果组成多图文

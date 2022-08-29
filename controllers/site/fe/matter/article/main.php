@@ -123,16 +123,21 @@ class main extends \site\fe\matter\base
     return new \ResponseData($aData);
   }
   /**
-   *
+   * 根据频道和标签查找
    */
-  public function list_action($site, $tagid, $page = 1, $size = 10)
+  public function list_action($site, $channelId = '', $tagId = '', $page = 1, $size = 10, $logicOR = false)
   {
     $model = $this->model('matter\article');
 
     $user = $this->who;
-
     $options = new \stdClass;
-    $options->tag = array($tagid);
+    if (!empty($channelId)) {
+      $options->channel = $channelId;
+    }
+    if (!empty($tagId)) {
+      $options->tag = explode(',', $tagId);
+    }
+    $options->logicOR = is_string($logicOR) ? $logicOR === 'true' : $logicOR;
 
     $result = $model->find($site, $user, $page, $size, $options);
 

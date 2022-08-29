@@ -210,6 +210,10 @@ class article_model extends article_base
       $q[0] = 'count(*)';
       $total = (int) $this->query_val_ss($q);
 
+      foreach ($articles as $article) {
+        $article->entryUrl = $this->getEntryUrl($site, $article->id);
+      }
+
       return ['articles' => $articles, 'total' => $total];
     }
 

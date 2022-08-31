@@ -887,7 +887,7 @@ angular
         .get(
           '/rest/pl/fe/matter/channel/list?site=' +
             srvSite.getSiteId() +
-            '&cascade=N'
+            '&cascade=N&page=1&size=999'
         )
         .then(function (rsp) {
           $scope.channels = rsp.data.docs

@@ -51,6 +51,10 @@
           </div>
         </div>
       </div>
+      <div class='form-group' ng-controller='ctrlSetChannel' ng-init="matterType='channel';matterObj='editing'">
+        <label>所属频道（可选）</label>
+        <combox evt-prefix='channel' readonly=true link='Y' prop='title' existing='editing.channels' options='channels'></combox>
+      </div>
       <div class='form-group'>
         <label>管理标签（可选）</label>
         <p class="form-control" ng-click="tagMatter('M')">

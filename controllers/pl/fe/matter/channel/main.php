@@ -37,7 +37,7 @@ class main extends \pl\fe\matter\main_base
   /**
    *
    */
-  public function get_action($id)
+  public function get_action($id, $cascade = 'Y')
   {
     $modelChn = $this->model('matter\channel');
     if ($oChannel = $modelChn->byId($id)) {
@@ -49,6 +49,10 @@ class main extends \pl\fe\matter\main_base
       !empty($oChannel->matter_mg_tag) && $oChannel->matter_mg_tag = json_decode($oChannel->matter_mg_tag);
 
       $oChannel->matters = $modelChn->getMatters($id, $oChannel, $oChannel->siteid);
+      if ($cascade === 'Y') {
+        /* channels */
+        $oChannel->channels = $this->model('matter\channel')->byMatter($id, 'channel');
+      }
     }
 
     return new \ResponseData($oChannel);

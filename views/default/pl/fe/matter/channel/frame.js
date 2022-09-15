@@ -33,6 +33,11 @@ define(['require'], function () {
         url: '/rest/pl/fe/matter',
       },
       {
+        value: 'channel',
+        title: '频道',
+        url: '/rest/pl/fe/matter',
+      },
+      {
         value: 'mission',
         title: '项目',
         url: '/rest/pl/fe/matter',
@@ -171,22 +176,20 @@ define(['require'], function () {
       })
       http2
         .get(
-          '/rest/pl/fe/matter/channel/get?site=' +
-            $scope.siteId +
-            '&id=' +
-            $scope.id
+          `/rest/pl/fe/matter/channel/get?site=${$scope.siteId}&id=${$scope.id}`
         )
-        .then(function (rsp) {
-          if (rsp.data.matter_mg_tag !== '') {
-            rsp.data.matter_mg_tag.forEach(function (cTag, index) {
+        .then(({ data }) => {
+          if (data.matter_mg_tag !== '') {
+            data.matter_mg_tag.forEach(function (cTag, index) {
               $scope.oTag.forEach(function (oTag) {
                 if (oTag.id === cTag) {
-                  rsp.data.matter_mg_tag[index] = oTag
+                  data.matter_mg_tag[index] = oTag
                 }
               })
             })
           }
-          $scope.editing = rsp.data
+          if (!Array.isArray(data.channels)) data.channels = []
+          $scope.editing = data
         })
     },
   ])

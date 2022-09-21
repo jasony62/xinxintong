@@ -169,6 +169,9 @@ class article_model extends article_base
   {
     $s = "a.id,a.title,a.modify_at,a.author,a.summary,a.pic,a.url";
     $w = "a.siteid='$site' and a.state=1 and finished='Y'";
+    if (!empty($options->mission)) {
+      $w .= " and mission_id=$options->mission";
+    }
     if (empty($options->channel) && empty($options->tag)) {
       $q = [
         $s,

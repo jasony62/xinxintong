@@ -125,12 +125,15 @@ class main extends \site\fe\matter\base
   /**
    * 根据频道和标签查找
    */
-  public function list_action($site, $channelId = '', $tagId = '', $page = 1, $size = 10, $logicOR = false)
+  public function list_action($site, $missionId = '', $channelId = '', $tagId = '', $page = 1, $size = 10, $logicOR = false)
   {
     $model = $this->model('matter\article');
 
     $user = $this->who;
     $options = new \stdClass;
+    if (!empty($missionId)) {
+      $options->mission = $missionId;
+    }
     if (!empty($channelId)) {
       $options->channel = $channelId;
     }

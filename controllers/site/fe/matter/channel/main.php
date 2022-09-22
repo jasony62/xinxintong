@@ -40,7 +40,7 @@ class main extends \site\fe\matter\base
    * $afterAddAt 最晚加入频道的时间
    * 
    */
-  public function mattersGet_action($site, $id, $page = null, $size = null, $keyword = null, $afterAddAt = 0)
+  public function mattersGet_action($site, $id, $missionId = null, $matterType = null, $page = null, $size = null, $keyword = null, $afterAddAt = 0)
   {
     $modelChannel = $this->model('matter\channel');
     $channel = $modelChannel->byId($id);
@@ -50,6 +50,8 @@ class main extends \site\fe\matter\base
 
     /**处理查询参数*/
     $params = new \stdClass;
+    if (!empty($matterType))  $params->matterType = $matterType;
+
     if ($page !== null && $size !== null) {
       $params->page = $page;
       $params->size = $size;
@@ -75,6 +77,7 @@ class main extends \site\fe\matter\base
       $checkInvite = true;
     }
 
+    $availableMatters = [];
     foreach ($data->matters as $matter) {
       /**补充素材访问链接数据*/
       if ($matter->type === 'link' && !$checkInvite) {
@@ -102,9 +105,15 @@ class main extends \site\fe\matter\base
         $matter->url = $matterModel->getEntryUrl($matter->siteid, $matter->id);
       }
 
+      if (!empty($missionId)) {
+        if (empty($matter->mission_id) || $matter->mission_id != $missionId) {
+          continue;
+        }
+      }
+
       $availableMatters[] = $matter;
     }
 
-    return new \ResponseData($data);
+    return new \ResponseData($availableMatters);
   }
 }

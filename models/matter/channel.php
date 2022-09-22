@@ -374,6 +374,9 @@ class channel_model extends article_base
       'xxt_channel_matter cm',
       ["cm.channel_id" => $channel->id],
     ];
+    if (!empty($params->matterType)) {
+      $q1[2]['cm.matter_type'] = $params->matterType;
+    }
     if (!empty($params->afterAddAt)) {
       $q1[2]['cm.create_at'] = (object)['op' => '>=', 'pat' => $params->afterAddAt];
     }
@@ -414,7 +417,7 @@ class channel_model extends article_base
         $fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
       } else {
         $q = [
-          "a.id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,entry_rule,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
+          "a.id,a.mission_id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,entry_rule,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
           'xxt_article a, xxt_site s',
           "a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
         ];

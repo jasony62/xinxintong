@@ -32,6 +32,29 @@ class main extends \site\fe\matter\base
     return new \ResponseData($data);
   }
   /**
+   * 根据频道和标签查找
+   */
+  public function list_action($site, $missionId = '', $channelId = '', $tagId = '', $page = 1, $size = 10, $logicOR = false)
+  {
+    $model = $this->model('matter\channel');
+
+    $options = new \stdClass;
+    if (!empty($missionId)) {
+      $options->mission = $missionId;
+    }
+    if (!empty($channelId)) {
+      $options->channel = $channelId;
+    }
+    if (!empty($tagId)) {
+      $options->tag = explode(',', $tagId);
+    }
+    $options->logicOR = is_string($logicOR) ? $logicOR === 'true' : $logicOR;
+
+    $result = $model->find($site, $page, $size, $options);
+
+    return new \ResponseData($result);
+  }
+  /**
    * 获得指定频道下的素材
    * 
    * $site

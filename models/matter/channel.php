@@ -36,6 +36,66 @@ class channel_model extends article_base
     return $channels;
   }
   /**
+   * 按条件查找单图文
+   */
+  public function find($site, $page = 1, $size = 10, $options)
+  {
+    $s = "c.id,c.title,c.modify_at,c.summary,c.pic";
+    $w = "c.siteid='$site' and c.state=1";
+    if (!empty($options->mission)) {
+      $w .= " and mission_id=$options->mission";
+    }
+    if (empty($options->channel) && empty($options->tag)) {
+      $q = [
+        $s,
+        'xxt_channel c',
+        $w,
+      ];
+    } else if (!empty($options->channel)) {
+      /* 按频道筛选 */
+      list($channelIds, $num) = is_array($options->channel) ? [implode(',', $options->channel), count($options->channel)] : [$options->channel, count(explode(',', $options->channel))];
+      $w .= " and exists (select 1 from xxt_channel_matter cm where cm.matter_type='channel' and cm.matter_id=c.id and cm.channel_id in (" . $channelIds . ")";
+      if ($options->logicOR === false) $w .= " group by cm.matter_id having count(cm.matter_id)=" . $num;
+      $w .= ")";
+      $q = [
+        $s,
+        'xxt_channel c',
+        $w,
+      ];
+    } else if (!empty($options->tag)) {
+      /* 按标签筛选 */
+      if (is_array($options->tag)) {
+        foreach ($options->tag as $tag) {
+          $w .= " and c.matter_cont_tag like '%" . $tag . "%'";
+        }
+      } else {
+        $w .= " and c.matter_cont_tag like '%" . $options->tag . "%'";
+      }
+
+      $q = [
+        $s,
+        'xxt_channel c',
+        $w,
+      ];
+    }
+
+    $q2['o'] = 'a.modify_at desc';
+    $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
+
+    if ($channels = $this->query_objs_ss($q)) {
+      $q[0] = 'count(*)';
+      $total = (int) $this->query_val_ss($q);
+
+      foreach ($channels as $article) {
+        $article->entryUrl = $this->getEntryUrl($site, $article->id);
+      }
+
+      return ['channels' => $channels, 'total' => $total];
+    }
+
+    return ['channels' => [], 'total' => 0];
+  }
+  /**
    * 获得素材的所有频道
    */
   public function &byMatter($id, $type, $oOptions = [])

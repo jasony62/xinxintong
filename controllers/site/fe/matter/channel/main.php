@@ -137,6 +137,6 @@ class main extends \site\fe\matter\base
       $availableMatters[] = $matter;
     }
 
-    return new \ResponseData($availableMatters);
+    return new \ResponseData(['matters' => $availableMatters]);
   }
 }

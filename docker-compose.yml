@@ -100,7 +100,7 @@ services:
   canal-server:
     image: canal/canal-server:v1.1.5
     container_name: xxt_canal_server
-    restart: unless-stopped
+    # restart: unless-stopped
     # ports:
     #   - 11111:11111
     environment:

@@ -243,62 +243,42 @@ class article_model extends article_base
 
     return $articles;
   }
-  /*
-     * 返回全部检索内容
-     */
-  public function &search_all($site, $keyword)
+  /** 
+   * 返回全部检索内容
+   */
+  public function search_all($site, $keyword, $page = 1, $size = 12, $mission = 0, $channel = 0)
   {
-    $s = "id,title,author,summary,pic,body,url,read_num,create_at,has_attachment,download_num,'article' type,matter_cont_tag";
+    $s = "id,title,author,summary,pic,body,url,read_num,create_at,modify_at,has_attachment,download_num,'article' type";
     $f = 'xxt_article';
     $w = "siteid='$site' and state=1 and approved='Y' and can_fullsearch='Y'";
+    if ($mission) {
+      $w .= " and mission_id=$mission";
+    }
     $w .= " and (title like '%$keyword%'";
     $w .= "or summary like '%$keyword%'";
     $w .= "or body like '%$keyword%')";
 
-    $q = array($s, $f, $w);
+    $q = [$s, $f, $w];
 
-    $q2['o'] = 'create_at desc';
-
+    $q2['o'] = 'modify_at desc';
+    $q2['r'] = ['o' => ($page - 1) * $size, 'l' => $size];
     $articles = $this->query_objs_ss($q, $q2);
-    $articles = json_encode($articles);
-    $articles = json_decode($articles, 1);
 
-    //内容标签
-    $q3 = [
-      'id,title',
-      'xxt_tag',
-      ['siteid' => $site, 'sub_type' => 'C'],
-    ];
-    $tagSiteCs = $this->query_objs_ss($q3);
-
-    //频道标签
-    $q4 = "select m.matter_id,m.channel_id,c.siteid,c.title from xxt_channel_matter m left join xxt_channel c on m.channel_id=c.id where c.siteid='$site' and m.matter_type='article' ";
-    $tag_channel = $this->query_objs($q4);
-
-    //将一篇文章所有标签放到tag下
-    $b = array();
-    foreach ($articles as $k => $v) {
-      $a = array();
-      if (!empty($v['matter_cont_tag'])) {
-        $v['matter_cont_tag'] = json_decode($v['matter_cont_tag']);
-        foreach ($v['matter_cont_tag'] as $tagMatterC) {
-          foreach ($tagSiteCs as $tagSiteC) {
-            if ($tagMatterC == $tagSiteC->id) {
-              $a['content'][] = $tagSiteC->title;
-            }
-          }
+    if (count($articles) > 0) {
+      foreach ($articles as $a) {
+        if (empty($a->url)) {
+          $a->url = $this->getEntryUrl($site, $a->id);
+        }
+        if (!empty($a->pic)) {
+          $a->pic = APP_PROTOCOL . APP_HTTP_HOST . $a->pic;
         }
       }
-      foreach ($tag_channel as $kl => $vl) {
-        if ($v['id'] == $vl->matter_id) {
-          $a['channel'][] = $vl->title;
-        }
-      }
-      $v['tag'] = $a;
-      $b[$k] = $v;
+      $q[0] = 'count(*)';
+      $total = (int) $this->query_val_ss($q);
+      return ['articles' => $articles, 'total' => $total];
     }
 
-    return $b;
+    return ['articles' => [], 'total' => 0];
   }
   /*
      * 返回全文检索（统计）数目

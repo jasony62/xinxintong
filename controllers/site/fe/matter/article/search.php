@@ -19,9 +19,9 @@ class search extends \site\fe\matter\base
   /**
    * 返回所有的搜索结果
    */
-  public function list_action($site, $keyword = '')
+  public function list_action($site, $keyword = '', $mission = 0, $channel = 0, $page = 1, $size = 12)
   {
-    $matters = $this->model('matter\article')->search_all($site, $keyword);
+    $matters = $this->model('matter\article')->search_all($site, $keyword, $page, $size, $mission, $channel);
     return new \ResponseData($matters);
   }
 }

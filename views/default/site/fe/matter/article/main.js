@@ -251,7 +251,7 @@ ngApp.controller('ctrlMain', [
           oArticle.title,
           sharelink,
           oArticle.summary,
-          oArticle.pic
+          oArticle.pic2 || oArticle.pic
         )
       }
     }

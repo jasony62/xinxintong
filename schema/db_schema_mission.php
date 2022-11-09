@@ -9,6 +9,7 @@ $sql .= ",siteid varchar(32) not null";
 $sql .= ",title varchar(70) not null";
 $sql .= ",summary varchar(240) not null default ''";
 $sql .= ",pic text null";
+$sql .= ",pic2 text null";
 $sql .= ",creater varchar(40) not null default ''";
 $sql .= ",creater_name varchar(255) not null default ''";
 $sql .= ",create_at int not null";

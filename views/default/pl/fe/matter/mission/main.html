@@ -28,6 +28,24 @@
         </div>
       </div>
       <div class='form-group'>
+        <label>标识2（可选）：建议尺寸：100像素 * 100像素</label>
+        <div style="width:182px;border:1px solid #CCC">
+          <div style="height:100px;text-align:center;padding-top:32px" ng-if="!mission.pic2">
+            <button class='btn btn-default' ng-click='setPic2();'>
+              <span class='glyphicon glyphicon-picture'></span>选择图片</button>
+          </div>
+          <div style='position:relative' ng-if="mission.pic2" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+            <img name='pic' ng-src='{{mission.pic2}}' width='180px' />
+            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic2();'>
+              <span class='glyphicon glyphicon-picture'></span>
+            </button>
+            <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic2();'>
+              <span class='glyphicon glyphicon-trash'></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class='form-group'>
         <label>管理标签（可选）</label>
         <p class="form-control" ng-click="tagMatter('M')">
           <span class="tag" ng-repeat="t in mission.matter_mg_tag" ng-bind="t.title"></span>

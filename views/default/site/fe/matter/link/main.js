@@ -82,7 +82,7 @@ angular
           $scope.link.title,
           sharelink,
           $scope.link.summary,
-          $scope.link.pic
+          $scope.link.pic2 || $scope.link.pic
         )
       }
       $scope.siteCardToggled = function (open) {

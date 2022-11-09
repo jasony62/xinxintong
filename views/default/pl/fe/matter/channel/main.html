@@ -29,6 +29,26 @@
           </div>
         </div>
       </div>
+      <div class='form-group'>
+        <label>头图2（可选, 建议尺寸：100像素 * 100像素）</label>
+        <div style='position:relative'>
+          <div style="width:182px;border:1px solid #CCC">
+            <div style="height:100px;text-align:center;padding-top:32px" ng-if="!editing.pic2">
+              <button class='btn btn-default' ng-click='setPic2()'>
+                <span class='glyphicon glyphicon-picture'></span> 选择图片</button>
+            </div>
+            <div style='position:relative' ng-if="editing.pic2!=''" ng-mouseenter='hover=true' ng-mouseleave='hover=false'>
+              <img name='pic' ng-src="{{editing.pic2}}" width='180px' />
+              <button class='btn btn-default btn-sm' style='position:absolute;top:2px;left:2px' ng-if='hover' ng-click='setPic2();'>
+                <span class='glyphicon glyphicon-picture'></span>
+              </button>
+              <button class='btn btn-default btn-sm' style='position:absolute;top:2px;right:2px' ng-if='hover' ng-click='removePic2();'>
+                <span class='glyphicon glyphicon-trash'></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class='form-group' ng-if="editing.mission">
         <label>所属项目</label>
         <div class="input-group">

@@ -36,6 +36,19 @@ define(['frame'], function (ngApp) {
         $scope.mission.pic = ''
         $scope.update('pic')
       }
+      $scope.setPic2 = function () {
+        var options = {
+          callback: function (url) {
+            $scope.mission.pic2 = url + '?_=' + new Date() * 1
+            $scope.update('pic2')
+          },
+        }
+        mediagallery.open($scope.mission.siteid, options)
+      }
+      $scope.removePic2 = function () {
+        $scope.mission.pic2 = ''
+        $scope.update('pic2')
+      }
       $scope.setWatermark = function () {
         var options = {
           callback: function (url) {

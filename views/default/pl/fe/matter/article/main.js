@@ -72,9 +72,22 @@ define(['frame'], function (ngApp) {
         }
         mediagallery.open(_oEditing.siteid, options)
       }
+      $scope.setPic2 = function () {
+        var options = {
+          callback: function (url) {
+            _oEditing.pic2 = url + '?_=' + new Date() * 1
+            srvApp.update('pic2')
+          },
+        }
+        mediagallery.open(_oEditing.siteid, options)
+      }
       $scope.removePic = function () {
         _oEditing.pic = ''
         srvApp.update('pic')
+      }
+      $scope.removePic = function () {
+        _oEditing.pic2 = ''
+        srvApp.update('pic2')
       }
       $scope.$on('xxt.tms-datepicker.change', function (event, data) {
         $scope.editing[data.state] = data.value

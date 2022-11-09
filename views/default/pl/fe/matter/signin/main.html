@@ -1,122 +1,122 @@
 <div class='col-md-6 col-md-offset-3'>
-    <div class='panel panel-default'>
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>活动名称</label>
-                <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
-            </div>
-            <div class='form-group'>
-                <label>活动说明</label>
-                <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
-            </div>
-            <div class='row'>
-                <div class='col-md-6'>
-                    <div class='form-group'>
-                        <label>开始时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-state='start_at'></tms-datepicker>
-                    </div>
-                </div>
-                <div class='col-md-6'>
-                    <div class='form-group'>
-                        <label>结束时间</label>
-                        <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
-                    </div>
-                </div>
-            </div>
-            <div class='form-group'>
-                <label class='help-block'>管理标签（可选）</label>
-                <p class="form-control" ng-click="tagMatter('M')">
-                    <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
-                </p>
-            </div>
-            <div class='form-group' ng-if="!app.mission">
-                <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
-            </div>
-            <div class='form-group' ng-if="app.mission">
-                <label>所属项目</label>
-                <div class="input-group">
-                    <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
-                    <div class="input-group-btn">
-                        <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
-                            <span class='glyphicon glyphicon-remove'></span>
-                        </button>
-                        <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
-                    <span class='glyphicon glyphicon-new-window'></span>
-                </a>
-                    </div>
-                </div>
-            </div>
+  <div class='panel panel-default'>
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>活动名称</label>
+        <input type='text' class='form-control' size='40' ng-model='app.title' tms-auto-update tms-wait=1000 tms-update="update('title')">
+      </div>
+      <div class='form-group'>
+        <label>活动说明</label>
+        <textarea type='text' class='form-control' ng-model="app.summary" tms-auto-update tms-wait=1000 tms-update="update('summary')"></textarea>
+      </div>
+      <div class='row'>
+        <div class='col-md-6'>
+          <div class='form-group'>
+            <label>开始时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='开始时间' tms-date='app.start_at' tms-default-date='{{defaultTime.start_at}}' tms-state='start_at'></tms-datepicker>
+          </div>
         </div>
-    </div>
-    <div id='main-access' class='panel panel-default' ng-controller="ctrlAccess">
-        <div class='panel-body'>
-            <div class='form-group'>
-                <label>设置参与规则</label>
-                <div ng-include="frameTemplates.url('entryRule')"></div>
-            </div>
-            <hr>
-            <table class='table table-bordered'>
-                <tbody>
-                    <tr>
-                        <td>满足参与规则时进入</td>
-                        <td style='padding:0'>
-                            <select style='border:0' class='form-control' ng-change="update('entryRule')" ng-model='rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.inapp"></select>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <hr>
-            <table class='table table-bordered'>
-                <tbody>
-                    <tr ng-if="app.enrollApp">
-                        <td>签到成功时进入</td>
-                        <td style='padding:0'>
-                            <div class='form-inline'>
-                                <div class='form-group'>
-                                    <select style='border:0' class='form-control' ng-model="rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
-                                        <option value=></option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr ng-if="app.enrollApp">
-                        <td>签到失败时进入</td>
-                        <td style='padding:0'>
-                            <div class='form-inline'>
-                                <div class='form-group'>
-                                    <select style='border:0' class='form-control' ng-model="rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
-                                        <option value=></option>
-                                    </select>
-                                </div>
-                                <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr ng-if="!app.enrollApp">
-                        <td>签到后进入</td>
-                        <td style='padding:0'>
-                            <div class='form-inline'>
-                                <div class='form-group'>
-                                    <select style='border:0' class='form-control' ng-model="rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
-                                        <option value=></option>
-                                    </select>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class='col-md-6'>
+          <div class='form-group'>
+            <label>结束时间</label>
+            <tms-datepicker class='tms-datepicker' tms-title='结束时间' tms-date='app.end_at' tms-state='end_at'></tms-datepicker>
+          </div>
         </div>
+      </div>
+      <div class='form-group'>
+        <label class='help-block'>管理标签（可选）</label>
+        <p class="form-control" ng-click="tagMatter('M')">
+          <span class="tag" ng-repeat="t in app.matter_mg_tag" ng-bind="t.title"></span>
+        </p>
+      </div>
+      <div class='form-group' ng-if="!app.mission">
+        <button class='btn btn-success' ng-click="assignMission()">指定项目</button>
+      </div>
+      <div class='form-group' ng-if="app.mission">
+        <label>所属项目</label>
+        <div class="input-group">
+          <input class='form-control' title="{{app.mission.title}}" value="{{app.mission.title}}" readonly>
+          <div class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="quitMission()" title='删除项目'>
+              <span class='glyphicon glyphicon-remove'></span>
+            </button>
+            <a class="btn btn-default" href='/rest/pl/fe/matter/mission?site={{app.siteid}}&id={{app.mission.id}}' target='_self' title='查看项目'>
+              <span class='glyphicon glyphicon-new-window'></span>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
-    <hr>
-    <div class='form-group'>
-        <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+  </div>
+  <div id='main-access' class='panel panel-default' ng-controller="ctrlAccess">
+    <div class='panel-body'>
+      <div class='form-group'>
+        <label>设置参与规则</label>
+        <div ng-include="frameTemplates.url('entryRule')"></div>
+      </div>
+      <hr>
+      <table class='table table-bordered'>
+        <tbody>
+          <tr>
+            <td>满足参与规则时进入</td>
+            <td style='padding:0'>
+              <select style='border:0' class='form-control' ng-change="update('entryRule')" ng-model='rule.otherwise.entry' ng-options="p.name as p.title for p in jumpPages.inapp"></select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <hr>
+      <table class='table table-bordered'>
+        <tbody>
+          <tr ng-if="app.enrollApp">
+            <td>签到成功时进入</td>
+            <td style='padding:0'>
+              <div class='form-inline'>
+                <div class='form-group'>
+                  <select style='border:0' class='form-control' ng-model="rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
+                    <option value=></option>
+                  </select>
+                </div>
+                <button class="btn btn-default" type="button" ng-click="newPage('success.entry')">+</button>
+              </div>
+            </td>
+          </tr>
+          <tr ng-if="app.enrollApp">
+            <td>签到失败时进入</td>
+            <td style='padding:0'>
+              <div class='form-inline'>
+                <div class='form-group'>
+                  <select style='border:0' class='form-control' ng-model="rule.fail.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
+                    <option value=></option>
+                  </select>
+                </div>
+                <button class="btn btn-default" type="button" ng-click="newPage('fail.entry')">+</button>
+              </div>
+            </td>
+          </tr>
+          <tr ng-if="!app.enrollApp">
+            <td>签到后进入</td>
+            <td style='padding:0'>
+              <div class='form-inline'>
+                <div class='form-group'>
+                  <select style='border:0' class='form-control' ng-model="rule.success.entry" ng-options='p.name as p.title for p in app.pages' ng-change="update('entryRule')">
+                    <option value=></option>
+                  </select>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
+  <hr>
+  <div class='form-group'>
+    <button class='btn btn-default btn-block' ng-click="remove()">删除活动</button>
+  </div>
 </div>
 <script type="text/ng-template" id="joinQrcode.html">
-    <div style="width:200px">
+  <div style="width:200px">
         <img ng-src="{{qrcodeURL}}" style="width:100%">
     </div>
 </script>

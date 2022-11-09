@@ -70,7 +70,7 @@ angular
           $scope.channel.title,
           sharelink,
           $scope.channel.summary,
-          $scope.channel.pic
+          $scope.channel.pic2 || $scope.channel.pic
         )
       }
       function dealImgSrc(item) {

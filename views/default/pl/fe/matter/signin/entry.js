@@ -23,7 +23,7 @@ define(['frame'], function (ngApp) {
         // mediagallery.open($scope.app.siteid, options)
         tmsfinder.open($scope.app.siteid).then(function (result) {
           if (result.url) {
-            $scope.app.pic = url + '?_=' + new Date() * 1
+            $scope.app.pic = result.url + '?_=' + new Date() * 1
             $scope.update('pic')
           }
         })
@@ -42,7 +42,7 @@ define(['frame'], function (ngApp) {
         // mediagallery.open($scope.app.siteid, options)
         tmsfinder.open($scope.app.siteid).then(function (result) {
           if (result.url) {
-            $scope.app.pic = url + '?_=' + new Date() * 1
+            $scope.app.pic = result.url + '?_=' + new Date() * 1
             $scope.update('pic')
           }
         })

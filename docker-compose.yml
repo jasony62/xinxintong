@@ -58,6 +58,22 @@ services:
     #   MONGO_INITDB_ROOT_PASSWORD: example
     logging:
       driver: 'none'
+  
+  tms-finder:
+    image: jasony62/tfd-aio:latest
+    container_name: xxt_tms-finder
+    # ports:
+    # #   - 3001:3000
+    #   - 8090:80
+    # environment:
+    #   # 关闭验证码
+    #   - TFD_APP_AUTH_CAPTCHA_DISABLED=yes
+    # volumes:
+    #   - ./kcfinder/upload:/usr/app/tfd/storage
+    #   - ./tms-koa:/usr/app/xxt/tms-koa
+    #   - ./docker/tms-finder/app.local.js:/usr/app/tfd/config/app.local.js
+    #   - ./docker/tms-finder/fs.local.js:/usr/app/tfd/config/fs.local.js
+    #   - ./docker/tms-finder/settings.json:/usr/share/nginx/html/tmsfinder/settings.json
 
   backapi:
     build: ./api

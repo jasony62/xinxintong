@@ -1,0 +1,9 @@
+{
+  "loginIgnored": true,
+  "loginCaptchaDisabled": true,
+  "pickFileFiledNameMapping": {
+    "$": {
+      "url": "url"
+    }
+  }
+}

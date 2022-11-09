@@ -166,7 +166,7 @@ angular
             windowClass: 'auto-height full-width media-gallery',
             resolve: {
               url: function () {
-                let url = `${rsp.data.TMS_FINDER_ADDRESS}/storage?bucket=${siteid}`
+                let url = `${rsp.data.TMS_FINDER_ADDRESS}/storage?bucket=${siteid}&pickFile=yes`
                 url = $sce.trustAsResourceUrl(url)
                 return url
               },
@@ -177,7 +177,8 @@ angular
             (event) => {
               const origin = event.origin || event.originalEvent.origin
               if (rsp.data.TMS_FINDER_ADDRESS.match(origin)) {
-                modalInstance.close({ url: event.data })
+                let { url } = event.data
+                modalInstance.close({ url })
               }
             },
             false

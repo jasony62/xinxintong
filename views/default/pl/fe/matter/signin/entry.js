@@ -4,8 +4,9 @@ define(['frame'], function (ngApp) {
     '$scope',
     'http2',
     'mediagallery',
+    'tmsfinder',
     'srvSigninApp',
-    function ($scope, http2, mediagallery, srvSigninApp) {
+    function ($scope, http2, mediagallery, tmsfinder, srvSigninApp) {
       $scope.$on('xxt.tms-datepicker.change', function (event, data) {
         if (/app\./.test(data.state)) {
           $scope.app[data.state.split('.')[1]] = data.value
@@ -13,26 +14,38 @@ define(['frame'], function (ngApp) {
         }
       })
       $scope.setPic = function () {
-        var options = {
-          callback: function (url) {
+        // var options = {
+        //   callback: function (url) {
+        //     $scope.app.pic = url + '?_=' + new Date() * 1
+        //     $scope.update('pic')
+        //   },
+        // }
+        // mediagallery.open($scope.app.siteid, options)
+        tmsfinder.open($scope.app.siteid).then(function (result) {
+          if (result.url) {
             $scope.app.pic = url + '?_=' + new Date() * 1
             $scope.update('pic')
-          },
-        }
-        mediagallery.open($scope.app.siteid, options)
+          }
+        })
       }
       $scope.removePic = function () {
         $scope.app.pic = ''
         $scope.update('pic')
       }
       $scope.setPic2 = function () {
-        var options = {
-          callback: function (url) {
-            $scope.app.pic2 = url + '?_=' + new Date() * 1
+        // var options = {
+        //   callback: function (url) {
+        //     $scope.app.pic2 = url + '?_=' + new Date() * 1
+        //     $scope.update('pic')
+        //   },
+        // }
+        // mediagallery.open($scope.app.siteid, options)
+        tmsfinder.open($scope.app.siteid).then(function (result) {
+          if (result.url) {
+            $scope.app.pic = url + '?_=' + new Date() * 1
             $scope.update('pic')
-          },
-        }
-        mediagallery.open($scope.app.siteid, options)
+          }
+        })
       }
       $scope.removePic2 = function () {
         $scope.app.pic2 = ''

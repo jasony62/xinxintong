@@ -97,7 +97,9 @@ abstract class Reply
       $r .= '<item>';
       $r .= '<Title><![CDATA[' . $oMatter->title . ']]></Title>';
       $r .= '<Description><![CDATA[' . (isset($oMatter->summary) ? $oMatter->summary : '') . ']]></Description>';
-      if (!empty($oMatter->pic) && stripos($oMatter->pic, 'http') === false) {
+      if (!empty($oMatter->pic2) && stripos($oMatter->pic2, 'http') === false) {
+        $r .= '<PicUrl><![CDATA[' . APP_PROTOCOL . APP_HTTP_HOST . $oMatter->pic2 . ']]></PicUrl>';
+      } else if (!empty($oMatter->pic) && stripos($oMatter->pic, 'http') === false) {
         $r .= '<PicUrl><![CDATA[' . APP_PROTOCOL . APP_HTTP_HOST . $oMatter->pic . ']]></PicUrl>';
       } else {
         $r .= '<PicUrl><![CDATA[' . (isset($oMatter->pic) ? $oMatter->pic : '') . ']]></PicUrl>';

@@ -85,7 +85,7 @@ define(['frame'], function (ngApp) {
         _oEditing.pic = ''
         srvApp.update('pic')
       }
-      $scope.removePic = function () {
+      $scope.removePic2 = function () {
         _oEditing.pic2 = ''
         srvApp.update('pic2')
       }

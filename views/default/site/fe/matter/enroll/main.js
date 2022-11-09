@@ -381,7 +381,7 @@ ngApp.controller('ctrlMain', [
               'translateVoice',
             ],
           })
-          tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic)
+          tmsSnsShare.set(oApp.title, sharelink, summary, oApp.pic2 || oApp.pic)
           // 返回生成的页面共享链接
         }
         if (fnBackSharelink) fnBackSharelink(sharelink)

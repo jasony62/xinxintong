@@ -14,13 +14,6 @@ define(['frame'], function (ngApp) {
         }
       })
       $scope.setPic = function () {
-        // var options = {
-        //   callback: function (url) {
-        //     $scope.app.pic = url + '?_=' + new Date() * 1
-        //     $scope.update('pic')
-        //   },
-        // }
-        // mediagallery.open($scope.app.siteid, options)
         tmsfinder.open($scope.app.siteid).then(function (result) {
           if (result.url) {
             $scope.app.pic = result.url + '?_=' + new Date() * 1
@@ -33,17 +26,10 @@ define(['frame'], function (ngApp) {
         $scope.update('pic')
       }
       $scope.setPic2 = function () {
-        // var options = {
-        //   callback: function (url) {
-        //     $scope.app.pic2 = url + '?_=' + new Date() * 1
-        //     $scope.update('pic')
-        //   },
-        // }
-        // mediagallery.open($scope.app.siteid, options)
         tmsfinder.open($scope.app.siteid).then(function (result) {
           if (result.url) {
-            $scope.app.pic = result.url + '?_=' + new Date() * 1
-            $scope.update('pic')
+            $scope.app.pic2 = result.url + '?_=' + new Date() * 1
+            $scope.update('pic2')
           }
         })
       }

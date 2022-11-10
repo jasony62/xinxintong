@@ -3,10 +3,9 @@ define(['frame'], function (ngApp) {
   ngApp.provider.controller('ctrlEntry', [
     '$scope',
     'http2',
-    'mediagallery',
     'tmsfinder',
     'srvSigninApp',
-    function ($scope, http2, mediagallery, tmsfinder, srvSigninApp) {
+    function ($scope, http2, tmsfinder, srvSigninApp) {
       $scope.$on('xxt.tms-datepicker.change', function (event, data) {
         if (/app\./.test(data.state)) {
           $scope.app[data.state.split('.')[1]] = data.value

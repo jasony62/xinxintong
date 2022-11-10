@@ -72,7 +72,7 @@ services:
     #   - ./kcfinder/upload:/usr/app/tfd/storage
     #   - ./tms-koa:/usr/app/xxt/tms-koa
     #   - ./docker/tms-finder/app.local.js:/usr/app/tfd/config/app.local.js
-    #   - ./docker/tms-finder/fs.local.js:/usr/app/tfd/config/fs.local.js
+    #   - ./docker/tms-finder/fs.local.js:/usr/app/tfd/config/fs.js
     #   - ./docker/tms-finder/settings.json:/usr/share/nginx/html/tmsfinder/settings.json
 
   backapi:

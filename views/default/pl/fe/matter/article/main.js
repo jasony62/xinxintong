@@ -4,7 +4,7 @@ define(['frame'], function (ngApp) {
     'http2',
     'noticebox',
     'srvSite',
-    'mediagallery',
+    'tmsfinder',
     'noticebox',
     'srvApp',
     'tmsThumbnail',
@@ -15,7 +15,7 @@ define(['frame'], function (ngApp) {
       http2,
       noticebox,
       srvSite,
-      mediagallery,
+      tmsfinder,
       noticebox,
       srvApp,
       tmsThumbnail,
@@ -64,22 +64,20 @@ define(['frame'], function (ngApp) {
         }
       }
       $scope.setPic = function () {
-        var options = {
-          callback: function (url) {
-            _oEditing.pic = url + '?_=' + new Date() * 1
-            srvApp.update('pic')
-          },
-        }
-        mediagallery.open(_oEditing.siteid, options)
+        tmsfinder.open(_oEditing.siteid).then(function (result) {
+          if (result.url) {
+            _oEditing.pic = result.url + '?_=' + new Date() * 1
+            $scope.update('pic')
+          }
+        })
       }
       $scope.setPic2 = function () {
-        var options = {
-          callback: function (url) {
-            _oEditing.pic2 = url + '?_=' + new Date() * 1
-            srvApp.update('pic2')
-          },
-        }
-        mediagallery.open(_oEditing.siteid, options)
+        tmsfinder.open(_oEditing.siteid).then(function (result) {
+          if (result.url) {
+            _oEditing.pic2 = result.url + '?_=' + new Date() * 1
+            $scope.update('pic2')
+          }
+        })
       }
       $scope.removePic = function () {
         _oEditing.pic = ''

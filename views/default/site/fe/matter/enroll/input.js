@@ -659,10 +659,10 @@ ngApp.controller('ctrlInput', [
             fnAfterGetRecord(oRecord)
           },
           function (rsp) {
-            if (rsp.err_code !== 0) {
-              noticebox.error(rsp.err_msg || '抱歉，发生系统错误！')
-              return
-            }
+            // if (rsp.err_code !== 0) {
+            //   noticebox.error(rsp.err_msg || '抱歉，发生系统错误！')
+            //   return
+            // }
             if (LS.s().newRecord === 'Y' && LS.s().rid) {
               _facRound.get([LS.s().rid]).then(function (aRounds) {
                 if (aRounds && aRounds.length === 1) {
@@ -673,7 +673,7 @@ ngApp.controller('ctrlInput', [
               })
             } else {
               fnAfterGetRecord({
-                round: oRound ? oRound : _oApp.appRound,
+                round: _oApp.appRound,
               })
             }
           }

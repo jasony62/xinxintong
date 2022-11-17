@@ -654,15 +654,15 @@ ngApp.controller('ctrlInput', [
         })
         .then(
           function (rsp) {
-            if (rsp.err_code !== 0) {
-              noticebox.error(rsp.err_msg || '抱歉，发生系统错误！')
-              return
-            }
             var oRecord
             oRecord = rsp.data
             fnAfterGetRecord(oRecord)
           },
           function (rsp) {
+            if (rsp.err_code !== 0) {
+              noticebox.error(rsp.err_msg || '抱歉，发生系统错误！')
+              return
+            }
             if (LS.s().newRecord === 'Y' && LS.s().rid) {
               _facRound.get([LS.s().rid]).then(function (aRounds) {
                 if (aRounds && aRounds.length === 1) {

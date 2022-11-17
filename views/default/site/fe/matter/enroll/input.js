@@ -654,6 +654,10 @@ ngApp.controller('ctrlInput', [
         })
         .then(
           function (rsp) {
+            if (rsp.err_code !== 0) {
+              noticebox.error(rsp.err_msg || '抱歉，发生系统错误！')
+              return
+            }
             var oRecord
             oRecord = rsp.data
             fnAfterGetRecord(oRecord)

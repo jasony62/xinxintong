@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ERROR | E_PARSE);
+
 // @todo 是否要改为集成TMS_MODEL
 class local_model
 {

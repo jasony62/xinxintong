@@ -102,11 +102,11 @@ function tms_error_handler($errno, $errstr, $errfile, $errline, $errcontext)
   switch ($errno) {
     case E_ERROR:
       show_error(new ErrorException('ERROR:' . $errstr, 0, $errno, $errfile, $errline));
-    case E_WARNING:
-      if (strpos($errstr, 'E_WARNING:exif_read_data') === false) {
-        show_error(new ErrorException('E_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
-      }
-      break;
+      // case E_WARNING:
+      //   if (strpos($errstr, 'E_WARNING:exif_read_data') === false) {
+      //     show_error(new ErrorException('E_WARNING:' . $errstr, 0, $errno, $errfile, $errline));
+      //   }
+      //   break;
     case E_PARSE:
       show_error(new ErrorException('E_PARSE:' . $errstr, 0, $errno, $errfile, $errline));
     case E_NOTICE:

@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ERROR | E_PARSE);
-
 // @todo 是否要改为集成TMS_MODEL
 class local_model
 {
@@ -179,7 +177,7 @@ class local_model
    */
   public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 480)
   {
-    $exif = @exif_read_data($imageUrl);
+    $exif = exif_read_data($imageUrl);
     if (false === $exif) return [false];
 
     /* 获取图像基本信息 */

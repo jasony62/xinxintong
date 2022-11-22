@@ -177,7 +177,11 @@ class local_model
    */
   public function compactImage($imageUrl, $prefix = 'compact', $maxWidthOrHeight = 480)
   {
-    $exif = exif_read_data($imageUrl);
+    try {
+      $exif = exif_read_data($imageUrl);
+    } catch (Error $e) {
+      $exif = false;
+    }
     if (false === $exif) return [false];
 
     /* 获取图像基本信息 */

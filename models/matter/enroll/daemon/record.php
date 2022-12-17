@@ -98,10 +98,41 @@ class record_model extends \TMS_MODEL
    */
   public function exec()
   {
+    $timeout = 60; // 1个周期最长执行1分钟
+    $batchSize = 10; // 1个批次最多处理10条
+    $totalDone = 0;
+    $totalTime = 0;
+
     $q = ['id', $this->table(), ['state' => 1]];
-    $daemons = $this->query_objs_ss($q);
-    foreach ($daemons as $daemon) {
-      $this->_execDaemonTasks($daemon->id);
+    $q2 = [
+      'r' => ['o' => 0, 'l' => $batchSize],
+    ];
+
+    // 任务总数
+    $totalExpected = (int)$this->query_val_ss(['count(*)', $this->table(), ['state' => 1]]);
+
+    $this->logger->info('后台任务总数：' . $totalExpected);
+
+    if ($totalExpected > 0) {
+      // 执行1个批次
+      $fnBatch = function ($q2) use ($q) {
+        $start = microtime(true);
+        $daemons = $this->query_objs_ss($q, $q2);
+        $finished = count($daemons);
+        foreach ($daemons as $daemon) {
+          $this->logger->debug('执行后台任务：' . $daemon->id);
+          $this->_execDaemonTasks($daemon->id);
+        }
+        $duration = (microtime(true) - $start);
+        return [$finished, $duration];
+      };
+
+      do {
+        list($finished, $duration) = $fnBatch($q2);
+        $totalDone += $finished;
+        $totalTime += $duration;
+        $this->logger->info('执行第1个批次的后台任务（' . $finished . '），耗时：' . $duration . '，已处理记录条数：' . $totalDone . '，已耗时：' . $totalTime);
+      } while ($finished > 0 && $totalDone < $totalExpected && $totalTime < $timeout);
     }
 
     return true;
@@ -114,6 +145,7 @@ class record_model extends \TMS_MODEL
     $modelDaemon = $this->model('matter\enroll\daemon\record');
     $daemon = $modelDaemon->byId($daemonId);
     if (empty($daemon)) {
+      $this->logger->warn('指定的后台任务不存在');
       return [false, '指定的后台任务不存在'];
     }
     $modelApp = $this->model('matter\enroll');
@@ -123,6 +155,7 @@ class record_model extends \TMS_MODEL
     $modelUsr = $this->model('matter\enroll\user');
     $oUser = $modelUsr->byIdInApp($oEnlApp, $daemon->userid, ['fields' => 'nickname,group_id']);
     if (empty($oUser)) {
+      $this->logger->warn('记录对应的用户不存在');
       return [false, '记录对应的用户不存在'];
     }
     $oUser->uid = $daemon->userid;

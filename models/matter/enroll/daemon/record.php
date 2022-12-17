@@ -155,7 +155,8 @@ class record_model extends \TMS_MODEL
     $modelUsr = $this->model('matter\enroll\user');
     $oUser = $modelUsr->byIdInApp($oEnlApp, $daemon->userid, ['fields' => 'nickname,group_id']);
     if (empty($oUser)) {
-      $this->logger->warn('记录对应的用户不存在');
+      $this->logger->warn('记录对应的用户不存在，任务id：' . $daemonId);
+      $modelDaemon->finish($daemonId);
       return [false, '记录对应的用户不存在'];
     }
     $oUser->uid = $daemon->userid;

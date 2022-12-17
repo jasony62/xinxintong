@@ -127,13 +127,17 @@ class record_model extends \TMS_MODEL
         return [$finished, $duration];
       };
 
+      $index = 0;
       do {
         list($finished, $duration) = $fnBatch($q2);
+        $index++;
         $totalDone += $finished;
         $totalTime += $duration;
-        $this->logger->info('执行第1个批次的后台任务（' . $finished . '），耗时：' . $duration . '，已处理记录条数：' . $totalDone . '，已耗时：' . $totalTime);
+        $this->logger->info('执行第（' . $index . '）个批次的后台任务（' . $finished . '），耗时：' . $duration . '，已处理记录条数：' . $totalDone . '，已耗时：' . $totalTime);
       } while ($finished > 0 && $totalDone < $totalExpected && $totalTime < $timeout);
     }
+
+    $this->logger->info('共执行（' . $index . '）个批次的后台任务，处理记录条数：' . $totalDone . '，总耗时：' . $totalTime);
 
     return true;
   }

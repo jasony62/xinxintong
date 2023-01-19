@@ -65,8 +65,13 @@ class notice extends \site\fe\base
           }
           if (!empty($batch->send_from)) {
             list($type, $id) = explode(':', $batch->send_from);
-            $model = $this->model('matter\\' . $type);
-            $batch->send_from = $model->byId($id, ['fields' => 'id,title,summary,pic', 'cascaded' => 'F']);
+            if ($type === 'schema') {
+              $model = $this->model('matter\memberschema');
+              $batch->send_from = $model->byId($id, ['fields' => 'id,title']);
+            } else {
+              $model = $this->model('matter\\' . $type);
+              $batch->send_from = $model->byId($id, ['fields' => 'id,title,summary,pic', 'cascaded' => 'F']);
+            }
           }
           $log->batch = $batch;
         }

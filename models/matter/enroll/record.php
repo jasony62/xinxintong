@@ -1008,8 +1008,17 @@ class record_model extends record_base
               }
             } else if (isset($oRecordData->{$oRule->schema})) {
               $ruleVal = $oRecordData->{$oRule->schema};
-              if ($ruleVal === $oRule->op || (isset($ruleVal->{$oRule->op}) && $ruleVal->{$oRule->op} === true)) {
+              if (is_string($ruleVal)) {
+                $arrRuleVal = explode(",", $ruleVal);
+                if (!in_array($oRule->op, $arrRuleVal))
+                  $checkSchemaVisibility = true;
+              } else if (is_object($ruleVal)) {
+                if (isset($ruleVal->{$oRule->op}) && $ruleVal->{$oRule->op} === true)
+                  $checkSchemaVisibility = true;
+              } else if ($ruleVal === $oRule->op) {
                 $checkSchemaVisibility = true;
+              }
+              if ($checkSchemaVisibility === true) {
                 break;
               }
             }
@@ -1025,7 +1034,14 @@ class record_model extends record_base
               }
             } else if (isset($oRecordData->{$oRule->schema})) {
               $ruleVal = $oRecordData->{$oRule->schema};
-              if ($ruleVal !== $oRule->op && empty($ruleVal->{$oRule->op})) {
+              if (is_string($ruleVal)) {
+                $arrRuleVal = explode(",", $ruleVal);
+                if (!in_array($oRule->op, $arrRuleVal))
+                  $checkSchemaVisibility = false;
+              } else if (is_object($ruleVal)) {
+                if (empty($ruleVal->{$oRule->op}))
+                  $checkSchemaVisibility = false;
+              } else if ($ruleVal !== $oRule->op) {
                 $checkSchemaVisibility = false;
               }
             }

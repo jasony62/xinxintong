@@ -496,8 +496,9 @@ class export extends record_base
          */
         if (isset($oNameSchema)) {
           $data = $image['data'];
-          if (!empty($data->{$oNameSchema->id})) {
-            $recordName = $data->{$oNameSchema->id};
+          $userNameVal = $this->getDeepValue($data, $oNameSchema->id);
+          if (!empty($userNameVal)) {
+            $recordName = $userNameVal;
             if (isset($usedRecordName[$recordName])) {
               $usedRecordName[$recordName]++;
               $recordName = $recordName . '_' . $usedRecordName[$recordName];

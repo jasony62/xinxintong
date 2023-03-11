@@ -54,7 +54,6 @@ class notice extends \site\fe\base
           $log->data = json_decode($log->data);
         }
         if ($log->batch_id) {
-
           if ($batch = $modelBat->byId($log->batch_id, ['fields' => self::SITE_FE_BATCH_FIELDS])) {
             if (!empty($batch->params)) {
               $batch->params = json_decode($batch->params);

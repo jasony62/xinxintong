@@ -504,7 +504,8 @@ class export extends record_base
             } else {
               $usedRecordName[$recordName] = 0;
             }
-            $imageName = $recordName . '.' . explode('.', $imageName)[1];
+            $imageNameSegs = explode('.', $imageName);
+            $imageName = $recordName . '.' . array_pop($imageNameSegs);
           }
         }
         $zip->addFile($imageFilename, $image['schema']->title . '/' . $imageName);

@@ -41,7 +41,9 @@ class rank extends base
     return $userGroups;
   }
   /**
-   * 根据用户的行为数据进行排行
+   * 根据用户的行为数据进行排行，例如：提交记录、点赞、评论等
+   * 
+   * xxt_enroll_user记录了用户在活动中的行为数据
    * 不包含旁观用户
    */
   private function _userByBehavior($oApp, $oCriteria, $page = 1, $size = 100)
@@ -158,6 +160,14 @@ class rank extends base
   }
   /**
    * 根据用户的填写数据进行排行
+   * 
+   * xxt_enroll_record_data记录了用户填写的数据
+   * 
+   * 条件设置（$oCriteria）：
+   * $oCriteria->orderby = "schema_xxxx"，xxx为schemaId
+   * 数值题：oSchema.type === 'shorttext' && /number|calculate/.test(oSchema.format)
+   * 单选题：oSchema.type === 'single'
+   * 
    */
   private function _userByRecord($oApp, $oCriteria, $page = 1, $size = 100)
   {
@@ -268,7 +278,7 @@ class rank extends base
     return new \ResponseData($oResult);
   }
   /**
-   * 根据行为对用户组排行
+   * 根据行为对用户组排行，例如：提交记录、点赞、评论等
    */
   private function _groupByBehavior($oApp, $oCriteria, $userGroups)
   {
@@ -576,6 +586,22 @@ class rank extends base
   }
   /**
    * 题目排行榜（仅限单选题）
+   * 
+   * 查询参数：
+   * schema=s1678587829457
+   * 
+   * body示例：
+   * {
+   *    "orderby": "schema_c1",
+   *    "agreed": "all",
+   *    "round": [
+   *      "ALL"
+   *    ],
+   *    "obj": "s1678587829457"
+   * }
+   * 
+   * 排行字段是单选题时，
+   * 
    */
   public function schemaByApp_action($app, $schema)
   {

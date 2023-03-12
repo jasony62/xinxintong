@@ -672,8 +672,6 @@ class rank extends base
     $oUserBySchemaOps = false;
     if (!empty($oApp->entryRule->group->id) && !empty($oRankSchema->fromApp) && $oApp->entryRule->group->id === $oRankSchema->fromApp) {
       $oUserBySchemaOps = $this->_getUserBySchemaOpsInGroupApp($oApp->entryRule->group->id, $oRankSchema);
-      $this->devLogger->debug("获得指定的题目【{$oRankSchema->id}】在分组活动中对应的用户数量");
-      $this->devLogger->debug(json_encode($oUserBySchemaOps));
     }
 
     if (0 === strpos($oCriteria->orderby, 'schema_')) {

@@ -2,6 +2,8 @@
 
 namespace site\fe\matter\enroll;
 
+use stdClass;
+
 include_once dirname(__FILE__) . '/base.php';
 /**
  * 记录活动排行榜
@@ -39,6 +41,33 @@ class rank extends base
     }
 
     return $userGroups;
+  }
+  /**
+   * 获得分组活动中，按照选项题的选项对用户进行分组的情况
+   * 如果分组活动中的schema未包含指定的schema，返回false
+   * 
+   * 返回每个选项的用户数
+   */
+  private function _getUserBySchemaOpsInGroupApp($oGrpAppId, $oSchema)
+  {
+    $modelGrpRec = $this->model('matter\group\record');
+    $grpRecsRst = $modelGrpRec->byApp($oGrpAppId);
+
+    if (empty($grpRecsRst->total)) return false;
+
+    $schemaOps = new \stdClass;
+    foreach ($grpRecsRst->records as $rec) {
+      $opVal = $this->getDeepValue($rec->data, $oSchema->id);
+      if (!empty($opVal)) {
+        if (!isset($schemaOps->$opVal)) {
+          $schemaOps->$opVal = new \stdClass;
+          $schemaOps->$opVal->num = 1;
+        } else {
+          $schemaOps->$opVal->num += 1;
+        }
+      }
+    }
+    return $schemaOps;
   }
   /**
    * 根据用户的行为数据进行排行，例如：提交记录、点赞、评论等
@@ -468,8 +497,10 @@ class rank extends base
   }
   /**
    * 根据行为数据对单选项数据排行
+   * 
+   * 需要支持根据排序对象在分组活动中对应的用户数量作为平均分的分母
    */
-  private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps)
+  private function _schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps, $oUserBySchemaOps)
   {
     $modelRecDat = $this->model('matter\enroll\data');
 
@@ -524,9 +555,12 @@ class rank extends base
               $q[2]['value'] = (object) ['op' => 'exists', 'pat' => 'select 1 from xxt_enroll_record_data rd2 where rd1.aid=rd2.aid and rd1.enroll_key=rd2.enroll_key and rd2.state=1 and rd2.schema_id=\'' . $oRankSchema->id . '\' and rd2.value=\'' . $opv . '\''];
             }
             // $sql = $modelRecDat->query_obj_ss_toSql($q);
-            $oNum = $modelRecDat->query_obj_ss($q);
+            $oNum = $modelRecDat->query_obj_ss($q); // 指定字段填写情况
             $oNum->l = $opl;
             if ($oCriteria->orderby === 'average_score') {
+              if (!empty($oUserBySchemaOps) && !empty($oUserBySchemaOps->$opv)) {
+                $oNum->user_num = $oUserBySchemaOps->$opv->num;
+              }
               if (!empty($oNum->num) && !empty($oNum->user_num)) {
                 $oNum->num = round((float) ($oNum->num / $oNum->user_num), 2);
               }
@@ -632,11 +666,20 @@ class rank extends base
     if (empty($aSchemaOps)) {
       return new \ParameterError('指定的题目选项为空，无法进行排行');
     }
+    /**
+     * 如果指定字段来源于分组活动，获得题目在分组活动中对应的用户数量
+     */
+    $oUserBySchemaOps = false;
+    if (!empty($oApp->entryRule->group->id) && !empty($oRankSchema->fromApp) && $oApp->entryRule->group->id === $oRankSchema->fromApp) {
+      $oUserBySchemaOps = $this->_getUserBySchemaOpsInGroupApp($oApp->entryRule->group->id, $oRankSchema);
+      $this->devLogger->debug("获得指定的题目【{$oRankSchema->id}】在分组活动中对应的用户数量");
+      $this->devLogger->debug(json_encode($oUserBySchemaOps));
+    }
 
     if (0 === strpos($oCriteria->orderby, 'schema_')) {
       $aResult = $this->_schemaByRecord($oApp, $oCriteria, $oRankSchema, $aSchemaOps);
     } else {
-      $aResult = $this->_schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps);
+      $aResult = $this->_schemaByBehavior($oApp, $oCriteria, $oRankSchema, $aSchemaOps, $oUserBySchemaOps);
     }
 
     if (false === $aResult[0]) {

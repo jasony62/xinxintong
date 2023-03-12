@@ -8,6 +8,12 @@ require_once dirname(dirname(__FILE__)) . '/enroll/record_base.php';
  */
 class DbRecordHandler
 {
+  public $host;
+
+  public $appId;
+
+  private $_modelGrpLev;
+
   public function __construct($host, $appId = null)
   {
     $this->host = $host;

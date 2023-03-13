@@ -51,7 +51,9 @@ class rank extends base
   private function _getUserBySchemaOpsInGroupApp($oGrpAppId, $oSchema)
   {
     $modelGrpRec = $this->model('matter\group\record');
-    $grpRecsRst = $modelGrpRec->byApp($oGrpAppId);
+    $oOptions = new \stdClass;
+    $oOptions->leader = ['N', 'Y', 'S']; // 排除旁观者
+    $grpRecsRst = $modelGrpRec->byApp($oGrpAppId, $oOptions);
 
     if (empty($grpRecsRst->total)) return false;
 

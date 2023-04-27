@@ -158,7 +158,6 @@
         </div>
         <div class='form-group' ng-if="data.localId">
           <button class="btn btn-default" ng-click="play()">开始播放</button>
-          <button class="btn btn-default" ng-click="pause()">暂停播放</button>
           <button class="btn btn-default" ng-click="stop()">停止播放</button>
         </div>
       </div>
@@ -167,6 +166,7 @@
         <button class="btn btn-default" ng-click="cancel()">关闭</button>
         <button class="btn btn-default" ng-click="ok()" ng-disabled="!data.localId">完成</button>
       </div>
+      <audio id="playComplete" style="width:0;height:0;" src="/static/audio/complete.mp3"></audio>
     </div>
   </script>
   <script type="text/ng-template" id="writeItem.html">

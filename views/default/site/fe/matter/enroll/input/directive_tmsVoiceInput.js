@@ -126,8 +126,9 @@ module.exports = [
                             _oData.localId = res.localId
                           })
                           $interval.cancel(_timer)
-                          let audio = new Audio('/static/audio/complete.mp3')
-                          audio?.play()
+                          let audio = document.querySelector('#playComplete')
+                          if (!audio) window.alert('录音已经结束')
+                          else audio.play()
                         },
                       })
                     }

@@ -126,8 +126,8 @@ module.exports = [
                             _oData.localId = res.localId
                           })
                           $interval.cancel(_timer)
-                          let elem = document.getElementById('playComplete')
-                          elem?.play()
+                          let audio = new Audio('/static/audio/complete.mp3')
+                          audio?.play()
                         },
                       })
                     }

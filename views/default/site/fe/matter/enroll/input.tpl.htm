@@ -79,6 +79,9 @@
   <div class="loading">
     <div class="loading-indicator"><i></i></div>
   </div>
+  <div style="width:0;height:0;">
+    <audio id="playComplete" src="/static/audio/complete.mp3"></audio>
+  </div>
   <script type="text/ng-template" id="info.html">
     <div class="modal-body">
           <h4 ng-bind="app.title"></h4>
@@ -154,12 +157,12 @@
         </div>
         <div class='form-group'>
           <button class="btn btn-default" ng-click="startRecord()">开始录音</button>
-          <button class="btn btn-default" ng-click="stopRecord()">停止</button>
+          <button class="btn btn-default" ng-click="stopRecord()">停止录音</button>
         </div>
         <div class='form-group' ng-if="data.localId">
-          <button class="btn btn-default" ng-click="play()">播放</button>
-          <button class="btn btn-default" ng-click="pause()">暂停</button>
-          <button class="btn btn-default" ng-click="stop()">停止</button>
+          <button class="btn btn-default" ng-click="play()">开始播放</button>
+          <button class="btn btn-default" ng-click="pause()">暂停播放</button>
+          <button class="btn btn-default" ng-click="stop()">停止播放</button>
         </div>
       </div>
       <div class="modal-footer">

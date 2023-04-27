@@ -126,6 +126,8 @@ module.exports = [
                             _oData.localId = res.localId
                           })
                           $interval.cancel(_timer)
+                          let elem = document.getElementById('playComplete')
+                          elem?.play()
                         },
                       })
                     }
@@ -185,7 +187,6 @@ module.exports = [
                 })
               })
           }
-          $scope.playVoice = function () {}
         },
       ],
     }

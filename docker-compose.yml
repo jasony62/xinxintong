@@ -33,6 +33,7 @@ services:
       - backapi
     # ports:
     #   - 8080:80
+    #   - 8099:8099
     # environment:
     #   - NGINX_HTTP_PROTOCOL=http
     #   - NGINX_HTTP_HOST=localhost

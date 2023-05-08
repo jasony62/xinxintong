@@ -73,11 +73,21 @@ log_format json escape=json '{'
     '"http_user_agent":"$http_user_agent"'
   '}';
 
+# 流量状态监控 
+vhost_traffic_status_zone;
+# 开启vts监控
+vhost_traffic_status_filter on;
+# 开启详细状态码统计
+vhost_traffic_status_filter_by_set_key $status $server_name;
+# 开启uri统计
+vhost_traffic_status_filter_by_set_key $uri uris::$server_name;
+
 ######################## default ############################
 	server {
 		listen 80;
 		server_name _;
     access_log /var/log/nginx/access.log combined;
+
     location /api/oas {
       proxy_pass http://backapi:3000/oas;
     }
@@ -91,8 +101,12 @@ log_format json escape=json '{'
     location /auth {
       proxy_pass http://backapi:3000;
     }
+    location /rest {
+			proxy_pass http://127.0.0.1:8081;
+		}
     location / {
 			proxy_pass http://127.0.0.1:8081;
+      vhost_traffic_status off;
 		}
 	}
 	server {
@@ -103,6 +117,9 @@ log_format json escape=json '{'
 		index index.html index.htm index.php;
 #error_page 404 /404.html;
 #error_page 502 /502.html;
+
+    vhost_traffic_status off;
+
 		location /nginx_status {
 			stub_status on;
 			access_log off;
@@ -119,6 +136,7 @@ log_format json escape=json '{'
       fastcgi_param PATH_INFO $fastcgi_path_info;
       fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
       include        fastcgi_params;
+      vhost_traffic_status on;
 		}
     location /ue/site/fe/mission {
       try_files $uri /ue/site/fe/mission/index.html;
@@ -138,6 +156,18 @@ log_format json escape=json '{'
 	  rewrite ^/i/(.*)$ $NGINX_HTTP_PROTOCOL://$NGINX_HTTP_HOST:$NGINX_HTTP_PORT/rest/i?inviteCode=$1 redirect;
 	  rewrite ^/rest/(.*)$ /app.php break;
 	}
+  server {
+    auth_basic "monitor";
+    auth_basic_user_file /etc/nginx/admin.pwd;
+
+		listen 8099;
+		server_name _;
+    vhost_traffic_status off;
+    location /status {
+      vhost_traffic_status_display;
+      vhost_traffic_status_display_format html;
+    }
+  }
 ########################## vhost #############################
 	include vhost/*.conf;
 }

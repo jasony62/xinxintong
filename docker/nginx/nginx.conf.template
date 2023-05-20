@@ -75,10 +75,8 @@ log_format json escape=json '{'
 
 # 流量状态监控 
 vhost_traffic_status_zone;
-# 开启vts监控
-vhost_traffic_status_filter on;
-# 开启详细状态码统计
-vhost_traffic_status_filter_by_set_key $status $server_name;
+# 开启状态码统计
+vhost_traffic_status_filter_by_set_key $status status::$server_name;
 # 开启uri统计
 vhost_traffic_status_filter_by_set_key $uri uris::$server_name;
 

@@ -58,9 +58,13 @@ function show_error($message)
   $method = isset($_SERVER['REQUEST_URI']) ? tms_get_server('REQUEST_URI') : 'unknown request';
   $modelLog = TMS_APP::M('log');
 
+  $status = 500;
+  $text = ' Internal Server Error';
   if ($message instanceof UrlNotMatchException || $message instanceof SiteUserException) {
     /* 已知异常信息 */
     $msg = $message->getMessage();
+    $status = 406; // Not Acceptable
+    $text = 'Not Acceptable';
   } else if ($message instanceof Throwable) {
     /* 未知异常 */
     $excep = throwableToStr($message);
@@ -77,7 +81,7 @@ function show_error($message)
     $msg = isTraceError() ? $othermsg : '应用程序内部错误';
   }
   /* 给前端返回信息 */
-  header("HTTP/1.1 500 Internal Server Error");
+  header("HTTP/1.1 $status $text");
   header('Content-Type: text/plain; charset=utf-8');
   echo $msg;
 

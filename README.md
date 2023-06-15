@@ -44,6 +44,30 @@
 
 查看`docker/nginx/nginx.conf.template`了解上述环境变量的用户。
 
+# 内置服务
+
+查看 nginx 提供的状态信息
+
+```
+http(s)://HOST:PORT/nginx_status
+```
+
+在线 api 文档
+
+```
+http(s)://HOST:PORT/api/swagger-ui/
+```
+
+nginx-vts 模块提供状态数据
+
+```
+http(s)://HOST:PORT2/status/
+```
+
+```
+http(s)://HOST:PORT2/status/format/prometheus
+```
+
 # License
 
 [MIT](http://opensource.org/licenses/MIT)

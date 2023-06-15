@@ -256,7 +256,7 @@ trait Round
     }
 
     $startAt = mktime($hour, 0, 0, $month, $mday, $year);
-    $endAt = $end_hour === null ? 0 : mktime($end_hour, 0, 0, $end_month, $end_mday, $end_year);
+    $endAt = $end_hour === null ? 0 : mktime($end_hour, 59, 59, $end_month, $end_mday, $end_year);
 
     return [$startAt, $endAt];
   }

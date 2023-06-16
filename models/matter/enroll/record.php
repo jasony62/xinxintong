@@ -1823,21 +1823,21 @@ class record_model extends record_base
     }
 
     // 对选择题和打分题选项排序
-    // $oSchemas = new \stdClass;
-    // foreach ($oApp->dynaDataSchemas as $oSchema) {
-    //   $oSchemas->{$oSchema->id} = $oSchema;
-    // }
-    // foreach ($aResult as $key => &$value) {
-    //   if (isset($oSchemas->{$key}) && in_array($oSchemas->{$key}->type, ['single', 'multiple', 'score'])) {
-    //     $ops = $value->ops;
-    //     $sortArr = [];
-    //     foreach ($ops as $op) {
-    //       $sortArr[] = $op->v;
-    //     }
-    //     array_multisort($sortArr, SORT_ASC, SORT_NATURAL, $ops);
-    //     $value->ops = $ops;
-    //   }
-    // }
+    $oSchemas = new \stdClass;
+    foreach ($oApp->dynaDataSchemas as $oSchema) {
+      $oSchemas->{$oSchema->id} = $oSchema;
+    }
+    foreach ($aResult as $key => &$value) {
+      if (isset($oSchemas->{$key}) && in_array($oSchemas->{$key}->type, ['single', 'multiple', 'score'])) {
+        $ops = $value->ops;
+        $sortArr = [];
+        foreach ($ops as $op) {
+          $sortArr[] = $op->v;
+        }
+        array_multisort($sortArr, SORT_ASC, SORT_NATURAL, $ops);
+        $value->ops = $ops;
+      }
+    }
 
     return $aResult;
   }

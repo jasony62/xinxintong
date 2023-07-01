@@ -87,6 +87,11 @@
           <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_cowork" ng-change="update('scenarioConfig')" />
           允许其他用户修改填写记录</label>
       </div>
+      <div class="checkbox" ng-if="app.scenario==='quiz'">
+        <label>
+          <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.hide_answer" ng-change="update('scenarioConfig')" />
+          测验结果页不显示答案</label>
+      </div>
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-true-value="'Y'" ng-false-value="'N'" ng-model="app.scenarioConfig.can_repos" ng-change="update('scenarioConfig')" />

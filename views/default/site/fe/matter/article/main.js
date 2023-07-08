@@ -294,9 +294,8 @@ ngApp.controller('ctrlMain', [
             // 设置是否显示主页链接
             if (
               $scope.showHome &&
-              oArticle.config &&
-              oArticle.config.hide &&
-              oArticle.config.hide.home === 'Y'
+              (oArticle?.config?.hide?.home === 'Y' ||
+                site?.config?.matter?.hide?.home === 'Y')
             ) {
               $scope.showHome = false
             }

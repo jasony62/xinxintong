@@ -22,6 +22,12 @@
               <p>
                 <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.config.header.hide" ng-change="update('config')" /> 隐藏页面头内容
               </p>
+              <p>
+                <div>
+                  <input type='checkbox' ng-true-value="'Y'" ng-false-value="'N'" ng-model="site.config.matter.hide.home" ng-change="update('config')" /> 站点内素材隐藏进入平台主页入口
+                </div>
+                <p class='help-block'>站点下的所有素材都会隐藏进入平台主页的入口，不论是从站点主页还是直接的活动或资料链接</p>
+              </p>
             </div>
           </div>
           <div class='col-md-4'>

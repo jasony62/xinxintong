@@ -394,7 +394,7 @@ ngApp.controller('ctrlMain', [
     $scope.back = function () {
       history.back()
     }
-    $scope.showReturn = /site\/fe/.test(document.referrer) // 是否显示返回链接
+    $scope.showReturn = /site\/(fe|home)/.test(document.referrer) // 是否显示返回链接
     $scope.showHome = !$scope.showReturn // 是否显示返回主页链接
     $scope.showSiteCard = true // 是否显示团队卡片
     $scope.elSiteCard = angular.element(document.querySelector('#site-card'))

@@ -315,7 +315,7 @@ class channel_model extends article_base
      * top matter
      */
     if (!empty($channel->top_type) && $channel->top_type === 'article') {
-      $qt[] = "a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at";
+      $qt[] = "a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,a.modify_at";
       $qt[] = 'xxt_article a';
       $qt[] = "a.id='$channel->top_id' and a.state=1 and a.approved='Y'";
       $top = $this->query_obj_ss($qt);
@@ -324,7 +324,7 @@ class channel_model extends article_base
      * bottom matter
      */
     if (!empty($channel->bottom_type) && $channel->bottom_type === 'article') {
-      $qb[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at';
+      $qb[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,a.modify_at';
       $qb[] = 'xxt_article a';
       $qb[] = "a.id='$channel->bottom_id' and a.state=1 and a.approved='Y'";
       $bottom = $this->query_obj_ss($qb);
@@ -332,7 +332,7 @@ class channel_model extends article_base
     /**
      * load articles.
      */
-    $qa1[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,ca.create_at';
+    $qa1[] = 'a.id,a.siteid,a.title,a.summary,a.pic,a.body,a.create_at,a.modify_at,ca.create_at add_at';
     $qa1[] = 'xxt_article a,xxt_channel_matter ca';
     $qaw = "ca.channel_id='{$channel->id}' and a.id=ca.matter_id and ca.matter_type='article' and a.state=1 and a.approved='Y'";
     if (!empty($top)) {
@@ -365,7 +365,7 @@ class channel_model extends article_base
   {
     $orderby = $channel->orderby;
     $q1 = [];
-    $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
+    $q1[] = "m.id,m.title,m.summary,m.pic,m.create_at,m.modify_at,m.creater_name,cm.create_at add_at,'article' type,m.remark_num,st.name site_name,st.id siteid,st.heading_pic,m.matter_cont_tag,m.matter_mg_tag,cm.seq";
     $q1[] = "xxt_article m,xxt_channel_matter cm,xxt_site st";
     $q1[] = "m.state=1 and m.approved='Y' and cm.channel_id='{$channel->id}' and m.id=cm.matter_id and cm.matter_type='article' and m.siteid=st.id";
     if (!empty($params->weight)) {
@@ -477,7 +477,7 @@ class channel_model extends article_base
         $fullMatter = \TMS_APP::M('matter\\' . $sm->matter_type)->byId($sm->matter_id);
       } else {
         $q = [
-          "a.id,a.mission_id,a.title,a.creater_name,a.create_at,a.summary,a.pic,a.state,entry_rule,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
+          "a.id,a.mission_id,a.title,a.creater_name,a.create_at,a.modify_at,a.summary,a.pic,a.state,entry_rule,'article' type,a.matter_cont_tag,a.matter_mg_tag,s.name site_name,s.id siteid,s.heading_pic",
           'xxt_article a, xxt_site s',
           "a.id = '{$sm->matter_id}' and a.state = 1 and a.approved = 'Y' and a.siteid=s.id and s.state = 1",
         ];

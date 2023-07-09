@@ -138,3 +138,14 @@ services:
     depends_on:
       - db
       - kafka
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter
+    container_name: xxt_mysql-exporter
+    # ports:
+    #   - 9104:9104
+    # environment:
+    #   - MYSQLD_EXPORTER_PASSWORD=
+    volumes:
+      - ./docker/mysql-exporter/my.cnf:/usr/local/mysqld_exporter/.my.cnf
+    command: ['--config.my-cnf', '/usr/local/mysqld_exporter/.my.cnf']

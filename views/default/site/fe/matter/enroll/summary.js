@@ -796,6 +796,8 @@ ngApp.controller('ctrlSummaryStat', [
       _facRound.list().then(function (oResult) {
         $scope.rounds = oResult.rounds
       })
+      /* 设置页面分享信息 */
+      $scope.setSnsShare()
     })
   },
 ])

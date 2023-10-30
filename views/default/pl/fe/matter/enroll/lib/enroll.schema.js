@@ -1096,6 +1096,8 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
                     }
                   }
                 })
+                // 用于清空已选
+                htmlSchemas.push({ id: '-1', title: '不指定', type: '' })
                 $scope2.htmlSchemas = htmlSchemas
                 $scope2.selectSchema = function (oSchema) {
                   oResult.id = oSchema.id
@@ -1113,7 +1115,10 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
             backdrop: 'static',
           })
           .result.then(function (oResult) {
-            if (oResult.id && oResult.type && oResult.title) {
+            if (oResult.id === '-1') {
+              delete oSchema.parent
+              $scope.updSchema(oSchema)
+            } else if (oResult.id && oResult.type && oResult.title) {
               oSchema.parent = oResult
               $scope.updSchema(oSchema)
             }

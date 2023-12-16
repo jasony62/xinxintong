@@ -430,6 +430,7 @@ class event_model extends \TMS_MODEL
     $modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
     $modelRnd = $this->model('matter\enroll\round');
     $oRecRnd = $modelRnd->byId($oRecord->rid, ['fields' => 'purpose,start_at,end_at,state']);
+    if (!$oRecRnd) return false;
 
     /* 记录修改日志 */
     $oNewModifyLog = new \stdClass;

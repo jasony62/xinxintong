@@ -430,7 +430,10 @@ class event_model extends \TMS_MODEL
     $modelUsr = $this->model('matter\enroll\user')->setOnlyWriteDbConn(true);
     $modelRnd = $this->model('matter\enroll\round');
     $oRecRnd = $modelRnd->byId($oRecord->rid, ['fields' => 'purpose,start_at,end_at,state']);
-    if (!$oRecRnd) return false;
+    if (!$oRecRnd) {
+      $this->logger->debug('[matter/enroll/event/submitRecord] [oRecord.id = ' . $oRecord->id . ']记录的轮次不存在');
+      return false;
+    }
 
     /* 记录修改日志 */
     $oNewModifyLog = new \stdClass;

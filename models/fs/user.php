@@ -179,9 +179,7 @@ class user_model
     if (empty($img->imgSrc) && !isset($img->serverId)) {
       return [false, '图片数据为空'];
     }
-    $this->logger->debug('[fs/user/storeImg] 1111111');
     if (isset($img->serverId)) {
-      $this->logger->debug('[fs/user/storeImg] 2222222');
       /**
        * wx jssdk上传图片
        */
@@ -200,9 +198,7 @@ class user_model
         }
       }
     } else if (isset($img->imgSrc)) {
-      $this->logger->debug('[fs/user/storeImg] 3333333');
       if (0 === strpos($img->imgSrc, 'http')) {
-        $this->logger->debug('[fs/user/storeImg] 44444444');
         /**
          * url
          */
@@ -213,7 +209,6 @@ class user_model
          */
         $rst = [true, $img->imgSrc];
       } else if (1 === preg_match('/data:image(.+?);base64/', $img->imgSrc)) {
-        $this->logger->debug('[fs/user/storeImg] 5555555555');
         /**
          * base64
          */

@@ -1,26 +1,22 @@
 <template>
-  <div class="track">
+  <!-- <div class="track">
     <mis-app :apps="apps" />
-  </div>
+  </div> -->
 </template>
 
-<script>
-import Vue from 'vue'
-import MisApp from '@/components/mission/App.vue'
+<script  setup lang="ts">
+// import Vue, { onMounted, ref } from 'vue'
+// import MisApp from '@/components/mission/App.vue'
 
-export default {
-  name: 'Home',
-  components: {
-    MisApp
-  },
-  data() {
-    return { apps: [] }
-  },
-  props: { siteId: String, missionId: String },
-  mounted() {
-    Vue.$apis.mission
-      .userTrack(this.siteId, this.missionId)
-      .then(apps => apps.forEach(app => this.apps.push(app)))
-  }
-}
+// const props = defineProps({
+//   siteId: String, missionId: String
+// })
+
+// const apps = ref([])
+
+// onMounted(() => {
+//   Vue.$apis.mission
+//     .userTrack(props.siteId, props.missionId)
+//     .then((apps: any) => apps.forEach((app: any) => apps.value.push(app)))
+// })
 </script>

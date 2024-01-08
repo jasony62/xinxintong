@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   disabled: false, // 可省略
   master: {
     user: process.env.XXT_MONGO_USERNAME,

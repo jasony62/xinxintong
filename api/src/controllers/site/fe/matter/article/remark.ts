@@ -1,13 +1,12 @@
-const log4js = require('log4js')
-const { ObjectId } = require('mongodb')
-const logger = log4js.getLogger()
-
-const { Ctrl, ResultData, ResultFault } = require('tms-koa')
+import { Ctrl, ResultData, ResultFault } from 'tms-koa'
 
 const MAX_ADD_REMARK_RETRIES = 3 // 添加评论最大重试次数
 
 class ModelRemark {
-  constructor(mongoClient, user, token) {
+  clRemark: any
+  user?: any
+  token?: any
+  constructor(mongoClient, user?, token?) {
     this.clRemark = mongoClient.db('xxt').collection('article_remark')
     this.user = user
     this.token = token
@@ -114,9 +113,9 @@ class ModelRemark {
 /**
  * 单图文评论
  */
-class Main extends Ctrl {
-  constructor(...args) {
-    super(...args)
+export default class ArticleRemark extends Ctrl {
+  constructor(ctx, client, dbContext, mongoClient, pushContext, fsContext?) {
+    super(ctx, client, dbContext, mongoClient, pushContext, fsContext)
   }
   /**
    * @swagger
@@ -276,4 +275,3 @@ class Main extends Ctrl {
     return new ResultData(remarks)
   }
 }
-module.exports = Main

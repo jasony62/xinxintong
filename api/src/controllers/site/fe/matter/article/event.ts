@@ -1,11 +1,8 @@
-const log4js = require('log4js')
-const logger = log4js.getLogger()
-
-const { Ctrl, ResultData } = require('tms-koa')
+import { Ctrl, ResultData } from 'tms-koa'
 /**
  * 处理单图文用户事件
  */
-class Main extends Ctrl {
+export default class ArticleEvent extends Ctrl {
   /**
    * @swagger
    *
@@ -55,4 +52,3 @@ class Main extends Ctrl {
     return new ResultData(rst)
   }
 }
-module.exports = Main

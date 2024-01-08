@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   definition: {
     info: {
       // API informations (required)

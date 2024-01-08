@@ -4,6 +4,7 @@ import { TmsAxiosPlugin, TmsAxios } from 'tms-vue3'
 import Frame from 'tms-vue3-ui/dist/es/frame'
 import 'tms-vue3-ui/dist/es/frame/style/index.css'
 import './index.css'
+import 'vant/lib/index.css'
 
 import router from './router/login'
 

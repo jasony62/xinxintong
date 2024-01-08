@@ -1,6 +1,7 @@
 .DS_Store
 .VSCodeCounter
 node_modules/
+dist/
 cus/
 log/*
 kcfinder/upload

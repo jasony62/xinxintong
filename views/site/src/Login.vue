@@ -2,8 +2,8 @@
   <tms-frame left-width="30%" right-width="30%" :display="{ header: true, left: true, right: true }"
     :display-sm="{ header: true }" main-direction-sm="column-reverse">
     <template v-slot:header>
-      <div class="bg-yellow-400 h-16 px-1 flex flex-row justify-end items-center text-white cursor-pointer">
-        <div class="" @click="logout">退出</div>
+      <div class="bg-yellow-400 h-16 px-1 flex flex-row justify-end items-center">
+        <div class="text-white cursor-pointer" @click="logout">退出</div>
       </div>
     </template>
     <template v-slot:center>

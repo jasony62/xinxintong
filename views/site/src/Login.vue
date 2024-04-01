@@ -2,7 +2,7 @@
   <tms-frame left-width="30%" right-width="30%" :display="{ header: true, left: true, right: true }"
     :display-sm="{ header: true }" main-direction-sm="column-reverse">
     <template v-slot:header>
-      <div class="bg-yellow-400 h-16 px-1 flex flex-row justify-end content-start">
+      <div class="bg-yellow-400 h-16 px-1 flex flex-row justify-end items-center text-white cursor-pointer">
         <div class="" @click="logout">退出</div>
       </div>
     </template>
@@ -27,7 +27,8 @@ const tmsAxios = TmsAxios.ins('xxt-axios')
 const logout = async () => {
   const url = '/rest/site/fe/user/logout/do?site=platform'
   const rsp = await tmsAxios.get(url)
-  const { err_code, err_msg, data } = rsp.data
+  const { err_code, err_msg } = rsp.data
+  if (err_code === 0) return window.alert('退出成功！')
   return window.alert(err_msg)
 }
 

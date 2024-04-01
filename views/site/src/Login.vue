@@ -2,11 +2,13 @@
   <tms-frame left-width="30%" right-width="30%" :display="{ header: true, left: true, right: true }"
     :display-sm="{ header: true }" main-direction-sm="column-reverse">
     <template v-slot:header>
-      <div class="bg-yellow-400 h-16"></div>
+      <div class="bg-yellow-400 h-16 px-1 flex flex-row justify-end content-start">
+        <div class="" @click="logout">退出</div>
+      </div>
     </template>
     <template v-slot:center>
       <div class="flex gap-8 p-8">
-        <router-link class="router-link" v-if="supportSmscode" to="/smscode">验证码
+        <router-link class="router-link" v-if="SupportSmscode" to="/smscode">验证码
         </router-link>
         <router-link class="router-link" to="/account">账号</router-link>
       </div>
@@ -16,8 +18,18 @@
 </template>
 
 <script setup lang="ts">
+import { TmsAxios } from 'tms-vue3'
 
-const supportSmscode = /yes|true/i.test(import.meta.env.VITE_SMSCODE_SUPPORT)
+const SupportSmscode = /yes|true/i.test(import.meta.env.VITE_SMSCODE_SUPPORT)
+
+const tmsAxios = TmsAxios.ins('xxt-axios')
+
+const logout = async () => {
+  const url = '/rest/site/fe/user/logout/do?site=platform'
+  const rsp = await tmsAxios.get(url)
+  const { err_code, err_msg, data } = rsp.data
+  return window.alert(err_msg)
+}
 
 </script>
 

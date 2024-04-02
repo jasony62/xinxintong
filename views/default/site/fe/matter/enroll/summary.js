@@ -70,9 +70,9 @@ ngApp.controller('ctrlSummaryRank', [
   'enlRound',
   '$filter',
   function ($scope, $q, http2, enlRound, $filter) {
-    function list() {
+    function list(dimension, groupid = null) {
       var defer = $q.defer()
-      switch (oAppState.dimension) {
+      switch (dimension) {
         case 'user':
           http2
             .post(
@@ -94,14 +94,25 @@ ngApp.controller('ctrlSummaryRank', [
             })
           break
         case 'group':
-          http2
-            .post(
-              `/rest/site/fe/matter/enroll/rank/groupByApp?site=${oApp.siteid}&app=${oApp.id}`,
-              oAppState.criteria
-            )
-            .then((rsp) => {
-              defer.resolve(rsp.data)
-            })
+          if (groupid) {
+            http2
+              .post(
+                `/rest/site/fe/matter/enroll/rank/userByApp?site=${oApp.siteid}&app=${oApp.id}&groupid=${groupid}`,
+                oAppState.criteria
+              )
+              .then((rsp) => {
+                defer.resolve(rsp.data)
+              })
+          } else {
+            http2
+              .post(
+                `/rest/site/fe/matter/enroll/rank/groupByApp?site=${oApp.siteid}&app=${oApp.id}`,
+                oAppState.criteria
+              )
+              .then((rsp) => {
+                defer.resolve(rsp.data)
+              })
+          }
           break
         case 'schema':
           http2
@@ -119,7 +130,7 @@ ngApp.controller('ctrlSummaryRank', [
 
     var oApp, oAppState
     $scope.doSearch = function () {
-      list().then((data) => {
+      list(oAppState.dimension).then((data) => {
         switch (oAppState.dimension) {
           case 'user':
           case 'user_same_group':
@@ -187,6 +198,36 @@ ngApp.controller('ctrlSummaryRank', [
           $scope.checkedRoundTitles = oResult.titles
           $scope.changeCriteria()
         })
+    }
+    /**
+     * 展开分组
+     */
+    $scope.toggleGroup = function (group) {
+      console.log('group', group)
+      if (group.expanded === true) delete group.expanded
+      else {
+        list('group', group.id).then((data) => {
+          console.log('data', data)
+          if (data.users) {
+            data.users.forEach((user) => {
+              user.headimgurl = user.headimgurl
+                ? user.headimgurl
+                : '/static/img/avatar.png'
+              if (oAppState.criteria.orderby === 'score') {
+                user.rankVal = $filter('number')(user.score, 2)
+              } else if (/^schema_/.test(oAppState.criteria.orderby)) {
+                user.rankVal = user[oAppState.criteria.orderby + '_sum']
+              } else if ('total_coin' === oAppState.criteria.orderby) {
+                user.rankVal = user.user_total_coin
+              } else {
+                user.rankVal = user[oAppState.criteria.orderby + '_num']
+              }
+            })
+          }
+          group.users = data.users
+          group.expanded = true
+        })
+      }
     }
     $scope.$watch('oApp', function (nv) {
       if (!nv) {

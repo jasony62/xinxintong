@@ -279,7 +279,7 @@ class rank extends base
   /**
    * 用户排行榜
    */
-  public function userByApp_action($app, $samegroup = 'N', $page = 1, $size = 100)
+  public function userByApp_action($app, $groupid = '', $samegroup = 'N', $page = 1, $size = 100)
   {
     $oApp = $this->model('matter\enroll')->byId($app, ['cascaded' => 'N']);
     if (false === $oApp || $oApp->state !== '1') {
@@ -298,6 +298,9 @@ class rank extends base
       if (!empty($oUser->group_id)) {
         $oCriteria->group = (object)['id' => $oUser->group_id];
       }
+    } else if (!empty($groupid)) {
+      /* 指定分组中的用户 */
+      $oCriteria->group = (object)['id' => $groupid];
     }
 
     if (0 === strpos($oCriteria->orderby, 'schema_')) {

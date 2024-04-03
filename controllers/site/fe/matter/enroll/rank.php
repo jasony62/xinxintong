@@ -180,6 +180,33 @@ class rank extends base
     }
     $oResult->users = $users;
 
+    /**
+     * 添加组内缺席用户
+     */
+    if (!empty($oApp->entryRule->group->id) && !empty($oCriteria->group)) {
+      $userIds = [];
+      foreach ($users as $u) {
+        $userIds[] = $u->userid;
+      }
+      $qgu = [
+        'gu.userid,gu.nickname,a.headimgurl',
+        'xxt_group_record gu left join xxt_site_account a on gu.userid = a.uid and gu.siteid = a.siteid',
+        [
+          'state' => 1,
+          'aid' => $oApp->entryRule->group->id,
+          'team_id' => $oCriteria->group->id,
+          'is_leader' => (object) ['op' => 'not in', 'pat' => ['O']],
+          'userid' => (object) ['op' => 'not in', 'pat' => $userIds]
+        ]
+      ];
+      $absentUsers = $modelUsr->query_objs_ss($qgu);
+      if (count($absentUsers)) {
+        foreach ($absentUsers as $au) {
+          $oResult->users[] = $au;
+        }
+      }
+    }
+
     $q[0] = 'count(*)';
     $oResult->total = (int) $modelUsr->query_val_ss($q);
 
@@ -226,6 +253,21 @@ class rank extends base
       $q[2]['g.is_leader'] = (object) ['op' => 'not in', 'pat' => ['O']];
       $q[2]['group_id'] = (object) ['op' => 'and', 'pat' => ['g.team_id=r.group_id']];
     }
+    // if (!empty($oApp->entryRule->group->id)) {
+    //   if (!empty($oCriteria->group)) {
+    //     $qgu = [
+    //       '*',
+    //       'xxt_group_record',
+    //       [
+    //         'state' => 1,
+    //         'aid' => $oApp->entryRule->group->id,
+    //         'group_id' => $oCriteria->group,
+    //         'g.is_leader' => (object) ['op' => 'not in', 'pat' => ['O']]
+    //       ]
+    //     ];
+    //     $groupUsers = $modelRecDat->query_objs_ss($qgu);
+    //   }
+    // }
     // 轮次条件
     if (!empty($oCriteria->round)) {
       if (is_string($oCriteria->round)) {
@@ -273,6 +315,10 @@ class rank extends base
       }
     }
     $oResult->users = $users;
+
+    if (isset($groupUsers)) {
+      $oResult->groupUsers = $groupUsers;
+    }
 
     return $oResult;
   }

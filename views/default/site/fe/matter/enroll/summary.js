@@ -203,11 +203,9 @@ ngApp.controller('ctrlSummaryRank', [
      * 展开分组
      */
     $scope.toggleGroup = function (group) {
-      console.log('group', group)
       if (group.expanded === true) delete group.expanded
       else {
         list('group', group.id).then((data) => {
-          console.log('data', data)
           if (data.users) {
             data.users.forEach((user) => {
               user.headimgurl = user.headimgurl

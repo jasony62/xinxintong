@@ -10,9 +10,8 @@ window.xxt.image = {
     if (window.wx !== undefined) {
       window.wx.chooseImage({
         success: function (res) {
-          var i, img
-          for (i in res.localIds) {
-            img = {
+          for (let i in res.localIds) {
+            let img = {
               imgSrc: res.localIds[i],
             }
             imgs.push(img)
@@ -112,19 +111,21 @@ window.xxt.image = {
     })
     return promise
   },
-  wxUpload: function (deferred, img) {
-    var promise
-    promise = deferred.promise
+  wxUpload: function (deferred, img, isShowProgressTips = 1) {
+    let promise = deferred.promise
     if (
       0 === img.imgSrc.indexOf('weixin://') ||
       0 === img.imgSrc.indexOf('wxLocalResource://')
     ) {
       window.wx.uploadImage({
         localId: img.imgSrc,
-        isShowProgressTips: 1,
+        isShowProgressTips,
         success: function (res) {
           img.serverId = res.serverId
           deferred.resolve(img)
+        },
+        fail: function (errmsg) {
+          deferred.reject(errmsg)
         },
       })
     } else {

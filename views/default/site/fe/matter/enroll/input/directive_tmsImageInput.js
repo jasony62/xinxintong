@@ -61,13 +61,19 @@ module.exports = [
             }
           }
 
-          function onWxSubmit(defer, imgs, index) {
+          function onWxSubmit(defer, imgs, index, isShowProgressTips = 1) {
             if (index >= imgs.length) {
               defer.resolve('ok')
             } else {
-              window.xxt.image.wxUpload($q.defer(), imgs[index]).then(() => {
-                onWxSubmit(defer, imgs, ++index)
-              })
+              window.xxt.image
+                .wxUpload($q.defer(), imgs[index], isShowProgressTips)
+                .then(() => {
+                  onWxSubmit(defer, imgs, ++index, isShowProgressTips)
+                })
+                .catch((errmsg) => {
+                  window.alert('上传文件失败')
+                  throw Error(errmsg)
+                })
             }
           }
 
@@ -83,7 +89,7 @@ module.exports = [
                   $scope.data[s.id].forEach((img) => imgs.push(img))
                 }
               })
-              onWxSubmit(defer, imgs, 0)
+              onWxSubmit(defer, imgs, 0, 0)
             } else {
               defer.resolve('ok')
             }

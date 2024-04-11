@@ -62,6 +62,9 @@ module.exports = [
           }
 
           function onWxSubmit(defer, imgs, index, isShowProgressTips = 1) {
+            noticebox.progress(
+              `正在上传图片（${index + 1}/${imgs.length}），请等待`
+            )
             if (index >= imgs.length) {
               defer.resolve('ok')
             } else {
@@ -71,8 +74,7 @@ module.exports = [
                   onWxSubmit(defer, imgs, ++index, isShowProgressTips)
                 })
                 .catch((errmsg) => {
-                  window.alert('上传文件失败')
-                  throw Error(errmsg)
+                  noticebox.error('上传图片失败，原因：' + errmsg)
                 })
             }
           }

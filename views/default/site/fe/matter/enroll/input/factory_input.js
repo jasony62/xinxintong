@@ -96,6 +96,8 @@ module.exports = [
         },
         {
           autoBreak: false,
+          showProgressDelay: 100,
+          showProgressText: '正在提交数据...',
         }
       )
     }

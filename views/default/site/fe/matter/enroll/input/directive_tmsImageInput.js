@@ -62,15 +62,16 @@ module.exports = [
           }
 
           function onWxSubmit(defer, imgs, index, isShowProgressTips = 1) {
-            noticebox.progress(
-              `正在上传图片（${index + 1}/${imgs.length}），请等待`
-            )
             if (index >= imgs.length) {
               defer.resolve('ok')
             } else {
+              noticebox.progress(
+                `正在上传图片（${index + 1}/${imgs.length}），请等待`
+              )
               window.xxt.image
                 .wxUpload($q.defer(), imgs[index], isShowProgressTips)
                 .then(() => {
+                  noticebox.close()
                   onWxSubmit(defer, imgs, ++index, isShowProgressTips)
                 })
                 .catch((errmsg) => {

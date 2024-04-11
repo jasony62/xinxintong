@@ -79,17 +79,24 @@ module.exports = [
                 })
             }
           }
-
+          /**
+           * 注册回调任务
+           * 如果一个页面中有多个图片题，会导致注册多次，但是方法会上传所有题目的图片，因此要判断是否已经执行过，避免重复执行
+           */
           $scope.beforeSubmit(function () {
             let defer = $q.defer()
             if (window.wx) {
               let imgs = []
+              // 所有的图片题目
               let imgSchemas = $scope.app.dynaDataSchemas.filter(
                 (s) => s.type === 'image'
               )
               imgSchemas.forEach((s) => {
                 if ($scope.data[s.id] && $scope.data[s.id].length) {
-                  $scope.data[s.id].forEach((img) => imgs.push(img))
+                  $scope.data[s.id].forEach((img) => {
+                    // 如果有serverId说明已经执行过上传微信，不用再执行
+                    if (!img.serverId) imgs.push(img)
+                  })
                 }
               })
               onWxSubmit(defer, imgs, 0, 0)

@@ -189,13 +189,20 @@ if (defined('APP_TMS_BCSCALE')) {
   bcscale(APP_TMS_BCSCALE);
 }
 
+$logger = Logger::getRootLogger();
+
 /*************************
  * run application.
  *************************/
 require_once 'tms/tms_app.php';
 
-$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+if (isset($_GET['TMSDEV']) && $_GET['TMSDEV'] === 'yes') {
+  $devLogger = Logger::getLogger('dev');
+  $devLogger->debug("进入应用 [REQUEST_URI = " . $_SERVER['REQUEST_URI'] . ']');
+}
 
+# 解决同源限制问题
+$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
 header('Access-Control-Allow-Origin:' . $origin);
 header('Access-Control-Allow-Credentials:true');
 

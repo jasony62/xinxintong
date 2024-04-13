@@ -8,6 +8,16 @@ namespace site\fe\user;
 trait CaptchaTrait
 {
   /**
+   * 验证码服务地址 
+   */
+  protected function captchaAddress()
+  {
+    if (defined('TMS_CHECK_CAPTCHA_ADDRESS')) {
+      return TMS_CHECK_CAPTCHA_ADDRESS;
+    }
+    return '';
+  }
+  /**
    * 生成验证码
    */
   protected function createCaptcha($appId, $captchaId)

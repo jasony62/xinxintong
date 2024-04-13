@@ -25,6 +25,16 @@ class TMS_APP
   private static $default_action = 'default';
   private static $model_prefix = '_model';
   /**
+   * 调试用日志
+   */
+  public static function devLog($msg)
+  {
+    if (isset($_GET['TMSDEV']) && $_GET['TMSDEV'] === 'yes') {
+      $devLogger = Logger::getLogger('dev');
+      $devLogger->debug($msg);
+    }
+  }
+  /**
    * 实例化model
    *
    * model_path可以用'\'，'/'和'.'进行分割。用'\'代表namespace，用'/'代表目录，用'.'代表文件问题
@@ -98,6 +108,7 @@ class TMS_APP
       exit;
     } else if (0 === strpos($path, TMS_APP_API_PREFIX . '/')) {
       $path = substr($path, strlen(TMS_APP_API_PREFIX));
+      self::devLog('调用API [path = ' . $path . ']');
       self::_request_api($path);
     } else if (0 === strpos($path, TMS_APP_VIEW_PREFIX . '/')) {
       $path = substr($path, strlen(TMS_APP_VIEW_PREFIX));
@@ -199,6 +210,9 @@ class TMS_APP
     } else {
       $action_method = $__action . '_action';
     }
+
+    self::devLog('获得控制器方法名称 [' . $action_method . ']');
+
     /**
      * access control
      */
@@ -218,6 +232,9 @@ class TMS_APP
       // 不指定就都检查
       self::_authenticate($obj_controller);
     }
+
+    self::devLog('通过访问控制检查 [' . $action_method . ']');
+
     // 请求中包含的所有可用参数
     $aRequestParameters = array_merge($_GET, $_POST);
     /**
@@ -234,6 +251,9 @@ class TMS_APP
         }
       }
     }
+
+    self::devLog('完成前置方法执行 [' . $action_method . ']');
+
     /**
      * 是否需要事物
      */
@@ -252,15 +272,24 @@ class TMS_APP
         $obj_controller->tmsTransaction = $oTrans;
       }
     }
+
+    self::devLog('准备执行方法 [' . $action_method . ']');
+
     /**
      * 通过controller处理当前请求
      */
     $args = self::_prepareControllerMethodArguments($obj_controller, $action_method, $aRequestParameters);
+
+    self::devLog('准备执行方法需要的参数 [' . $action_method . '(' . count($args) . ')]');
+
     $response = call_user_func_array(array($obj_controller, $action_method), $args);
     // 结束事物
     if (isset($oTrans) && isset($modelTrans)) {
       $modelTrans->end($oTrans->id);
     }
+
+    self::devLog('完成执行方法 [' . $action_method . ']');
+
     /**
      * 返回结果
      */
@@ -353,6 +382,7 @@ class TMS_APP
         }
       }
     }
+    self::devLog('获得控制器名称和方法 [' . $__controller . '][' . $__action . ']');
   }
   /**
    * 获得URL对应的view
@@ -424,6 +454,9 @@ class TMS_APP
       $controller .= '/main';
     }
     $class_file = $controller_path . '.php';
+
+    self::devLog('获得控制器文件名称 [' . $class_file . ']');
+
     if (is_file($class_file)) {
       //$class_name = basename($controller_path);
       $class_name = str_replace('/', '\\', $controller);

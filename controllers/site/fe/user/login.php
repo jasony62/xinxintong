@@ -142,7 +142,7 @@ class login extends \site\fe\base
     if (empty($appId) || empty($captchaId) || empty($data->uname) || empty($data->password) || empty($data->captcha)) {
       return new \ResponseError("登录信息不完整");
     }
-
+    $this->devLogger->debug('[do2] 检查客户端登录状态');
     $modelWay = $this->model('site\fe\way');
     $modelReg = $this->model('site\user\registration');
     $cookieRegUser = $modelWay->getCookieRegUser();
@@ -153,7 +153,9 @@ class login extends \site\fe\base
       $modelWay->quitRegUser();
     }
 
+
     // 检查登录条件
+    $this->devLogger->debug('[do2] 检查客户端登录方式');
     $rst = tms_login_check();
     if ($rst[0] === false) {
       return new \ResponseError($rst[1]);
@@ -163,11 +165,13 @@ class login extends \site\fe\base
     $captcha = $modelReg->escape($data->captcha);
 
     // 通过账号服务检查验证码是否有效
+    $this->devLogger->debug('[do2] 检查客户端验证码 [address = ' . $this->captchaAddress() . ']');
     if (false === $this->checkCaptcha($appId, $captchaId, $captcha)) {
       return new \ResponseError("验证码未通过验证，请重试");
     }
 
     // 检查是否允许用使用账号密码登录
+    $this->devLogger->debug('[do2] 检查是否允许账号密码方式登录');
     $oRegistration = $modelReg->byUname($uname, ['forbidden' => 0, 'fields' => 'is_smscode_register']);
     if (!$oRegistration) {
       return new \ResponseError("提供的登录信息不正确，请重试");
@@ -176,6 +180,7 @@ class login extends \site\fe\base
       return new \ResponseError("该账号不支持账号密码登录方式，请使用短信验证码登录");
     }
 
+    $this->devLogger->debug('[do2] 检查客户端用户名和密码');
     $oResult = $modelReg->validate($uname, $data->password);
     if (false === $oResult[0]) {
       return new \ResponseError($oResult[1]);
@@ -198,6 +203,8 @@ class login extends \site\fe\base
       $oCookieUser->_loginReferer = $referer;
       $this->mySetCookie('_user_access_referer', null);
     }
+
+    $this->devLogger->debug('[do2] 完成客户端登录');
 
     return new \ResponseData($oCookieUser);
   }

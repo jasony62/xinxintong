@@ -66,7 +66,7 @@ module.exports = [
               defer.resolve('ok')
             } else {
               noticebox.progress(
-                `正在上传图片（${index + 1}/${imgs.length}），请等待`
+                `正在上传图片（${index + 1}/${imgs.length}），请稍等`
               )
               window.xxt.image
                 .wxUpload($q.defer(), imgs[index], isShowProgressTips)

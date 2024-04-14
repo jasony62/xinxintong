@@ -270,7 +270,7 @@ ngMod.service('http2', [
       $http
         .post(url, posted, oOptions)
         .success(function (rsp) {
-          if (oOptions.page && rsp.data.total !== undefined) {
+          if (oOptions.page && rsp?.data?.total !== undefined) {
             oOptions.page.total = rsp.data.total
           }
           if (oOptions.showProgress === true) {

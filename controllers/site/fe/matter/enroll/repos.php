@@ -341,18 +341,18 @@ class repos extends base
         }
       }
       /* 记录的标签 */
-      if ($processType === 'recordList') {
-        if (!isset($modelTag)) {
-          $modelTag = $this->model('matter\enroll\tag2');
-        }
-        $oRecordTags = $modelTag->byRecord($rawData, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
-        if (!empty($oRecordTags->user)) {
-          $rawData->userTags = $oRecordTags->user;
-        }
-        if (!empty($oRecordTags->public)) {
-          $rawData->tags = $oRecordTags->public;
-        }
-      }
+      // if ($processType === 'recordList') {
+      //   if (!isset($modelTag)) {
+      //     $modelTag = $this->model('matter\enroll\tag2');
+      //   }
+      //   $oRecordTags = $modelTag->byRecord($rawData, $oUser, ['UserAndPublic' => empty($oPosted->favored)]);
+      //   if (!empty($oRecordTags->user)) {
+      //     $rawData->userTags = $oRecordTags->user;
+      //   }
+      //   if (!empty($oRecordTags->public)) {
+      //     $rawData->tags = $oRecordTags->public;
+      //   }
+      // }
       /* 答案关联素材 */
       if ($processType === 'coworkDataList') {
         if (!isset($modelAss)) {
@@ -393,6 +393,14 @@ class repos extends base
     }
 
     $oUser = $this->getUser($oApp);
+
+    if (isset($oApp->reposConfig->onlyLeader) && $oApp->reposConfig->onlyLeader === true) {
+      if (!isset($oUser->is_leader) || !in_array($oUser->is_leader, ['Y', 'S', 'O'])) {
+        return new \InvalidAccessToken('很抱歉，当前活动不允许访问共享页数据');
+      }
+    }
+
+    $this->devLogger->debug('[recordList_action] 当前用户' . json_encode($oUser));
 
     // 填写记录过滤条件
     $oPosted = $this->getPostJson();
@@ -435,10 +443,15 @@ class repos extends base
     $oCriteria->record = new \stdClass;
     $oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-    /* 指定了分组过滤条件 */
-    if (!empty($oPosted->userGroup)) {
+    // 使用分组提交
+    if (isset($oApp->reposConfig->onlySelfGroup) && $oApp->reposConfig->onlySelfGroup === true && (!isset($oUser->is_leader) || !in_array($oUser->is_leader, ['S', 'O']))) {
+      // 只能查看本组数据
+      $oCriteria->record->group_id = $oUser->group_id;
+    } else if (!empty($oPosted->userGroup)) {
+      // 指定了分组过滤条件
       $oCriteria->record->group_id = $oPosted->userGroup;
     }
+
     /* 记录的创建人 */
     if (!empty($oPosted->mine) && $oPosted->mine === 'creator') {
       $oCriteria->record->userid = $oUser->uid;
@@ -696,7 +709,7 @@ class repos extends base
 
     $oUser = $this->getUser($oApp);
 
-    $oCriterias = $this->_originCriteriaGet();
+    $oCriterias = $this->_originCriteriaGet($oApp, $oUser);
     $result = $this->_packCriteria($oApp, $oUser, $oCriterias, $viewType);
     if ($result[0] === false) {
       return new \ParameterError($result[1]);
@@ -839,7 +852,7 @@ class repos extends base
   /**
    * 获得所有条件
    */
-  private function _originCriteriaGet()
+  private function _originCriteriaGet($oApp, $oUser)
   {
     $criterias = [];
     // 排序
@@ -883,15 +896,19 @@ class repos extends base
     ];
     $round->default = $round->menus[0];
     $criterias[] = $round;
+
     // 分组
-    $group = new \stdClass;
-    $group->type = 'userGroup';
-    $group->title = '分组';
-    $group->menus = [
-      (object) ['id' => null, 'title' => '不限'],
-    ];
-    $group->default = $group->menus[0];
-    $criterias[] = $group;
+    if (!isset($oApp->reposConfig->onlySelfGroup) || $oApp->reposConfig->onlySelfGroup !== true || (isset($oUser->is_leader) && in_array($oUser->is_leader, ['S', 'O']))) {
+      // 只能查看本组数据
+      $group = new \stdClass;
+      $group->type = 'userGroup';
+      $group->title = '分组';
+      $group->menus = [
+        (object) ['id' => null, 'title' => '不限'],
+      ];
+      $group->default = $group->menus[0];
+      $criterias[] = $group;
+    }
     // 表态
     $agreed = new \stdClass;
     $agreed->type = 'agreed';

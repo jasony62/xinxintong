@@ -7,9 +7,7 @@
       name="viewport"
     />
     <base href="/" />
-    <title>
-      <?php TPL::pt('title');?>
-    </title>
+    <title><?php TPL::pt('title');?></title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" />
     <link
       href="<?php echo auto_version('/static/css/site.fe.css');?>"
@@ -48,7 +46,7 @@
       popover-class="tms-act-popover"
       ng-if="selectedTab.id!=='topic'"
       ng-click="addRecord($event)"
-      style="bottom: 64px;"
+      style="bottom: 64px"
     >
       <span class="glyphicon glyphicon-plus"></span>
     </button>

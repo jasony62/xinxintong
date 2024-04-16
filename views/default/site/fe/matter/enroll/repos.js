@@ -208,13 +208,13 @@ ngApp.controller('ctrlRepos', [
       $scope.activeView = data
     })
     $scope.$on('xxt.app.enroll.ready', function (event, params) {
-      var tasks, popActs
+      var tasks
       _oApp = params.app
       if (
         window.sessionStorage &&
         window.sessionStorage.getItem('listStorage')
       ) {
-        var cacheData, _cPage
+        var cacheData
         cacheData = JSON.parse(window.sessionStorage.getItem('listStorage'))
         $scope.schemaCounter = cacheData.schemaCounter
         $scope.tasks = cacheData.tasks

@@ -410,6 +410,7 @@ class repos extends base
     $oOptions->size = $size;
 
     !empty($oPosted->keyword) && $oOptions->keyword = $oPosted->keyword;
+    if (isset($oPosted->equalKeyword) && $oPosted->equalKeyword === true) $oOptions->equalKeyword = true;
 
     if (!empty($oPosted->orderby)) {
       switch ($oPosted->orderby) {

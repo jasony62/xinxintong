@@ -840,9 +840,15 @@ class record_model extends record_base
     // 指定了按关键字过滤
     if (!empty($oOptions->keyword)) {
       $keywords = preg_split("/[\s,]+/", $oOptions->keyword);
-      $keywords = array_map(function ($kw) {
-        return 'data like \'%' . $kw . '%\'';
-      }, $keywords);
+      if (isset($oOptions->equalKeyword) && $oOptions->equalKeyword === true) {
+        $keywords = array_map(function ($kw) {
+          return 'data like \'%"' . $kw . '"%\'';
+        }, $keywords);
+      } else {
+        $keywords = array_map(function ($kw) {
+          return 'data like \'%' . $kw . '%\'';
+        }, $keywords);
+      }
       $keywords = implode(' or ', $keywords);
       $w .= ' and (' . $keywords . ')';
     }

@@ -36,7 +36,7 @@
 //------------------------------------------------------------------------
 // define('CACHE_DIR','/tmp/jpgraph_cache/');
 // define('TTF_DIR','/usr/share/fonts/TrueType/');
-// modified by yangyue, for support chinese
+// modified by jasony62, for support chinese
 define('TTF_DIR', $_SERVER['DOCUMENT_ROOT'] . '/static/fonts/');
 // define('MBTTF_DIR','/usr/share/fonts/TrueType/');
 
@@ -135,5 +135,3 @@ define('DEFAULT_THEME_CLASS', 'UniversalTheme');
 
 define('SUPERSAMPLING', true);
 define('SUPERSAMPLING_SCALE', 1);
-
-?>

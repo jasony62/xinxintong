@@ -40,7 +40,7 @@ const schemas = {
 
 module.exports = {
   local: {
-    rootDir: '/Users/yangyue/project/xxt/kcfinder/upload',
+    rootDir: '',
     domains: {
       图片: {
         schemas,

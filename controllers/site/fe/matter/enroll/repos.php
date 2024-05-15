@@ -444,11 +444,19 @@ class repos extends base
     $oCriteria->record = new \stdClass;
     $oCriteria->record->rid = !empty($oPosted->rid) ? $oPosted->rid : 'all';
 
-    // 使用分组提交
-    if (isset($oApp->reposConfig->onlySelfGroup) && $oApp->reposConfig->onlySelfGroup === true && (!isset($oUser->is_leader) || !in_array($oUser->is_leader, ['S', 'O']))) {
-      // 只能查看本组数据
-      $oCriteria->record->group_id = $oUser->group_id;
-    } else if (!empty($oPosted->userGroup)) {
+    // 根据用户分组角色控制访问范围
+    if ((!isset($oUser->is_leader) || !in_array($oUser->is_leader, ['S', 'O']))) { // 不是超级管理员或观察者
+      if ((!isset($oUser->is_leader) || $oUser->is_leader === 'N') && isset($oApp->reposConfig->onlySelfRecord) && $oApp->reposConfig->onlySelfRecord === true) {
+        // 组员只能查看本人记录
+        $oCriteria->record->userid = $oUser->uid;
+      } else if (isset($oApp->reposConfig->onlySelfGroup) && $oApp->reposConfig->onlySelfGroup === true) {
+        // 组员或组长只能查看本组数据
+        $oCriteria->record->group_id = $oUser->group_id;
+      }
+    }
+
+    // 指定了数据分组范围
+    if (!empty($oPosted->userGroup)) {
       // 指定了分组过滤条件
       $oCriteria->record->group_id = $oPosted->userGroup;
     }

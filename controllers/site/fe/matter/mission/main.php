@@ -168,7 +168,7 @@ class main extends \site\fe\matter\base
                 }
               }
               if (false === $bMatched) {
-                continue 2;
+                continue;
               }
             }
 

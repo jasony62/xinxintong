@@ -1,0 +1,32 @@
+<div class="modal-header">
+  <button class="close" type="button" ng-click="cancel()">×</button>
+  <h5 class="modal-title">选项记录数量</h5>
+</div>
+<div class="modal-body" ng-switch on="schema.type">
+  <div class="form-group" ng-switch-when="single">
+    <label ng-bind="schema.title"></label>
+    <div class="list-group" style="margin-top: 15px; margin-bottom: 0">
+      <div
+        class="list-group-item"
+        ng-repeat="op in schema.ops"
+        style="display: flex"
+      >
+        <div style="flex-grow: 1">
+          <div ng-bind="op.l"></div>
+        </div>
+        <div style="flex-grow: 1">
+          <input
+            type="text"
+            class="form-control"
+            ng-model="data.opRecordCnt[op.v]"
+            placeholder="选项记录数量"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" ng-click="clean()">清除</button>
+  <button class="btn btn-default" ng-click="ok()">确定</button>
+</div>

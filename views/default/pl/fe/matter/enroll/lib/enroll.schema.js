@@ -1129,6 +1129,44 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
           $scope.updSchema(oSchema)
         })
       }
+      $scope.setOptionRecordCnt = function (oSchema) {
+        $uibModal.open({
+          templateUrl:
+            '/views/default/pl/fe/matter/enroll/component/setOptionRecordCnt.html?_=1',
+          controller: [
+            '$scope',
+            '$uibModalInstance',
+            function ($scope2, $mi) {
+              let _oData
+              $scope2.data = _oData = {}
+              $scope2.schema = angular.copy(oSchema)
+              if ($scope2.schema.opRecordCnt) {
+                _oData.opRecordCnt = $scope2.schema.opRecordCnt
+              }
+              $scope2.clean = function () {
+                delete _oData.opRecordCnt
+              }
+              $scope2.ok = function () {
+                var bChanged = false
+                switch ($scope2.schema.type) {
+                  case 'single':
+                    bChanged = true
+                    oSchema.opRecordCnt = _oData.opRecordCnt
+                    break
+                }
+                if (bChanged) {
+                  $scope.updSchema(oSchema)
+                }
+                $mi.close(oSchema)
+              }
+              $scope2.cancel = function () {
+                $mi.dismiss()
+              }
+            },
+          ],
+          backdrop: 'static',
+        })
+      }
       $scope.setDefaultValue = function (oSchema) {
         $uibModal.open({
           templateUrl:

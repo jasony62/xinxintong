@@ -18,10 +18,18 @@
           <input
             type="text"
             class="form-control"
-            ng-model="data.opRecordCnt[op.v]"
+            ng-model="data.opRecordCnt.data[op.v]"
             placeholder="选项记录数量"
           />
         </div>
+      </div>
+      <div class="list-group-item">
+        <input
+          type="text"
+          class="form-control"
+          ng-model="data.opRecordCnt.tip"
+          placeholder="符合选项的填写记录达到数量时的提示说明"
+        />
       </div>
     </div>
   </div>

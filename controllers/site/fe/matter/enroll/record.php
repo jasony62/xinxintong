@@ -496,6 +496,7 @@ class record extends base
      * 检查提交数据的合法性
      */
     if ($bCheckSchema === true) {
+      $modelData = $this->model('matter\enroll\data');
       foreach ($oApp->dynaDataSchemas as $oSchema) {
         if (isset($oSchema->unique) && $oSchema->unique === 'Y') {
           if (empty($oRecData->{$oSchema->id})) {
@@ -541,6 +542,25 @@ class record extends base
                 return [false, '运行环境不支持处理微信录音文件，题目【' . $oSchema->title . '】无效'];
               }
               break;
+            case 'single':
+              if (isset($oSchema->opRecordCnt) && isset($oSchema->opRecordCnt->data)) {
+                if (isset($oRecData->{$oSchema->id})) {
+                  $submitVal = $oRecData->{$oSchema->id};
+                  if (isset($oSchema->opRecordCnt->data->{$submitVal})) {
+                    $cntLimit = $oSchema->opRecordCnt->data->{$submitVal};
+                    if ($cntLimit > 0) {
+                      // 检查已经提交的记录数量
+                      $this->logger->info('限制选项填写数量 ' . $submitVal . '/' . $cntLimit);
+                      $recordCnt = $modelData->countBySchema($oApp, $oSchema, ['value' => $submitVal, 'excludeUserid' => $oUser->uid]);
+                      if ($recordCnt->total >= $cntLimit) {
+                        $tip = !empty($oSchema->opRecordCnt->tip) ? $oSchema->opRecordCnt->tip : '题目【' . $oSchema->title . '】已经达到填写数量限制';
+                        return [false, $tip];
+                      }
+                      $this->logger->info('限制选项填写数量2 ' . $recordCnt->total);
+                    }
+                  }
+                }
+              }
           }
         }
       }

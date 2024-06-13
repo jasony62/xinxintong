@@ -930,6 +930,51 @@ class data_model extends entity_model
     return $oResult;
   }
   /**
+   * 返回指定活动，指定题目的记录数
+   */
+  public function countBySchema($oApp, $oSchema, $oOptions = null)
+  {
+    if ($oOptions) {
+      is_array($oOptions) && $oOptions = (object) $oOptions;
+      $rid = isset($oOptions->rid) ? $oOptions->rid : null;
+    }
+    $oResult = new \stdClass; // 返回的结果
+
+    // 查询参数
+    $q = [
+      'count(*)',
+      "xxt_enroll_record_data",
+      "state=1 and aid='{$oApp->id}' and schema_id='{$oSchema->id}'",
+    ];
+    if (!empty($oOptions->value) && is_string($oOptions->value)) {
+      $q[2] .= ' and value like "' . $oOptions->value . '"';
+    } else if (!empty($oOptions->keyword) && is_string($oOptions->keyword)) {
+      $q[2] .= ' and value like "%' . $oOptions->keyword . '%"';
+    } else {
+      $q[2] .= " and value<>''";
+    }
+    /* 限制填写轮次 */
+    if (!empty($rid)) {
+      if ($rid !== 'ALL') {
+        $q[2] .= " and rid='{$rid}'";
+      }
+    } else {
+      /* 没有指定轮次，就使用当前轮次 */
+      if ($activeRound = $this->model('matter\enroll\round')->getActive($oApp)) {
+        $q[2] .= " and rid='{$activeRound->rid}'";
+      }
+    }
+    /* 限制填写用户 */
+    if (!empty($oOptions->excludeUserid)) {
+      $q[2] .= " and userid<>'{$oOptions->excludeUserid}'";
+    }
+
+    // 处理获得的数据
+    $oResult->total = $this->query_val_ss($q);
+
+    return $oResult;
+  }
+  /**
    * 返回最小值
    */
   public function minBySchema($oApp, $oSchema, $oOptions = null)
@@ -954,7 +999,7 @@ class data_model extends entity_model
     return $value;
   }
   /**
-   * 返回最小值
+   * 返回最大值
    */
   public function maxBySchema($oApp, $oSchema, $oOptions = null)
   {

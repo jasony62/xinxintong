@@ -12,6 +12,8 @@ services:
     #   - ./docker/mariadb/log:/var/log/mysql
     # environment:
     #   MYSQL_ROOT_PASSWORD: 123456
+    networks:
+      xxt_net:
 
   php-fpm:
     build: ./docker/php-fpm
@@ -19,7 +21,9 @@ services:
     container_name: xxt_php-fpm
     restart: always
     volumes:
-      - .:/usr/share/nginx/html
+      - .:/usr/share/nginx/htm
+    networks:
+      xxt_net:
 
   nginx:
     build: ./docker/nginx
@@ -38,6 +42,8 @@ services:
     #   - NGINX_HTTP_PROTOCOL=http
     #   - NGINX_HTTP_HOST=localhost
     #   - NGINX_HTTP_PORT=8080
+    networks:
+      xxt_net:
 
   adminer:
     image: adminer
@@ -45,6 +51,8 @@ services:
     restart: always
     # ports:
     #   - 9090:8080
+    networks:
+      xxt_net:
 
   mongodb:
     image: mongo:latest
@@ -59,7 +67,9 @@ services:
     #   MONGO_INITDB_ROOT_PASSWORD: example
     logging:
       driver: 'none'
-  
+    networks:
+      xxt_net:
+
   tms-finder:
     image: jasony62/tfd-aio:latest
     container_name: xxt_tms-finder
@@ -75,6 +85,8 @@ services:
     #   - ./docker/tms-finder/app.local.js:/usr/app/tfd/config/app.local.js
     #   - ./docker/tms-finder/fs.local.js:/usr/app/tfd/config/fs.js
     #   - ./docker/tms-finder/settings.json:/usr/share/nginx/html/tmsfinder/settings.json
+    networks:
+      xxt_net:
 
   backapi:
     build: ./api
@@ -83,69 +95,77 @@ services:
     restart: always
     # ports:
     # - 3000:3000
+    networks:
+      xxt_net:
 
-  swagger-ui:
-    image: swaggerapi/swagger-ui
-    container_name: xxt_swagger-ui
-    restart: always
-    # environment:
-    # - URL=http://localhost:3000/oas
-    # ports:
-    #   - '7070:8080'
+  # swagger-ui:
+  #   image: swaggerapi/swagger-ui
+  #   container_name: xxt_swagger-ui
+  #   restart: always
+  #   # environment:
+  #   # - URL=http://localhost:3000/oas
+  #   # ports:
+  #   #   - '7070:8080'
+  #   networks:
+  #     xxt_net:
 
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: xxt_zk
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
+  # zookeeper:
+  #   image: bitnami/zookeeper:latest
+  #   container_name: xxt_zk
+  #   environment:
+  #     - ALLOW_ANONYMOUS_LOGIN=yes
 
-  kafka:
-    image: bitnami/kafka:latest
-    container_name: xxt_kafka
-    environment:
-      - KAFKA_BROKER_ID=1
-      - ALLOW_PLAINTEXT_LISTENER=yes
-      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
-      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
-    volumes:
-      - ./docker/kafka/logs:/bitnami/kafka
-    depends_on:
-      - zookeeper
+  # kafka:
+  #   image: bitnami/kafka:latest
+  #   container_name: xxt_kafka
+  #   environment:
+  #     - KAFKA_BROKER_ID=1
+  #     - ALLOW_PLAINTEXT_LISTENER=yes
+  #     - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+  #     - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+  #     - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://:9092
+  #     - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+  #   volumes:
+  #     - ./docker/kafka/logs:/bitnami/kafka
+  #   depends_on:
+  #     - zookeeper
 
-  canal-server:
-    image: canal/canal-server:v1.1.5
-    container_name: xxt_canal_server
-    # restart: unless-stopped
-    # ports:
-    #   - 11111:11111
-    environment:
-      - canal.auto.scan=false
-      - canal.instance.master.address=db:3306
-      - canal.instance.dbUsername=canal
-      - canal.instance.dbPassword=canal
-      # - canal.instance.filter.regex=.*\\..*
-      # - canal.instance.connectionCharset=UTF-8
-      - canal.instance.filter.query.dml=true
-      - canal.serverMode=kafka
-      - canal.mq.servers=kafka:9092
-      - canal.mq.topic=db-xxt
-      - canal.mq.partition=0
-      - canal.mq.flatMessage=true
-    volumes:
-      - ./docker/canal/xxt-log/:/home/admin/canal-server/logs/
-    depends_on:
-      - db
-      - kafka
+  # canal-server:
+  #   image: canal/canal-server:v1.1.5
+  #   container_name: xxt_canal_server
+  #   # restart: unless-stopped
+  #   # ports:
+  #   #   - 11111:11111
+  #   environment:
+  #     - canal.auto.scan=false
+  #     - canal.instance.master.address=db:3306
+  #     - canal.instance.dbUsername=canal
+  #     - canal.instance.dbPassword=canal
+  #     # - canal.instance.filter.regex=.*\\..*
+  #     # - canal.instance.connectionCharset=UTF-8
+  #     - canal.instance.filter.query.dml=true
+  #     - canal.serverMode=kafka
+  #     - canal.mq.servers=kafka:9092
+  #     - canal.mq.topic=db-xxt
+  #     - canal.mq.partition=0
+  #     - canal.mq.flatMessage=true
+  #   volumes:
+  #     - ./docker/canal/xxt-log/:/home/admin/canal-server/logs/
+  #   depends_on:
+  #     - db
+  #     - kafka
 
-  mysqld-exporter:
-    image: prom/mysqld-exporter
-    container_name: xxt_mysql-exporter
-    # ports:
-    #   - 9104:9104
-    # environment:
-    #   - MYSQLD_EXPORTER_PASSWORD=
-    volumes:
-      - ./docker/mysql-exporter/my.cnf:/usr/local/mysqld_exporter/.my.cnf
-    command: ['--config.my-cnf', '/usr/local/mysqld_exporter/.my.cnf']
+  # mysqld-exporter:
+  #   image: prom/mysqld-exporter
+  #   container_name: xxt_mysql-exporter
+  #   # ports:
+  #   #   - 9104:9104
+  #   # environment:
+  #   #   - MYSQLD_EXPORTER_PASSWORD=
+  #   volumes:
+  #     - ./docker/mysql-exporter/my.cnf:/usr/local/mysqld_exporter/.my.cnf
+  #   command: ['--config.my-cnf', '/usr/local/mysqld_exporter/.my.cnf']
+
+networks:
+  xxt_net:
+    driver: bridge

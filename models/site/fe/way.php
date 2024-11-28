@@ -360,7 +360,7 @@ class way_model extends \TMS_MODEL
    * @param string $domain
    * @param string $secure
    */
-  protected function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false, $httponly = true)
+  protected function mySetCookie($name, $value = '', $expire = null, $path = '/', $domain = null, $secure = false, $httponly = false)
   {
     if (!$domain and G_COOKIE_DOMAIN) {
       $domain = G_COOKIE_DOMAIN;

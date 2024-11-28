@@ -121,7 +121,7 @@ class TMS_CONTROLLER
 
     $_COOKIE[G_COOKIE_PREFIX . $name] = $value;
 
-    return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure);
+    return setcookie(G_COOKIE_PREFIX . $name, $value, $expire, $path, $domain, $secure, false);
   }
   /**
    * 获取cookie的值

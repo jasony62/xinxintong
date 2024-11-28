@@ -102,6 +102,12 @@ vhost_traffic_status_filter_by_set_key $uri uris::$server_name;
     location /rest {
 			proxy_pass http://127.0.0.1:8081;
 		}
+    location /bot-entry {
+			proxy_pass http://121.42.239.97:8050;
+		}
+    location ~ /(.*)/copilot\.umd\.js$ {
+			proxy_pass http://121.42.239.97:8050/$1/copilot.umd.js;
+		}
     location / {
 			proxy_pass http://127.0.0.1:8081;
       vhost_traffic_status off;

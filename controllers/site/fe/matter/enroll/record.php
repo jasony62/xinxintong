@@ -49,7 +49,7 @@ class record extends base
     ];
   }
   /**
-   * 记录记录信息
+   * 提交记录
    *
    * @param string $app
    * @param string $rid 指定在哪一个轮次上提交（仅限新建的情况）

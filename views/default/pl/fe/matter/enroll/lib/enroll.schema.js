@@ -244,9 +244,15 @@ define(['schema', 'wrap', 'matterSchema'], function (schemaLib, wrapLib) {
         })
       }
       $scope.newSchema = function (type) {
-        var newSchema
-
-        newSchema = schemaLib.newSchema(type, $scope.app)
+        let oApp = $scope.app
+        let newSchema = schemaLib.newSchema(type, $scope.app)
+        if (
+          oApp.scenarioConfig &&
+          oApp.scenarioConfig.can_naming_schema === 'Y'
+        ) {
+          let newId = window.prompt('请确认或修改题目ID', newSchema.id)
+          newSchema.id = newId
+        }
         $scope._appendSchema(newSchema)
 
         return newSchema

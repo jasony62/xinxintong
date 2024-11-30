@@ -1132,7 +1132,7 @@ class record_model extends record_base
               }
             }
             /* 处理提交数据后指定昵称题的问题 */
-            if ($oRec->nickname && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
+            if (!empty($oRec->nickname) && isset($oApp->assignedNickname->valid) && $oApp->assignedNickname->valid === 'Y') {
               if (isset($oApp->assignedNickname->schema->id)) {
                 $nicknameSchemaId = $oApp->assignedNickname->schema->id;
                 if (!$this->getDeepValue($oRec->data, $nicknameSchemaId)) {

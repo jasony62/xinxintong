@@ -57,4 +57,38 @@ class Record extends \api\base
 
     return new \ResponseData($oNewRec->enroll_key);
   }
+  /**
+   * 获得活动记录列表
+   */
+  public function list_action($accessToken, $app)
+  {
+    if (empty($accessToken) || empty($app)) {
+      return new \ParameterError('参数不完整');
+    }
+
+    // 校验accessToken
+    $checkRes = $this->checkToken($accessToken);
+    if (!$checkRes[0]) {
+      return new \ParameterError($checkRes[1]);
+    }
+
+    // 记录活动
+    $modelApp = $this->model('matter\enroll');
+    $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) {
+      return [false, new \ObjectNotFoundError()];
+    }
+
+    // 登记数据过滤条件
+    $oCriteria = $this->getPostJson();
+
+    $aOptions = [
+      'fields' => 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num',
+    ];
+
+    $modelRec = $this->model('matter\enroll\record');
+    $oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
+
+    return new \ResponseData($oResult);
+  }
 }

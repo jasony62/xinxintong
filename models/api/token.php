@@ -13,6 +13,7 @@ class token_model extends \TMS_MODEL
 	 */
   public function token($secret, &$invoke, $expiresIn = 7200)
   {
+    $current = 0;
     $this->setOnlyWriteDbConn(true);
     $q = [
       '*',

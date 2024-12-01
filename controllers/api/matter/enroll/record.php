@@ -92,4 +92,45 @@ class Record extends \api\base
 
     return new \ResponseData($oResult);
   }
+  /**
+   * 更新一条记录
+   */
+  public function update_action($accessToken, $app, $ek)
+  {
+    if (empty($accessToken) || empty($app)) {
+      return new \ParameterError('参数不完整');
+    }
+
+    // 校验accessToken
+    $checkRes = $this->checkToken($accessToken);
+    if (!$checkRes[0]) {
+      return new \ParameterError($checkRes[1]);
+    }
+
+    // 记录活动
+    $modelApp = $this->model('matter\enroll');
+    $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) {
+      return [false, new \ObjectNotFoundError()];
+    }
+
+    $posted = $this->getPostJson();
+
+    if (empty($posted->data)) {
+      return new \ParameterError('参数不完整，没有指定要更新的数据');
+    }
+
+    $oUser = new \stdClass;
+    $oUser->uid = isset($posted->uid) ? $posted->uid : '';
+
+    $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+
+    $oResult = $modelRec->setData($oUser, $oApp, $ek, $posted->data);
+
+    if ($oResult[0] === true) {
+      return new \ResponseData($oResult[1]);
+    }
+
+    return new \ResponseError($oResult[1]);
+  }
 }

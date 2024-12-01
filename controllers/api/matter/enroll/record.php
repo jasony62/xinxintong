@@ -111,7 +111,14 @@ class Record extends \api\base
     $modelApp = $this->model('matter\enroll');
     $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
     if (false === $oApp) {
-      return [false, new \ObjectNotFoundError()];
+      return  new \ObjectNotFoundError();
+    }
+
+    $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+    // 数据对应的记录记录
+    $oRecord = $modelRec->byId($ek);
+    if (false === $oRecord || !in_array($oRecord->state, ['1', '99'])) {
+      return new \ParameterError('指定的记录不存在');
     }
 
     $posted = $this->getPostJson();
@@ -123,9 +130,9 @@ class Record extends \api\base
     $oUser = new \stdClass;
     $oUser->uid = isset($posted->uid) ? $posted->uid : '';
 
-    $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+    $newData = (object)array_merge((array)$oRecord->data, (array)$posted->data);
 
-    $oResult = $modelRec->setData($oUser, $oApp, $ek, $posted->data);
+    $oResult = $modelRec->setData($oUser, $oApp, $ek, $newData);
 
     if ($oResult[0] === true) {
       return new \ResponseData($oResult[1]);

@@ -36,6 +36,7 @@ class Record extends \api\base
     $posted = $this->getPostJson();
 
     $addUser = new \stdClass;
+    $addUser->uid = isset($posted->uid) ? $posted->uid : '';
 
     $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 

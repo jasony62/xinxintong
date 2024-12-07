@@ -61,7 +61,7 @@ class Record extends \api\base
   /**
    * 获得活动记录列表
    */
-  public function list_action($accessToken, $app, $fields = '')
+  public function list_action($accessToken, $app, $page = 1, $size = 30, $fields = '')
   {
     if (empty($accessToken) || empty($app)) {
       return new \ParameterError('参数不完整');
@@ -84,6 +84,8 @@ class Record extends \api\base
     $oCriteria = $this->getPostJson();
 
     $aOptions = [
+      'page' => $page,
+      'size' => $size,
       'fields' => empty($fields) ? 'id,state,enroll_key,rid,purpose,enroll_at,userid,group_id,nickname,verified,comment,data,score,supplement,agreed,like_num,remark_num,favor_num,dislike_num,vote_schema_num' : $fields,
     ];
 

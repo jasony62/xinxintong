@@ -60,6 +60,10 @@ class Record extends \api\base
   }
   /**
    * 获得活动记录列表
+   * 
+   * body
+   * -- record
+   * -- data
    */
   public function list_action($accessToken, $app, $page = 1, $size = 30, $fields = '')
   {

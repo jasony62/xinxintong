@@ -47,7 +47,7 @@ abstract class record_base extends main_base
           $schemaId = $oSchema->id;
           // 过滤空数据
           $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-          if (empty($rawDataVal)) {
+          if (is_null($rawDataVal)) {
             continue;
           }
           /* 协作填写题 */

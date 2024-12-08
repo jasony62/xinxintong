@@ -105,7 +105,7 @@ trait RecordTrait
   {
     $schemaId = $oSchema->id;
     $rawDataVal = $this->getDeepValue($rawData->data, $schemaId, null);
-    if (empty($rawDataVal)) {
+    if (is_null($rawDataVal)) {
       return null;
     }
     if ($this->getDeepValue($oSchema, 'type') === 'multitext') {

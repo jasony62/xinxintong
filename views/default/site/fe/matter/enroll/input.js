@@ -1186,24 +1186,24 @@ ngApp.controller('ctrlInput', [
       )
         $scope.logAccess()
       /* 微信不支持上传文件，指导用户进行处理 */
-      if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
-        if (
-          _oApp.entryRule &&
-          _oApp.entryRule.scope &&
-          _oApp.entryRule.scope.member === 'Y'
-        ) {
-          for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
-            if (params.page.dataSchemas[i].schema.type === 'file') {
-              var domTip, evt
-              domTip = document.querySelector('#wxUploadFileTip')
-              evt = document.createEvent('HTMLEvents')
-              evt.initEvent('show', false, false)
-              domTip.dispatchEvent(evt)
-              break
-            }
-          }
-        }
-      }
+      // if (/MicroMessenger|iphone|ipad/i.test(navigator.userAgent)) {
+      //   if (
+      //     _oApp.entryRule &&
+      //     _oApp.entryRule.scope &&
+      //     _oApp.entryRule.scope.member === 'Y'
+      //   ) {
+      //     for (var i = 0, ii = params.page.dataSchemas.length; i < ii; i++) {
+      //       if (params.page.dataSchemas[i].schema.type === 'file') {
+      //         var domTip, evt
+      //         domTip = document.querySelector('#wxUploadFileTip')
+      //         evt = document.createEvent('HTMLEvents')
+      //         evt.initEvent('show', false, false)
+      //         domTip.dispatchEvent(evt)
+      //         break
+      //       }
+      //     }
+      //   }
+      // }
       /*动态添加粘贴图片*/
       if (!$scope.isSmallLayout) {
         pasteContains = document.querySelectorAll('ul.img-tiles')

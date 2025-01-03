@@ -848,27 +848,34 @@ angular
       link: function (scope, elem, attrs) {
         scope.$watch('ready', function (ready) {
           if (ready === 'Y') {
-            var eleWrap = elem[0],
-              eleTable = eleWrap.querySelector('table'),
-              minColWidth = scope.minColWidth || 120,
-              eleCols,
-              tableWidth = 0
+            setTimeout(() => {
+              var eleWrap = elem[0],
+                eleTable = eleWrap.querySelector('table'),
+                minColWidth = scope.minColWidth || 120,
+                eleCols,
+                tableWidth = 0
 
-            if (eleTable) {
-              if (scope.overflowX) {
-                eleWrap.style.overflowX = scope.overflowX
-              }
-              eleTable.style.maxWidth = 'none'
-              eleCols = eleTable.querySelectorAll('th')
-              angular.forEach(eleCols, function (eleCol) {
-                if (eleCol.style.width) {
-                  tableWidth += parseInt(eleCol.style.width.replace('px', ''))
-                } else {
-                  tableWidth += minColWidth
+              if (eleTable) {
+                if (scope.overflowX) {
+                  eleWrap.style.overflowX = scope.overflowX
                 }
-                eleTable.style.width = tableWidth + 'px'
-              })
-            }
+                eleTable.style.maxWidth = 'none'
+                eleCols = eleTable.querySelectorAll('th')
+                angular.forEach(eleCols, function (eleCol) {
+                  if (eleCol.style.width) {
+                    tableWidth += parseInt(eleCol.style.width.replace('px', ''))
+                  } else {
+                    if (eleCol.dataset.width) {
+                      eleCol.style.width = eleCol.dataset.width + 'px'
+                    } else {
+                      eleCol.style.width = minColWidth + 'px'
+                    }
+                    tableWidth += minColWidth
+                  }
+                  eleTable.style.width = tableWidth + 'px'
+                })
+              }
+            }, 100)
           }
         })
       },

@@ -34,7 +34,7 @@ class schema_model extends \TMS_MODEL
    */
   public function purify($aAppSchemas)
   {
-    $validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'formula', 'limitChoice', 'range', 'required', 'readonly', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'showHistoryAtRepos', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'answerLength', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'opRecordCnt', 'mschema_id', 'asdir', 'scoreApp', 'rankScoreAbove'];
+    $validProps = ['id', 'type', 'parent', 'title', 'content', 'mediaType', 'description', 'format', 'formula', 'limitChoice', 'range', 'required', 'readonly', 'unique', 'shareable', 'supplement', 'history', 'historyAssoc', 'showHistoryAtRepos', 'count', 'requireScore', 'scoreMode', 'score', 'answer', 'answerLength', 'weight', 'fromApp', 'requireCheck', 'ds', 'dsOps', 'showOpNickname', 'showOpDsLink', 'dsSchema', 'visibility', 'hideByRoundPurpose', 'optGroups', 'defaultValue', 'cowork', 'filterWhiteSpace', 'ops', 'opRecordCnt', 'mschema_id', 'asdir', 'scoreApp', 'rankScoreAbove', 'style'];
     $validPropsBySchema = [
       'html' => ['id', 'type', 'content', 'title', 'visibility', 'hideByRoundPurpose'],
     ];
@@ -359,6 +359,7 @@ class schema_model extends \TMS_MODEL
       ) {
         unset($oSchema->asdir);
       }
+      /* 题目样式 */
 
       $purified[] = $oSchema;
     }

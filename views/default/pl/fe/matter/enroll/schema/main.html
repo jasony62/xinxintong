@@ -49,7 +49,7 @@
     </button>
   </div>
   <div class="form-group" ng-show="activeSchema.type==='shorttext'">
-    <label>填写限制</label>
+    <label>内容格式</label>
     <div class="radio">
       <label class="radio-inline">
         <input
@@ -110,6 +110,31 @@
           ng-model="activeSchema.format"
           ng-change="updSchema(activeSchema,null,'format')"
         />公式</label
+      >
+    </div>
+  </div>
+  <div class="form-group" ng-show="activeSchema.type==='longtext'">
+    <label>内容格式</label>
+    <div class="radio">
+      <label class="radio-inline">
+        <input
+          type="radio"
+          ng-model="activeSchema.format"
+          value=""
+          name="format"
+          ng-change="updSchema(activeSchema,null,'format')"
+        />不限</label
+      >
+    </div>
+    <div class="radio">
+      <label class="radio-inline">
+        <input
+          type="radio"
+          value="markdown"
+          name="format"
+          ng-model="activeSchema.format"
+          ng-change="updSchema(activeSchema,null,'format')"
+        />Markdown</label
       >
     </div>
     <div class="form-group" ng-if='activeSchema.format==="calculate"'>
@@ -667,5 +692,15 @@
         class="glyphicon glyphicon-check"
       ></span>
     </button>
+  </div>
+  <hr />
+  <div class="form-group" ng-if="activeSchema.type!=='html'">
+    <label>数据页中显示宽度</label>
+    <input
+      class="form-control"
+      type="text"
+      ng-model="activeSchema.style.width"
+      ng-change="updSchema(activeSchema)"
+    />
   </div>
 </div>

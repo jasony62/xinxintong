@@ -447,6 +447,16 @@ ngMod.service('tmsSchema', [
                     data[oSchema.id].description
                 }
                 break
+              case 'longtext':
+                if (oSchema.format === 'markdown') {
+                  let mdtext = marked.parse(oRecord.data[oSchema.id] ?? '')
+                  data[oSchema.id] = $sce.trustAsHtml(mdtext)
+                } else {
+                  data[oSchema.id] = $sce.trustAsHtml(
+                    oRecord.data[oSchema.id] ?? ''
+                  )
+                }
+                break
               default:
                 try {
                   if (/^member\./.test(oSchema.id)) {

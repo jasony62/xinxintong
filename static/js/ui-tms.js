@@ -843,6 +843,7 @@ angular
       scope: {
         minColWidth: '@',
         ready: '=',
+        delay: '@',
         overflowX: '@',
       },
       link: function (scope, elem, attrs) {
@@ -875,7 +876,7 @@ angular
                   eleTable.style.width = tableWidth + 'px'
                 })
               }
-            }, 100)
+            }, parseInt(scope.delay || 100))
           }
         })
       },

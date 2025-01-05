@@ -413,6 +413,11 @@ class data_model extends entity_model
             unset($submitVal->_text);
             $oDbData->{$schemaId} = $submitVal;
             break;
+          case 'longtext':
+            // 恢复json的转义字符，包括：换行符
+            $treatedValue = preg_replace('/\\\\n/', "\n", $submitVal);
+            $oDbData->{$schemaId} = $treatedValue;
+            break;
           default:
             // string & score
             if (is_string($submitVal)) {

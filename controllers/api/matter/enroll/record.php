@@ -146,4 +146,58 @@ class Record extends \api\base
 
     return new \ResponseError($oResult[1]);
   }
+
+  /**
+   * 更新一条记录
+   */
+  public function updateOne_action($accessToken, $app)
+  {
+    if (empty($accessToken) || empty($app)) {
+      return new \ParameterError('(1)参数不完整');
+    }
+    // 校验accessToken
+    $checkRes = $this->checkToken($accessToken);
+    if (!$checkRes[0]) {
+      return new \ParameterError($checkRes[1]);
+    }
+
+    // 记录活动
+    $modelApp = $this->model('matter\enroll');
+    $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) {
+      return new \ObjectNotFoundError();
+    }
+
+    // 登记数据过滤条件
+    $posted = $this->getPostJson();
+    $oCriteria = $posted->criteria;
+    $oUpdated = $posted->updated;
+
+    $aOptions = [
+      'page' => 1,
+      'size' => 1,
+      'fields' => empty($fields) ? 'id,state,enroll_key,data' : $fields,
+    ];
+
+    $modelRec = $this->model('matter\enroll\record');
+    $oResult = $modelRec->byApp($oApp, $aOptions, $oCriteria);
+    if ($oResult->total !== 1) {
+      return new \ResponseError('(3)没有符合条件的数据');
+    }
+
+    $oRecord = $oResult->records[0];
+
+    $oUser = new \stdClass;
+    $oUser->uid = isset($posted->uid) ? $posted->uid : '';
+
+    $newData = (object)array_merge((array)$oRecord->data, (array)$oUpdated);
+
+    $oResult = $modelRec->setData($oUser, $oApp, $oRecord->enroll_key, $newData);
+
+    if ($oResult[0] === true) {
+      return new \ResponseData($oResult[1]);
+    }
+
+    return new \ResponseError($oResult[1]);
+  }
 }

@@ -201,6 +201,38 @@ class Record extends \api\base
     return new \ResponseError($oResult[1]);
   }
   /**
+   * 返回未完成用户数 
+   */
+  public function countUndone_action($accessToken, $app)
+  {
+    if (empty($accessToken) || empty($app)) {
+      return new \ParameterError('(1)参数不完整');
+    }
+    // 校验accessToken
+    $checkRes = $this->checkToken($accessToken);
+    if (!$checkRes[0]) {
+      return new \ParameterError($checkRes[1]);
+    }
+
+    // 记录活动
+    $modelApp = $this->model('matter\enroll');
+    $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) {
+      return new \ObjectNotFoundError();
+    }
+
+    $modelUsr = $this->model('matter\enroll\user');
+
+    $rid = $oApp->appRound->rid;
+    $oUndoneResult = $modelUsr->undoneByApp($oApp, $rid);
+    $users = $oUndoneResult->users;
+
+    $oResult = new \stdClass;
+    $oResult->count = count($users);
+
+    return new \ResponseData($oResult);
+  }
+  /**
    * 为未完成用户新建空的填写记录 
    */
   public function importByUndone_action($accessToken, $app)

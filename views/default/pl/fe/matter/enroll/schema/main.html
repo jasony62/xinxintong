@@ -557,6 +557,15 @@
       在共享页作为内容分类目录</label
     >
   </div>
+  <div class="form-group" ng-if="['shorttext'].indexOf(activeSchema.type)!==-1">
+    <label>设置默认值</label>
+    <input
+      class="form-control"
+      type="text"
+      ng-model="activeSchema.defaultValue"
+      ng-change="updSchema(activeSchema)"
+    />
+  </div>
   <div
     class="form-group"
     ng-if="['single','multiple'].indexOf(activeSchema.type)!==-1"

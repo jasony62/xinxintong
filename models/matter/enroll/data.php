@@ -286,6 +286,12 @@ class data_model extends entity_model
     if (empty($submitData) || (!is_object($submitData) && !is_array($submitData))) {
       return [false, '填写记录【' . $oRecord->id . '】数据格式错误'];
     }
+    $aDefaultValueSchemas = []; // 设置了默认值的题目
+    array_walk($aSchemasById, function ($oSchema, $schemaId) use (&$aDefaultValueSchemas) {
+      if ($oSchema->type === 'shorttext' && !empty($oSchema->defaultValue)) {
+        $aDefaultValueSchemas[] = $oSchema;
+      }
+    });
     $aCalculateSchemas = []; // 计算题，忽略计算题指定数据，通过公式计算
     array_walk($aSchemasById, function ($oSchema, $schemaId) use (&$aCalculateSchemas) {
       if ($oSchema->type === 'shorttext' && $this->getDeepValue($oSchema, 'format', null) === 'calculate') {
@@ -428,6 +434,12 @@ class data_model extends entity_model
       } else {
         /* 如果记录活动指定匹配清单，那么提交数据会包含匹配登记记录的数据，但是这些数据不在题目定义中 */
         $oDbData->{$schemaId} = $submitVal;
+      }
+    }
+    /* 出了设置了默认值的题目 */
+    foreach ($aDefaultValueSchemas as $oSchema) {
+      if (!isset($oDbData->{$oSchema->id})) {
+        $oDbData->{$oSchema->id} = $oSchema->defaultValue;
       }
     }
     /* 处理所有计算题 */

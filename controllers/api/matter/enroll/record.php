@@ -200,4 +200,59 @@ class Record extends \api\base
 
     return new \ResponseError($oResult[1]);
   }
+  /**
+   * 为未完成用户新建空的填写记录 
+   */
+  public function importByUndone_action($accessToken, $app)
+  {
+    if (empty($accessToken) || empty($app)) {
+      return new \ParameterError('(1)参数不完整');
+    }
+    // 校验accessToken
+    $checkRes = $this->checkToken($accessToken);
+    if (!$checkRes[0]) {
+      return new \ParameterError($checkRes[1]);
+    }
+
+    // 记录活动
+    $modelApp = $this->model('matter\enroll');
+    $oApp = $modelApp->byId($app, ['cascaded' => 'N']);
+    if (false === $oApp) {
+      return new \ObjectNotFoundError();
+    }
+
+    $modelUsr = $this->model('matter\enroll\user');
+
+    $rid = $oApp->appRound->rid;
+    $oUndoneResult = $modelUsr->undoneByApp($oApp, $rid);
+    $users = $oUndoneResult->users;
+
+    $posted = $this->getPostJson();
+    $oRecData = isset($posted->data) ? $posted->data : new \stdClass;
+
+    $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
+
+    $oResult = new \stdClass;
+    $userCount = 0;
+    foreach ($users as $oUser) {
+      $oMocker = new \stdClass;
+      $oMocker->uid = $oUser->userid;
+      $oMocker->nickname = $oUser->nickname;
+      if (isset($oUser->group_id))
+        $oMocker->group_id = $oUser->group_id;
+
+      /* 创建填写记录 */
+      $aOptions = [];
+      $aOptions['assignedRid'] = $rid;
+      $oNewRec = $modelRec->enroll($oApp, $oMocker, $aOptions);
+      /* 记录登记数据 */
+      $modelRec->setData($oMocker, $oApp, $oNewRec->enroll_key, $oRecData, $oUser->userid, true);
+
+      $userCount++;
+    }
+
+    $oResult->count = $userCount;
+
+    return new \ResponseData($oResult);
+  }
 }

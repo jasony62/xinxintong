@@ -184,7 +184,7 @@ class record_model extends \TMS_MODEL
      */
     if ($daemon->summary_behavior_at == 0) {
       $modelEvt = $this->model('matter\enroll\event');
-      $this->model('matter\enroll\event')->submitRecord($oEnlApp, $oRecord, $oUser, $daemon->params->isNewRecord);
+      $modelEvt->submitRecord($oEnlApp, $oRecord, $oUser, $daemon->params->isNewRecord);
       $modelDaemon->finish($daemonId, 'summary_behavior');
     }
     /**

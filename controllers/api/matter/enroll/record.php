@@ -53,8 +53,11 @@ class Record extends \api\base
     $modelRec->setData(null, $oApp, $oNewRec->enroll_key, $posted->data, $addUser->uid, true);
 
     /* 记录操作日志 */
-    // $oRecord = $modelRec->byId($oNewRec->enroll_key, ['fields' => 'enroll_key,data,rid']);
+    // $oRecord = $modelRec->byId($oNewRec->enroll_key);
     // $this->model('matter\log')->matterOp($oApp->siteid, $oOperator, $oApp, 'add', $oRecord);
+
+    /* 生成用户数据 */
+    $this->model('matter\enroll\event')->submitRecord($oApp, $oNewRec, $addUser, true);
 
     return new \ResponseData($oNewRec->enroll_key);
   }
@@ -264,6 +267,7 @@ class Record extends \api\base
 
     $modelRec = $this->model('matter\enroll\record')->setOnlyWriteDbConn(true);
 
+    $modelEvt = $this->model('matter\enroll\event');
     $oResult = new \stdClass;
     $userCount = 0;
     foreach ($users as $oUser) {
@@ -279,6 +283,8 @@ class Record extends \api\base
       $oNewRec = $modelRec->enroll($oApp, $oMocker, $aOptions);
       /* 记录登记数据 */
       $modelRec->setData($oMocker, $oApp, $oNewRec->enroll_key, $oRecData, $oUser->userid, true);
+      /* 生成用户数据 */
+      $modelEvt->submitRecord($oApp, $oNewRec, $oMocker, true);
 
       $userCount++;
     }

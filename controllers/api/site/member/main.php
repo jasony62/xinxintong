@@ -46,6 +46,20 @@ class Main extends \api\base
       foreach ($members as $oMember) {
         if (property_exists($oMember, 'extattr')) {
           $oMember->extattr = empty($oMember->extattr) ? new \stdClass : json_decode($oMember->extattr);
+          // 将extattr中的id转为文本
+          foreach ($oMember->extattr as $id => $val) {
+            foreach ($oMschema->extAttrs as $extAttr2) {
+              if ($extAttr2->id === $id) {
+                foreach ($extAttr2->ops as $op) {
+                  if ($op->v === $val) {
+                    $oMember->extattr->{$id} = $op->l;
+                    break;
+                  }
+                }
+                break;
+              }
+            }
+          }
         }
         if (!empty($oMember->userid)) {
           $oAccount = $modelAcnt->byId($oMember->userid, ['fields' => 'wx_openid']);

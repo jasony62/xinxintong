@@ -1514,72 +1514,73 @@ class record extends record_base
 
     return new \ResponseData($aSyncResult[1]);
   }
-  /**
-   * 根据记录的userid更新关联通讯录题目的数据
-   */
-  private function _syncMschema($oEnlApp, $rid, $overwrite = 'N')
-  {
-    if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
-      return [false, '当前活动没有关联通讯录'];
-    }
+  // /**
+  //  * 根据记录的userid更新关联通讯录题目的数据
+  //  */
+  // public function _syncMschema($oEnlApp, $rid, $overwrite = 'N')
+  // {
+  //   if ($this->getDeepValue($oEnlApp->entryRule, 'scope.member') !== 'Y' || !isset($oEnlApp->entryRule->member)) {
+  //     return [false, '当前活动没有关联通讯录'];
+  //   }
 
-    $aMsSchemas = [];
-    if (!empty($oEnlApp->dynaDataSchemas)) {
-      foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
-        if (isset($oSchema->mschema_id) && isset($oEnlApp->entryRule->member->{$oSchema->mschema_id})) {
-          $aMsSchemas[] = $oSchema;
-        }
-      }
-    }
-    if (empty($aMsSchemas)) {
-      return [false, '当前活动没有指定和通讯录关联的题目'];
-    }
+  //   $aMsSchemas = [];
+  //   if (!empty($oEnlApp->dynaDataSchemas)) {
+  //     foreach ($oEnlApp->dynaDataSchemas as $oSchema) {
+  //       if (isset($oSchema->mschema_id) && isset($oEnlApp->entryRule->member->{$oSchema->mschema_id})) {
+  //         $aMsSchemas[] = $oSchema;
+  //       }
+  //     }
+  //   }
+  //   if (empty($aMsSchemas)) {
+  //     return [false, '当前活动没有指定和通讯录关联的题目'];
+  //   }
 
-    $updatedCount = 0;
-    $modelRec = $this->model('matter\enroll\record');
-    $oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
-    if (count($oResult->records)) {
-      $modelMem = $this->model('site\user\member');
-      $oMocker = new \stdClass;
-      foreach ($oResult->records as $oRec) {
-        $oUpdatedData = $oRec->data;
-        $aMembers = $modelMem->byUser($oRec->userid, ['schemas' => array_keys((array) $oEnlApp->entryRule->member)]);
-        if (count($aMembers) === 0) {
-          continue;
-        }
-        $oMember = (object) ['member' => $aMembers[0]];
-        $bModified = false;
-        foreach ($aMsSchemas as $oMsSchema) {
-          $enlVal = $this->getDeepValue($oUpdatedData, $oMsSchema->id);
-          if ($overwrite === 'N' && !empty($enlVal)) {
-            continue;
-          }
-          $memVal = $this->getDeepValue($oMember, $oMsSchema->id);
-          if ($enlVal !== $memVal) {
-            $this->setDeepValue($oUpdatedData, $oMsSchema->id, $memVal);
-            $bModified = true;
-          }
-        }
-        if (false === $bModified) {
-          continue;
-        }
-        $oMocker->uid = $oRec->userid;
-        $oMocker->group_id = $oRec->group_id;
-        $modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
-        $updatedCount++;
-      }
-    }
+  //   $updatedCount = 0;
+  //   $modelRec = $this->model('matter\enroll\record');
+  //   $oResult = $modelRec->byApp($oEnlApp, null, (object) ['record' => (object) ['rid' => $rid]]);
+  //   if (count($oResult->records)) {
+  //     $modelMem = $this->model('site\user\member');
+  //     $oMocker = new \stdClass;
+  //     foreach ($oResult->records as $oRec) {
+  //       $oUpdatedData = $oRec->data;
+  //       $aMembers = $modelMem->byUser($oRec->userid, ['schemas' => array_keys((array) $oEnlApp->entryRule->member)]);
+  //       if (count($aMembers) === 0) {
+  //         continue;
+  //       }
+  //       $oMember = (object) ['member' => $aMembers[0]];
+  //       $bModified = false;
+  //       foreach ($aMsSchemas as $oMsSchema) {
+  //         $enlVal = $this->getDeepValue($oUpdatedData, $oMsSchema->id);
+  //         if ($overwrite === 'N' && !empty($enlVal)) {
+  //           continue;
+  //         }
+  //         $memVal = $this->getDeepValue($oMember, $oMsSchema->id);
+  //         if ($enlVal !== $memVal) {
+  //           $this->setDeepValue($oUpdatedData, $oMsSchema->id, $memVal);
+  //           $bModified = true;
+  //         }
+  //       }
+  //       if (false === $bModified) {
+  //         continue;
+  //       }
+  //       $oMocker->uid = $oRec->userid;
+  //       $oMocker->group_id = $oRec->group_id;
+  //       $modelRec->setData($oMocker, $oEnlApp, $oRec->enroll_key, $oUpdatedData);
+  //       $updatedCount++;
+  //     }
+  //   }
 
-    return [true, $updatedCount];
-  }
+  //   return [true, $updatedCount];
+  // }
   /**
    * 根据记录的userid更新关联通讯录题目的数据
    */
   public function syncMschema_action($rid, $overwrite = 'N')
   {
     $oEnlApp = $this->app;
-
-    $aSyncResult = $this->_syncMschema($oEnlApp, $rid, $overwrite);
+    $modelRec = $this->model('matter\enroll\record');
+    // $aSyncResult = $this->_syncMschema($oEnlApp, $rid, $overwrite);
+    $aSyncResult = $modelRec->syncMschema($oEnlApp, $rid, $overwrite);
     if (false === $aSyncResult[0]) {
       return new \ResponseError($aSyncResult[1]);
     }

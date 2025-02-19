@@ -291,6 +291,9 @@ class Record extends \api\base
 
     $oResult->count = $userCount;
 
+    // 同步记录的通讯录属性数据
+    $modelRec->syncMschema($oApp, $rid, 'N');
+
     return new \ResponseData($oResult);
   }
 }

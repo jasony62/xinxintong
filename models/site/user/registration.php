@@ -108,7 +108,7 @@ class registration_model extends \TMS_MODEL
     $q = [
       '1',
       'account',
-      ["email" => $uname],
+      ["email" => $uname, 'forbidden' => 0],
     ];
     $rst = $this->query_val_ss($q);
 

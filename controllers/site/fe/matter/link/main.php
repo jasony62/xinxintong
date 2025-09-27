@@ -186,10 +186,15 @@ class main extends \site\fe\matter\base
 
     /* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
     $modelMem = $this->model('site\user\member');
+
+    /*指定的通讯录*/
+    if ($this->getDeepValue($oLink, 'entryRule.scope.member') === 'Y' && null !== ($rule = $this->getDeepValue($oLink, 'entryRule.member'))) {
+      $mschemas = array_keys((array)$rule);
+    }
+
     if (empty($oUser->unionid)) {
-      if ($this->getDeepValue($oLink, 'entryRule.scope.member') === 'Y' && null !== ($rule = $this->getDeepValue($oLink, 'entryRule.member'))) {
-        $mschemas = array_keys((array)$rule);
-        $aMembers = $modelMem->byUser($oUser->uid . ['schemas' => $mschemas]);
+      if (isset($mschemas)) {
+        $aMembers = $modelMem->byUser($oUser->uid, ['schemas' => $mschemas]);
       } else {
         $aMembers = $modelMem->byUser($oUser->uid);
       }
@@ -203,7 +208,11 @@ class main extends \site\fe\matter\base
       $modelAcnt = $this->model('site\user\account');
       $aUnionUsers = $modelAcnt->byUnionid($oUser->unionid, ['siteid' => $oLink->siteid, 'fields' => 'uid']);
       foreach ($aUnionUsers as $oUnionUser) {
-        $aMembers = $modelMem->byUser($oUnionUser->uid);
+        if (isset($mschemas)) {
+          $aMembers = $modelMem->byUser($oUnionUser->uid, ['schemas' => $mschemas]);
+        } else {
+          $aMembers = $modelMem->byUser($oUnionUser->uid);
+        }
         if (count($aMembers)) {
           !isset($oUser->members) && $oUser->members = new \stdClass;
           foreach ($aMembers as $oMember) {

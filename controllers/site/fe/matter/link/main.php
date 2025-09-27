@@ -187,7 +187,12 @@ class main extends \site\fe\matter\base
     /* 补充联系人信息，是在什么情况下都需要补充吗？ 应该在限制了联系人访问的情况下，而且应该只返回相关的 */
     $modelMem = $this->model('site\user\member');
     if (empty($oUser->unionid)) {
-      $aMembers = $modelMem->byUser($oUser->uid);
+      if ($this->getDeepValue($oLink, 'entryRule.scope.member') === 'Y' && null !== ($rule = $this->getDeepValue($oLink, 'entryRule.member'))) {
+        $mschemas = array_keys((array)$rule);
+        $aMembers = $modelMem->byUser($oUser->uid . ['schemas' => $mschemas]);
+      } else {
+        $aMembers = $modelMem->byUser($oUser->uid);
+      }
       if (count($aMembers)) {
         !isset($oUser->members) && $oUser->members = new \stdClass;
         foreach ($aMembers as $oMember) {

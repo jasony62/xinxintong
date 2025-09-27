@@ -172,6 +172,7 @@ class main extends \site\fe\matter\base
       $url .= $this->_spliceParams($oLink, $oLink->params);
     }
     $oLink->fullUrl = $url;
+    unset($oLink->entry_rule);
 
     $oInvitee = new \stdClass;
     $oInvitee->id = $oLink->siteid;

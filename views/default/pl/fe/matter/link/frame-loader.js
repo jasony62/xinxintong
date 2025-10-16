@@ -1,21 +1,13 @@
-var timestamp, minutes
-timestamp = new Date()
-minutes = timestamp.getMinutes()
-minutes = Math.floor(minutes / 5) * 5
-timestamp.setMinutes(minutes)
-timestamp.setMilliseconds(0)
-timestamp.setSeconds(0)
-require.config({
-  waitSeconds: 0,
-  paths: {
-    domReady: '/static/js/domReady',
-    frame: '/views/default/pl/fe/matter/link/frame',
-  },
-  urlArgs: function (id, url) {
-    if (/domReady/.test(id)) {
-      return ''
-    }
-    return '?bust=' + timestamp * 1
-  },
+requirejs(['/static/js/tms.bootstrap.js'], function (tms) {
+  var _oRawPathes
+  _oRawPathes = {
+    js: {
+      domReady: '/static/js/domReady',
+      frame: '/views/default/pl/fe/matter/link/frame',
+    },
+    html: {
+      timerNotice: '/views/default/pl/fe/_module/timerNotice',
+    },
+  }
+  tms.bootstrap(_oRawPathes)
 })
-require(['frame'])

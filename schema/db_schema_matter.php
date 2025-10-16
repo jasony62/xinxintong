@@ -98,6 +98,7 @@ $sql .= ",return_data char(1) not null default 'N'"; // 是否直接执行链接
 $sql .= ",embedded char(1) not null default 'N'"; // 将链接嵌入到页面中
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",entry_rule text null"; // 参与规则
+$sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {

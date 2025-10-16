@@ -25,6 +25,9 @@ class remind_model extends \TMS_MODEL
         $arguments = empty($arguments) ? new \stdClass : (is_object($arguments) ? $arguments : json_decode($arguments));
         $aResult = $this->_enroll($oMatter, $arguments);
         break;
+      case 'link':
+        $aResult = $this->_link($oMatter, $arguments);
+        break;
       default:
         return [false, '不支持的活动类型【' . $oMatter->type . '】'];
     }
@@ -34,6 +37,7 @@ class remind_model extends \TMS_MODEL
     }
     list($bState, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams) = $aResult;
     $noticeName = 'timer.' . $oMatter->type . '.remind';
+
 
     /*获取模板消息id*/
     $aTmplOptions = ['onlySite' => false, 'noticeURL' => $noticeURL];
@@ -275,5 +279,60 @@ class remind_model extends \TMS_MODEL
     }
 
     return [true, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams];
+  }
+  /**
+   * 链接提醒通知
+   */
+  private function _link($oMatter, $arguments)
+  {
+    $modelLink = $this->model('matter\link');
+    $oMatter = $modelLink->byIdWithParams($oMatter->id);
+    if (false === $oMatter) {
+      return [false, '指定的链接不存在'];
+    }
+    if (isset($oMatter->state) && $oMatter->state === '0') {
+      return [false, '指定的链接已经不可用'];
+    }
+
+    /* 获得活动的进入链接 */
+    $noticeURL = $oMatter->entryUrl;
+    $noticeURL .= '&origin=timer';
+
+    /* 获得用户 */
+    if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
+      $modelMs = $this->model('site\user\memberschema');
+      $modelMem = $this->model('site\user\member');
+      $receivers = [];
+      foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
+        $oMschema = $modelMs->byId($mschemaId, ['fields' => 'title,is_wx_fan', 'cascaded' => 'N']);
+        if ($oMschema->is_wx_fan === 'Y') {
+          $aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
+          $receivers = array_merge($receivers, $aOnce);
+        }
+      }
+    } else if (!empty($oMatter->entryRule->group->id)) {
+      $oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
+      if ($oGrpApp) {
+        if (empty($oMatter->entryRule->group->team->id)) {
+          $q = [
+            'distinct userid',
+            'xxt_group_record',
+            ['state' => 1, 'aid' => $oMatter->entryRule->group->id],
+          ];
+          $receivers = $modelLink->query_objs_ss($q);
+        } else {
+          $oGrpAppTeam = $this->model('matter\group\team')->byId($oMatter->entryRule->group->team->id);
+          if ($oGrpAppTeam) {
+            $receivers = $this->model('matter\group\record')->byTeam($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
+          }
+        }
+      }
+    }
+
+    if (empty($receivers)) {
+      return [false, '没有填写人'];
+    }
+
+    return [true, $oMatter, $noticeURL, $receivers, null];
   }
 }

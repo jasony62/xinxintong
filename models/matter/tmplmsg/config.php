@@ -28,7 +28,7 @@ class config_model extends \TMS_MODEL
     $config = $this->query_obj_ss($q);
 
     if ($config) {
-      $config->mapping = empty($config->mapping) ? (new stdClass) : json_decode($config->mapping);
+      $config->mapping = empty($config->mapping) ? (new \stdClass) : json_decode($config->mapping);
       if ($cascaded === 'Y') {
         if (!empty($config->msgid)) {
           $config->tmplmsg = $this->model('matter\tmplmsg')->byId($config->msgid, ['cascaded' => 'Y']);

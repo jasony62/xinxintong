@@ -1,5 +1,5 @@
-define(['require'], function () {
-  var ngApp = angular.module('app', [
+define(['frame/templates'], function (frameTemplates) {
+  const ngApp = angular.module('app', [
     'ngRoute',
     'ui.bootstrap',
     'ui.tms',
@@ -26,7 +26,7 @@ define(['require'], function () {
       srvTagProvider,
       srvInviteProvider
     ) {
-      var RouteParam = function (name, baseURL) {
+      let RouteParam = function (name, baseURL) {
         !baseURL && (baseURL = '/views/default/pl/fe/matter/link/')
         this.templateUrl = baseURL + name + '.html?_=' + new Date() * 1
         this.controller = 'ctrl' + name[0].toUpperCase() + name.substr(1)
@@ -57,9 +57,8 @@ define(['require'], function () {
 
       //设置服务参数
       ;(function () {
-        var siteId
-        siteId = location.search.match(/[\?&]site=([^&]*)/)[1]
-        id = location.search.match(/[\?&]id=([^&]*)/)[1]
+        let siteId = location.search.match(/[\?&]site=([^&]*)/)[1]
+        let id = location.search.match(/[\?&]id=([^&]*)/)[1]
         srvSiteProvider.config(siteId)
         srvTagProvider.config(siteId)
         srvInviteProvider.config('link', id)
@@ -72,12 +71,13 @@ define(['require'], function () {
     'http2',
     'srvSite',
     function ($scope, $location, http2, srvSite) {
-      var ls = $location.search()
+      const ls = $location.search()
       $scope.id = ls.id
       $scope.siteId = ls.site
       $scope.subView = ''
+      $scope.frameTemplates = frameTemplates
       $scope.$on('$locationChangeSuccess', function (event, currentRoute) {
-        var subView = currentRoute.match(/([^\/]+?)\?/)
+        const subView = currentRoute.match(/([^\/]+?)\?/)
         $scope.subView = subView[1] === 'link' ? 'main' : subView[1]
         switch ($scope.subView) {
           case 'main':
@@ -95,7 +95,7 @@ define(['require'], function () {
         }
       })
       $scope.switchTo = function (subView) {
-        var url = '/rest/pl/fe/matter/link/' + subView
+        const url = '/rest/pl/fe/matter/link/' + subView
         $location.path(url)
       }
       srvSite.get().then(function (oSite) {

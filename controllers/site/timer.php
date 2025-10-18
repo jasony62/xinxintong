@@ -5,6 +5,9 @@ namespace site;
 require_once dirname(__FILE__) . '/base.php';
 /**
  * 执行定时任务控制器
+ * 
+ * xxt_log_timer 记录定时任务执行日志
+ * xxt_timer_task 更新定时任务最后一次执行结果
  */
 class timer extends base
 {
@@ -16,6 +19,7 @@ class timer extends base
     /* 查找匹配的定时任务 */
     $modelTim = $this->model('matter\timer');
     $tasks = $modelTim->tasksByTime();
+
     foreach ($tasks as $oTask) {
       /* 执行任务 */
       $aRsp = $oTask->model->exec($oTask->matter, isset($oTask->arguments) ? $oTask->arguments : null);

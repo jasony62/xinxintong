@@ -38,7 +38,6 @@ class remind_model extends \TMS_MODEL
     list($bState, $oMatter, $noticeURL, $receivers, $oTmplTimerTaskParams) = $aResult;
     $noticeName = 'timer.' . $oMatter->type . '.remind';
 
-
     /*获取模板消息id*/
     $aTmplOptions = ['onlySite' => false, 'noticeURL' => $noticeURL];
     if (!empty($oTmplTimerTaskParams)) {
@@ -282,6 +281,7 @@ class remind_model extends \TMS_MODEL
   }
   /**
    * 链接提醒通知
+   * 支持分组活动和通信录，优先分组活动
    */
   private function _link($oMatter, $arguments)
   {
@@ -299,18 +299,7 @@ class remind_model extends \TMS_MODEL
     $noticeURL .= '&origin=timer';
 
     /* 获得用户 */
-    if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
-      $modelMs = $this->model('site\user\memberschema');
-      $modelMem = $this->model('site\user\member');
-      $receivers = [];
-      foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
-        $oMschema = $modelMs->byId($mschemaId, ['fields' => 'title,is_wx_fan', 'cascaded' => 'N']);
-        if ($oMschema->is_wx_fan === 'Y') {
-          $aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
-          $receivers = array_merge($receivers, $aOnce);
-        }
-      }
-    } else if (!empty($oMatter->entryRule->group->id)) {
+    if (!empty($oMatter->entryRule->group->id)) {
       $oGrpApp = $this->model('matter\group')->byId($oMatter->entryRule->group->id, ['fields' => 'title']);
       if ($oGrpApp) {
         if (empty($oMatter->entryRule->group->team->id)) {
@@ -325,6 +314,17 @@ class remind_model extends \TMS_MODEL
           if ($oGrpAppTeam) {
             $receivers = $this->model('matter\group\record')->byTeam($oMatter->entryRule->group->team->id, ['fields' => 'userid']);
           }
+        }
+      }
+    } else if (isset($oMatter->entryRule->scope->member) && $oMatter->entryRule->scope->member === 'Y' && isset($oMatter->entryRule->member)) {
+      $modelMs = $this->model('site\user\memberschema');
+      $modelMem = $this->model('site\user\member');
+      $receivers = [];
+      foreach ($oMatter->entryRule->member as $mschemaId => $oRule) {
+        $oMschema = $modelMs->byId($mschemaId, ['fields' => 'title,is_wx_fan', 'cascaded' => 'N']);
+        if ($oMschema->is_wx_fan === 'Y') {
+          $aOnce = $modelMem->byMschema($mschemaId, ['fields' => 'userid']);
+          $receivers = array_merge($receivers, $aOnce);
         }
       }
     }

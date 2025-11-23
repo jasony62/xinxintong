@@ -136,6 +136,9 @@
           <tbody>
             <tr class="mapping" ng-repeat="p in config.tmplmsg.params">
               <td>
+                <p class="form-control-static" ng-bind="p.pname"></p>
+              </td>
+              <td>
                 <p class="form-control-static" ng-bind="p.plabel"></p>
               </td>
               <td>

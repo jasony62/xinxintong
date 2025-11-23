@@ -60,6 +60,7 @@ $sql .= ",rank_config text null"; // 排行榜页面设置信息
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",absent_cause text null";
 $sql .= ",wxacode_url text null"; // 微信小程序
+$sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
   header('HTTP/1.0 500 Internal Server Error');

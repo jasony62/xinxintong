@@ -28,6 +28,8 @@ $sql .= ",entry_rule text null"; // 参与规则
 $sql .= ",round_cron text null"; // 定时创建轮次规则
 $sql .= ",matter_mg_tag varchar(255) not null default ''";
 $sql .= ",wxacode_url text null"; // 参与规则
+$sql .= ",page_config text null"; // 页面设置
+$sql .= ",config text null"; // 页面设置
 $sql .= ",primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=utf8";
 if (!$mysqli->query($sql)) {
   header('HTTP/1.0 500 Internal Server Error');

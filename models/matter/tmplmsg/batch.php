@@ -74,6 +74,7 @@ class batch_model extends \TMS_MODEL
         $coverData[$tp->pname] = ['value' => $value, 'color' => empty($tp->color) ? '#173177' : $tp->color];
       }
     }
+
     /* 指定了消息推送服务 */
     if (defined('TMS_MESSENGER_BACK_ADDRESS')) {
       /* 通过消息服务发送微信模板消息 */

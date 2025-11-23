@@ -231,6 +231,9 @@ class main extends main_base
         case 'count_limit':
           $oUpdated->count_limit = empty($val) ? 0 : (int)$val;
           break;
+        case 'config':
+          $oUpdated->config = $modelApp->escape($modelApp->toJson($val));
+          break;
         default:
           $oUpdated->{$prop} = $val;
       }

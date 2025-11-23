@@ -52,6 +52,30 @@
         ></textarea>
       </div>
       <div class="form-group">
+        <label>模板消息内容1</label>
+        <textarea
+          class="form-control"
+          ng-model="app.config.tplmsg1"
+          ng-change="update('config');"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label>模板消息内容2</label>
+        <textarea
+          class="form-control"
+          ng-model="app.config.tplmsg2"
+          ng-change="update('config');"
+        ></textarea>
+      </div>
+      <div class="form-group">
+        <label>模板消息内容3</label>
+        <textarea
+          class="form-control"
+          ng-model="app.config.tplmsg3"
+          ng-change="update('config');"
+        ></textarea>
+      </div>
+      <div class="form-group">
         <label class="help-block">管理标签（可选）</label>
         <p class="form-control" ng-click="tagMatter('M')">
           <span

@@ -356,6 +356,9 @@ class main extends \pl\fe\matter\main_base
         case 'pageConfig':
           $oUpdated->page_config = $this->escape($modelMis->toJson($oPosted->pageConfig));
           break;
+        case 'config':
+          $oUpdated->config = $this->escape($modelMis->toJson($oPosted->config));
+          break;
         case 'extattrs':
           $oUpdated->extattrs = $this->escape($modelMis->toJson($oPosted->extattrs));
           break;

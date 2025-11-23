@@ -137,6 +137,11 @@ class enroll_model extends enroll_base
         $oApp->entryUrl = $this->getEntryUrl($oApp->siteid, $oApp->id);
       }
 
+      // config字段
+      if (property_exists($oApp, 'config')) {
+        $oApp->config = empty($oApp->config) ? new \stdClass : json_decode($oApp->config);
+      }
+
       /* 数组类型 */
       foreach (['vote_config', 'score_config', 'question_config', 'answer_config', 'baseline_config', 'transmit_config', 'recycle_schemas'] as $uscProp) {
         if (property_exists($oApp, $uscProp)) {

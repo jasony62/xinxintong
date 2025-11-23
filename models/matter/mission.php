@@ -73,6 +73,9 @@ class mission_model extends app_base
         $oMission->pageConfig = empty($oMission->page_config) ? new \stdClass : json_decode($oMission->page_config);
         unset($oMission->page_config);
       }
+      if ($fields === '*' || false !== strpos($fields, 'config')) {
+        $oMission->config = empty($oMission->config) ? new \stdClass : json_decode($oMission->config);
+      }
       $modelRnd = $this->model('matter\mission\round');
       if ($fields === '*' || false !== strpos($fields, 'round_cron')) {
         if (!empty($oMission->round_cron)) {

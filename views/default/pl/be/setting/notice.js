@@ -145,6 +145,18 @@ define(['main'], function (ngApp) {
                     name: '摘要',
                   },
                   {
+                    id: 'tplmsg1',
+                    name: '模板消息内容1',
+                  },
+                  {
+                    id: 'tplmsg2',
+                    name: '模板消息内容2',
+                  },
+                  {
+                    id: 'tplmsg3',
+                    name: '模板消息内容3',
+                  },
+                  {
                     id: 'initiator',
                     name: '事件发起人',
                   },

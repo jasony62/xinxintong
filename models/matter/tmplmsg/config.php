@@ -63,8 +63,14 @@ class config_model extends \TMS_MODEL
       if (!empty($oMapping->src)) {
         switch ($oMapping->src) {
           case 'matter':
-            if (isset($oMatter->{$oMapping->id})) {
+            if (isset($oMatter->{$oMapping->id})) { // title,summary
               $value = $oMatter->{$oMapping->id};
+            } else if ($oMapping->id === 'tplmsg1') {
+              $value = (isset($oMatter->config) && isset($oMatter->config->tplmsg1)) ? $oMatter->config->tmplmsg1 : '';
+            } else if ($oMapping->id === 'tplmsg2') {
+              $value = (isset($oMatter->config) && isset($oMatter->config->tplmsg2)) ? $oMatter->config->tmplmsg2 : '';
+            } else if ($oMapping->id === 'tplmsg3') {
+              $value = (isset($oMatter->config) && isset($oMatter->config->tplmsg3)) ? $oMatter->config->tmplmsg3 : '';
             } else if ($oMapping->id === 'event_at') {
               $value = date('Y-m-d H:i:s');
             } else if ($oMapping->id === 'initiator') {

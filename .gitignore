@@ -6,6 +6,7 @@ cus/
 log/*
 kcfinder/upload
 vendor/
+test/
 *.log
 .env
 .env.*
